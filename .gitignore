@@ -1,0 +1,6 @@
+#ignore pycache files
+model/__pycache__/*
+
+#ignore own datafiles 
+data/*
+
