@@ -122,7 +122,16 @@ class Neighborhood():
             }
             house.pantry.remove(food)
     def data_to_csv(self):
-        self.bought.to_csv('outputs/bought.csv')
-        self.eaten.to_csv('outputs/eaten.csv')
-        self.wasted.to_csv('outputs/wasted.csv')
-        self.still_have.to_csv('outputs/still_have.csv')
+        path = str(Path(__file__).parents[1])
+        dt = datetime.datetime.now()
+        foldername = f'{dt.date().__str__()}at{dt.time().__str__()[:2]}-{dt.time().__str__()[3:5]}'
+        if (not os.path.isdir(path + "\\data")): 
+            os.mkdir(path + "\\data\\")
+        
+        os.mkdir(path + "\\data\\" + foldername)
+            
+        
+        self.bought.to_csv( path + "\\data\\" + foldername+ "/bought.csv")
+        self.eaten.to_csv( path + "\\data\\" + foldername+ "/eaten.csv")
+        self.wasted.to_csv( path + "\\data\\" + foldername+ "/wasted.csv")
+        self.still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
