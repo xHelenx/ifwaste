@@ -13,7 +13,12 @@ from Child import Child
 
 class House():
     def __init__(self, store: Store, id: int):
-        self.ppl = self.gen_ppl()
+        
+        self.amount_adults = 2 #(if 1-person household is possible, set suscepti. to 0)
+        self.amount_children = 2 #random.randint(1,3) 
+        self.ppl = self.gen_ppl()     
+        self.household_concern = self.calculate_household_concern()    
+        print(self.household_concern)
         self.kcal = sum([person.kcal for person in self.ppl])
         self.pantry = []
         self.fridge = []
@@ -33,16 +38,49 @@ class House():
     def gen_ppl(self):
         """Generates the people living together in a household.
         
-        Assumption: 2 parents, 1-3 children
+        Assumption: 2 parents, 1-3 children 
 
         Returns:
             ppl: list of member of the household
-        """        
-        ppl = [Person(), Person()]
-        for _ in range(random.randint(1, 3)):
-            p = Child()
-            ppl.append(p)
+        """  
+        ppl = []
+        for _ in range(self.amount_adults):
+            ppl += [Person(self.amount_adults)]
+        for _ in range(self.amount_children):
+            ppl += [Child(self.amount_children)]
+        
         return ppl
+    
+    def calculate_household_concern(self): 
+        C_fam = [] 
+        adult_influence = 0.75 
+        child_influence = 0.25 
+        for person in self.ppl:    
+            influencing_concern = [0] * len(self.ppl[0].concern) #how important are other peoples opinion
+            concern_of_person = [] #persons final concern level 
+            children_num = self.amount_children
+            adult_num = self.amount_adults
+            if person.is_adult: 
+                adult_num -= 1
+            else: 
+                children_num -=1
+            for p in self.ppl:
+                if p == person: 
+                    continue 
+                influence = 0
+                if p.is_adult:
+                    influence = adult_influence/adult_num
+                else:
+                    influence = child_influence/children_num
+                ps_concern = [influence * p.concern[i] for i in range(3)]
+                for i in range(len(influencing_concern)): 
+                    influencing_concern[i] += ps_concern[i]
+            for i in range(3):
+                concern_of_person += [(1-person.susceptibility)*person.concern[i] + \
+                person.susceptibility * influencing_concern[i]]
+            C_fam += [concern_of_person]
+        return sum([sum(x) for x in C_fam])/len(self.ppl[0].concern*(self.amount_adults+self.amount_children))
+        
     def do_a_day(self, day: int):
         if day < 7:#Gets the day of week for estimating cooking time available below
             dayOfWeek = day 
