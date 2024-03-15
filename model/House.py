@@ -7,6 +7,8 @@ from CookedFood import CookedFood
 from Inedible import Inedible
 from Person import Person
 from Store import Store
+from Child import Child
+
 
 
 class House():
@@ -29,10 +31,16 @@ class House():
         self.budget = random.randint(15, 50)*len(self.ppl) * 30 # per month GAK Addition
         self.vegetarian = False # Flag for Vegetation GAK Addition
     def gen_ppl(self):
-        # currently not generating children
-        ppl = []
-        for i in range(random.randint(1, 5)):
-            p = Person()
+        """Generates the people living together in a household.
+        
+        Assumption: 2 parents, 1-3 children
+
+        Returns:
+            ppl: list of member of the household
+        """        
+        ppl = [Person(), Person()]
+        for _ in range(random.randint(1, 3)):
+            p = Child()
             ppl.append(p)
         return ppl
     def do_a_day(self, day: int):
