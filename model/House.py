@@ -96,7 +96,7 @@ class House():
         return use_up
            
     def do_a_day(self, day: int):
-        #self.weekday = day%7 
+        self.weekday = day%7 
         if day % self.shopping_frequency == 0:
             self.shop()
         
@@ -141,7 +141,6 @@ class House():
         
         
         self.decay_food()
-        #TODO: Create day of week counter...
     def have_a_random_meal(self): 
         if self.time[self.weekday] < MIN_TIME_TO_COOK: #if there is not enough time
                 req_kcal = self.eat_meal(self.kcal,"FIFO") #eat leftovers
@@ -222,7 +221,7 @@ class House():
             strategy (str): strategy of choosing ingredients
         """      
         amount_ingredients = INGREDIENTS_FULL_COOK  
-        if self.time[random.randint(0,6)] < MIN_TIME_TO_COOK: #TODO weekday
+        if self.time[self.weekday] < MIN_TIME_TO_COOK:
             amount_ingredients = int(self.time[self.weekday]*TIME_PER_INGREDIENT)
             if amount_ingredients == 0: 
                 amount_ingredients = 1
