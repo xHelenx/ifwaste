@@ -122,21 +122,24 @@ class House():
             if (earliest_fridge <= minExpiration) and (earliest_fridge <= earliest_pantry): 
                 print("from fridge")
                 req_kcal = self.eat_meal(req_kcal,"EEF") #eat leftovers from fridge
+                print(req_kcal) 
                 if req_kcal > 0: 
                     print("and cooking")
-                    self.cook("random") ##quick cook here!
+                    self.cook("random") 
                     req_kcal = self.eat_meal(req_kcal,"FIFO")
+                    print(req_kcal) 
             elif (earliest_pantry <= minExpiration) and (earliest_pantry <= earliest_fridge):
                 print("from pantry")
-                self.cook("EEF") #long cook
+                self.cook("EEF") 
                 req_kcal = self.eat_meal(req_kcal,"FIFO")
+                print(req_kcal) 
             else: 
                 print("cook as no expiration")
                 self.have_a_random_meal()
         else: #eating a random meal 
             print("random")
             self.have_a_random_meal()
-        print(req_kcal) 
+        
         print("---------------")    
         
         
