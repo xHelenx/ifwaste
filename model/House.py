@@ -41,9 +41,10 @@ class House():
         self.budget = random.randint(15, 50)*len(self.ppl) * 30 # per month GAK Addition
         self.vegetarian = False # Flag for Vegetation GAK Addition
         
+        self.todays_kcal = self.kcal
         self.weekday = 0
         logging.debug("HOUSE INFO")
-        logging.debug("%f kcal, %f concern lvl", self.kcal, self.household_concern)
+        logging.debug("req. kcal: %f, lvl of concern: %f", self.kcal, self.household_concern)
         
     def gen_ppl(self):
         """Generates the people living together in a household.
@@ -95,12 +96,13 @@ class House():
     def get_expiring_food(self, location):
         use_up = []
         for item in location: 
-            if item.exp < EXPIRATION_THRESHOLD:
+            if item.exp <= EXPIRATION_THRESHOLD:
                 use_up += [item]
         return use_up
            
     def do_a_day(self, day: int):
-        logging.debug("---------------------------------------------")
+        logging.debug("###########################################")
+        logging.debug("###########################################")
         logging.debug("Day %i:", day)
         logging.debug("Pantry: \n" + self.debug_get_content(self.pantry))
         logging.debug("Fridge: \n" + self.debug_get_content(self.fridge))
@@ -109,9 +111,9 @@ class House():
         if day % self.shopping_frequency == 0:
             self.shop()
         
-        req_kcal = self.kcal
+        self.todays_kcal = self.kcal
         if random.uniform(0,1) < self.household_concern: #prio is to eat expiring food first
-            logging.debug("Eat expiriring food")
+            logging.debug("Select expiring food")
             use_up_fridge = []
             use_up_pantry = []            
             use_up_fridge = self.get_expiring_food(self.fridge)
@@ -127,37 +129,36 @@ class House():
                 earliest_pantry = use_up_pantry[0].exp
             if (earliest_fridge <= EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry): 
                 logging.debug("Choose meal from fridge")
-                req_kcal = self.eat_meal(req_kcal,"EEF") #eat leftovers from fridge
-                if req_kcal > 0: 
-                    logging.debug("Cook for missing %f kcal", req_kcal)
+                self.eat_meal("EEF") #eat leftovers from fridge
+                if self.todays_kcal > 0: 
+                    logging.debug("Cook for missing %f kcal", self.todays_kcal)
                     self.cook("random") 
-                    req_kcal = self.eat_meal(req_kcal,"FIFO")
-                    logging.debug("Missing kcal: " + str(req_kcal))
+                    self.eat_meal("FIFO")
+                    logging.debug("Missing kcal: " + str(self.todays_kcal))
             elif (earliest_pantry <= EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge):
                 logging.debug("Choose meal from pantry")
                 self.cook("EEF") 
-                req_kcal = self.eat_meal(req_kcal,"FIFO")
-                logging.debug("Missing kcal: " + str(req_kcal))
+                self.eat_meal("FIFO")
+                logging.debug("Missing kcal: " + str(self.todays_kcal))
             else: 
                 logging.debug("Nothing expires, choose a random meal")
                 self.have_a_random_meal()
                 
         else: #eating a random meal 
-            logging.debug("Eat random food")
+            logging.debug("Select random food")
             self.have_a_random_meal()
-        
         
         self.decay_food()
     def have_a_random_meal(self): 
         if self.time[self.weekday] < MIN_TIME_TO_COOK: #if there is not enough time
-                req_kcal = self.eat_meal(self.kcal,"FIFO") #eat leftovers
-                if req_kcal > 0: 
+                self.eat_meal("FIFO") #eat leftovers
+                if self.todays_kcal > 0: 
                     self.cook("random") ##quick cook is missing kcal
-                    req_kcal = self.eat_meal(self.kcal,"FIFO") #eat leftovers
+                    self.eat_meal("FIFO") #eat leftovers
         else: #enough time to cook 
-            self.cook("random") 
-            req_kcal = self.eat_meal(self.kcal, "FIFO") #will provide sufficient kcal
-        logging.debug("Missing kcal: " + str(req_kcal))
+            self.cook("random")  # TODO will provide sufficient kcal
+            self.eat_meal("FIFO") 
+        logging.debug("Missing kcal: " + str(self.todays_kcal))
     def what_to_buy(self):
         # picks randomly currently
         basket = self.store.shelves.sample(n=2*self.shopping_frequency, replace=True)
@@ -166,6 +167,7 @@ class House():
         self.budget = self.budget - totalCost
         return basket
     def shop(self):
+        logging.debug("---------------------------------------------")
         logging.debug("Get groceries")
         basket = self.what_to_buy()
         for i in range(len(basket)):
@@ -176,6 +178,11 @@ class House():
                 self.fridge.append(food)
             else:
                 self.pantry.append(food)
+        logging.debug("---------------------------------------------")
+        logging.debug("Pantry: \n" + self.debug_get_content(self.pantry))
+        logging.debug("Fridge: \n" + self.debug_get_content(self.fridge))
+        logging.debug("---------------------------------------------")
+        
     def decay_food(self):
         for food in self.fridge:
             food.exp -= 1
@@ -207,16 +214,17 @@ class House():
         ingredients = []
         servings = random.randint(4, 7) #TODO
         
+        logging.debug("Cook %i servings", servings)
         if strategy == "random":
-            for _ in range(amount_ingredients):
+            for i in range(amount_ingredients):
                 item = random.choice(self.pantry)
                 item.split(servings=servings, f_list=self.pantry, to_list=ingredients)
+                logging.debug("Cooking with: " + str(ingredients[i]))
         else: #EFF 
             for i in range(amount_ingredients): 
                 self.pantry = sorted(self.pantry, key=lambda x: x.exp)
-                self.pantry[i].split(servings=servings, f_list=self.pantry, to_list=ingredients)
-        #if len(ingredients)+1 < 5:
-        #    raise Exception("No empty ingredients list")
+                self.pantry[0].split(servings=servings, f_list=self.pantry, to_list=ingredients)
+                logging.debug("Cooking with: " + str(ingredients[i]))
         return ingredients
     def prep(self, food:Food):
             if food.inedible_parts > 0 : 
@@ -235,19 +243,21 @@ class House():
             if amount_ingredients == 0: 
                 amount_ingredients = 1
                 
-        logging.debug("cook with " + str(amount_ingredients) + " ingredients")
+        logging.debug("Cook with " + str(amount_ingredients) + " ingredients")
         ingredients = self.get_ingredients(amount_ingredients,strategy)
         for ingredient in ingredients:
             self.prep(ingredient)
         meal = CookedFood(ingredients=ingredients)
+        logging.debug("Produced: " + str(meal))
         self.fridge.append(meal)
+        logging.debug("Fridge: \n" + self.debug_get_content(self.fridge))
         
-    def eat_meal(self, req_kcal, strategy="FIFO"): #what_to_eat
+        
+    def eat_meal(self, strategy="FIFO"): #what_to_eat
         """Eating a meal consists of first choosing a meal by a strategy and then 
         consuming it (calorie update)
 
         Args:
-            req_kcal (int): amount of required kcal
             strategy (str, optional): Strategy to choose a meal.Defaults to "FIFO".
                 - EEF = Earliest Expiration First 
                 - FIFO = First in First out 
@@ -259,30 +269,29 @@ class House():
             if strategy=="EEF": #order fridge by expiration date
                 self.fridge.sort(key=lambda x: x.exp)
             
-            for food in self.fridge:
-                if req_kcal <= 0:
-                    break
-                req_kcal -= self.consume(food, req_kcal)
-        return req_kcal    
-    def consume(self, food: Food, kcal: float): #TODO change Food to cookedfood
+            while len(self.fridge) > 0 and self.todays_kcal > 0: 
+                self.consume(self.fridge[0])
+   
+    def consume(self, food: Food): #TODO change Food to cookedfood
         """Updates the kcal-count and the food in the fridge as well as the eaten food
 
         Args:
             food (Food): meal that gets eaten
-            kcal (float): current req_kcal 
 
         Returns:
             kcal: kcal left to consume
         """        
-        if food.kcal_kg*food.kg > kcal:
-            food.split(kcal=kcal, f_list=self.fridge, to_list=self.eaten)
-            return kcal
+        if food.kcal_kg*food.kg > self.todays_kcal:
+            logging.debug("Eating: " + str(self.fridge[0]) + " --> " + str(int(self.todays_kcal)) + " kcal")
+            food.split(kcal=self.todays_kcal, f_list=self.fridge, to_list=self.eaten)
+            self.todays_kcal = 0
         else:
+            logging.debug("Eating: " + str(self.fridge[0]))
+            self.todays_kcal -= food.kcal_kg*food.kg #here!
             food.split(kcal=food.kcal_kg*food.kg, f_list=self.fridge, to_list=self.eaten)
-            return food.kcal_kg*food.kg
     def debug_get_content(self, location): 
-        location.sort(key=lambda x: x.exp)
+        sorted_location = sorted(location,key=lambda x: x.exp)
         debug_str = ""
-        for content in location: 
+        for content in sorted_location: 
             debug_str += str(content) + "\n"
         return debug_str   

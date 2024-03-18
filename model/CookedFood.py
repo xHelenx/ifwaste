@@ -1,3 +1,4 @@
+import logging
 import random
 
 from Food import Food
@@ -14,15 +15,19 @@ class CookedFood(Food):
         self.frozen = False
         self.inedible_parts = 0
         self.exp = random.randint(4,7)
+        
+        #debug_kcals = []
         for ingredient in ingredients:
             ingredient.status = 'Home-prepped'
             self.kg += ingredient.kg
             price += ingredient.price_kg*ingredient.kg
             kcal += ingredient.kcal_kg*ingredient.kg
+            #debug_kcals += [int(ingredient.kcal_kg*ingredient.kg)]
         self.price_kg = price/self.kg
         self.kcal_kg = kcal/self.kg
         self.serving_size = self.kg/self.servings
         self.status = 'Home-prepped'
+        #logging.debug("Servings: "+ str(self.servings) + " Kcals: " + str(debug_kcals)+ " Total: " + str(int(self.kcal_kg*self.kg)))
     def split(self, kcal: float, f_list: list, to_list: list = None ):
         # An issue from running I found was the if statement was > instead of >=
         # because we want it to just move the whole thing if they are equal

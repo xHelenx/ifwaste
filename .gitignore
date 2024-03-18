@@ -1,6 +1,7 @@
 #ignore pycache files
 model/__pycache__/*
 
-#ignore own datafiles 
+#ignore own datafiles + debug logs
 data/*
+debug.log 
 
