@@ -13,6 +13,8 @@ class Food():
         self.serving_size = self.kg/self.servings
         self.kcal_kg = food_data['kcal_kg']
         self.status = 'Un-prepped' if self.type != 'Store-Prepared Items' else 'Store-prepped'
+    def __str__(self) -> str:
+        return "exp: " + str(self.exp) + " kcal: " + str(int(self.kcal_kg/self.kg)) + " servings: " + str(self.servings)
     def decay(self):
         if self.frozen == False:
             self.exp -= 1
