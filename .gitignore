@@ -1,6 +1,9 @@
 #ignore pycache files
 model/__pycache__/*
 
+#ignore vscode settings 
+.vscode/*
+
 #ignore own datafiles + debug logs
 data/*
 debug.log 
