@@ -17,6 +17,12 @@ EXPIRATION_THRESHOLD = 4
 
 class House():
     def __init__(self, store: Store, id: int):
+        """Initializes a household
+
+        Args:
+            store (Store): defines accessible store for the household
+            id (int): unique id of the household
+        """        
         self.amount_adults = 2 #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children = random.randint(1,3) 
         self.adult_influence = 0.75 
@@ -94,6 +100,15 @@ class House():
         return sum([sum(x) for x in C_fam])/len(self.ppl[0].concern*(self.amount_adults+self.amount_children))
       
     def get_expiring_food(self, location):
+        """Returns the expiring food withing the EXPIRATION_THRESHOLD 
+        from a location
+
+        Args:
+            location (list): Get food either from fridge or pantry
+
+        Returns:
+            list: list of food, that will expire within EXPIRATION_THRESHOLD
+        """        
         use_up = []
         for item in location: 
             if item.exp <= EXPIRATION_THRESHOLD:
@@ -101,6 +116,13 @@ class House():
         return use_up
            
     def do_a_day(self, day: int):
+        """Incapsulates a day of eating in the household. This consists 
+        of one or multiple of the following: shopping groceries, preparing a meal 
+        (quick of full cooking procedure), eating a meal, food decaying + throwing out food
+
+        Args:
+            day (int): _description_
+        """        
         logging.debug("###########################################")
         logging.debug("###########################################")
         logging.debug("Day %i:", day)
@@ -149,17 +171,27 @@ class House():
             self.have_a_random_meal()
         
         self.decay_food()
+        self.throw_food_out()
     def have_a_random_meal(self): 
+        """
+        Either eats leftovers from the fridge, performs a quick or proper cooking
+        for the day depending on the available time and content of the fridge
+        """        
         if self.time[self.weekday] < MIN_TIME_TO_COOK: #if there is not enough time
                 self.eat_meal("FIFO") #eat leftovers
                 if self.todays_kcal > 0: 
                     self.cook("random") ##quick cook is missing kcal
                     self.eat_meal("FIFO") #eat leftovers
         else: #enough time to cook 
-            self.cook("random")  # TODO will provide sufficient kcal
+            self.cook("random")  
             self.eat_meal("FIFO") 
         logging.debug("Missing kcal: " + str(self.todays_kcal))
     def what_to_buy(self):
+        """Picks randomly good to buy and deducts cost from budget
+
+        Returns:
+            basket [list]: List of items to buy
+        """        
         # picks randomly currently
         basket = self.store.shelves.sample(n=2*self.shopping_frequency, replace=True)
         # Deduct the cost of the food from the budget GAK Addition
@@ -167,6 +199,9 @@ class House():
         self.budget = self.budget - totalCost
         return basket
     def shop(self):
+        """Shops for groceries and stores them in the correct location in the house
+        
+        """        
         logging.debug("---------------------------------------------")
         logging.debug("Get groceries")
         basket = self.what_to_buy()
@@ -184,21 +219,21 @@ class House():
         logging.debug("---------------------------------------------")
         
     def decay_food(self):
-        for food in self.fridge:
-            food.exp -= 1
-            if food.exp <= 0:
-                self.throw_away(food)
-        for food in self.pantry:
-            food.exp -= 1
-            if food.exp <= 0:
-                self.throw_away(food)
-    def throw_away(self, food:Food):
-        if food in self.pantry:
-            self.pantry.remove(food)
-        if food in self.fridge:
-            self.fridge.remove(food)
-        self.trash.append(food)
-    def get_ingredients(self,amount_ingredients,strategy="random"): #what_to_cook
+        """Decays the food in the household
+        """    
+        for location in [self.fridge, self.pantry]:
+            for food in location: 
+                food.decay() 
+                
+    def throw_food_out(self):
+        """Throws out all food, that expired
+        """        
+        for location in [self.fridge, self.pantry]:
+            for food in location: 
+                if food.exp <= 0: 
+                    location.remove(food)
+                    self.trash.append(food)
+    def get_ingredients(self,amount_ingredients,strategy="random") -> list: 
         """Chooses the ingredients to use for a meal depending on the chosen strategy
 
         Args:
@@ -208,8 +243,8 @@ class House():
         Returns:
             ingredients: list[Food] with chosen ingredients for the meal to cook 
         """        
-        # randomly pick 5 ingredients
-        while len(self.pantry) < amount_ingredients:  # If the pantry is near bare... then force a shopping expedition!
+
+        while len(self.pantry) < amount_ingredients:  # If the pantry does not have enough different ingredients
             self.shop()
         ingredients = []
         servings = random.randint(4, 7) #TODO
@@ -230,7 +265,7 @@ class House():
             if food.inedible_parts > 0 : 
                 scraps = Inedible(food=food)
                 self.trash.append(scraps)
-    def cook(self, strategy="random"):
+    def cook(self, strategy="random"): ###!TODO: must lead to a meal, that suffices servings/kcal        
         """Cooking a meal consists of choosing the ingredients and preparing the meal.
         CookedFood will always be moved to the fridge before eating
 
@@ -272,7 +307,7 @@ class House():
             while len(self.fridge) > 0 and self.todays_kcal > 0: 
                 self.consume(self.fridge[0])
    
-    def consume(self, food: Food): #TODO change Food to cookedfood
+    def consume(self, food: Food): 
         """Updates the kcal-count and the food in the fridge as well as the eaten food
 
         Args:
@@ -289,7 +324,15 @@ class House():
             logging.debug("Eating: " + str(self.fridge[0]))
             self.todays_kcal -= food.kcal_kg*food.kg #here!
             food.split(kcal=food.kcal_kg*food.kg, f_list=self.fridge, to_list=self.eaten)
-    def debug_get_content(self, location): 
+    def debug_get_content(self, location) -> str: 
+        """Debugging function to visualized the current content of a location (fridge, pantry)
+
+        Args:
+            location (list): Location to visualize content of
+
+        Returns:
+            str: string representing content of location
+        """    
         sorted_location = sorted(location,key=lambda x: x.exp)
         debug_str = ""
         for content in sorted_location: 

@@ -18,9 +18,9 @@ class Person():
         self.is_adult = True
         self.susceptibility = 0
         self.concern = [random.uniform(0.3,0.7),random.uniform(0.3,0.7),random.uniform(0.3,0.7)]
-    def old(self):
-        self.age += 1
-        if self.age <= 18:
-            self.kcal += 50 + 10*self.gender
-        elif self.age > 30 and self.age <= 40:
-            self.kcal -= 50 + 10*self.gender
+    #def old(self):
+    #    self.age += 1
+    #    if self.age <= 18:
+    #        self.kcal += 50 + 10*self.gender
+    #    elif self.age > 30 and self.age <= 40:
+    #        self.kcal -= 50 + 10*self.gender

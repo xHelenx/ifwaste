@@ -3,6 +3,12 @@ import random
 
 class Food():
     def __init__(self, food_data:dict):
+        """Creates a new food product based on the chosen food_data
+
+        Args:
+            food_data (dict): Food data includes type, expiration intervals, 
+            servings, price, kg, kcal per kg, and amount of edible parts per kg
+        """        
         self.type = food_data['Type']
         self.kg = food_data['kg']
         self.servings = food_data['Servings']
@@ -14,14 +20,26 @@ class Food():
         self.kcal_kg = food_data['kcal_kg']
         self.status = 'Un-prepped' if self.type != 'Store-Prepared Items' else 'Store-prepped'
     def __str__(self) -> str:
+        """returns a readable string of a food
+
+        Returns:
+            str: includes expiration data, kcal and servings
+        """        
         return "exp: " + str(self.exp) + " kcal: " + str(int(self.kcal_kg*self.kg)) + " servings: " + str(self.servings)
     def decay(self):
-        if self.frozen == False:
+        """Decays food by reducing the expiration dates
+        """        
+        if not self.frozen:
             self.exp -= 1
-    def split(self, f_list: list, 
-        to_list: list = None, 
-        servings: int = None, 
-        kcal: float = None):
+    def split(self, f_list: list, to_list: list = None, servings: int = None, kcal: float = None):
+        """Splits the current meal into the portion as defined through the 
+        amount of calories
+
+        Args:
+            kcal (float): required calories
+            f_list (list): current meal/ingredients list
+            to_list (list, optional): Leftover part of the meal. Defaults to None.
+        """  
         to_list = f_list if to_list == None else to_list
         if servings == None and kcal == None:
             raise ValueError('Must specify either servings or kcal')
@@ -61,6 +79,3 @@ class Food():
             to_list.append(new_food)
         if self.kg <= 0.001 or self.servings <= 0.001:
             f_list.remove(self)
-    def throw(self):
-        # return a list of wasted food
-        return [self]

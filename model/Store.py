@@ -3,6 +3,8 @@ import pandas as pd
 
 class Store():
     def __init__(self):
+        """Initializes a store consisting of shelves
+        """    
         self.shelves = pd.DataFrame(columns= [
             'Type', 
             'Servings', 
@@ -14,9 +16,11 @@ class Store():
             'Inedible Parts'
             ])
         self.stock_shelves()
-        self.inventory = []
+        #self.inventory = []
     
     def stock_shelves(self):
+        """Stocks shelves with different food types and serving sizes
+        """    
         food_types = [
             "Meat & Fish", 
             "Dairy & Eggs", 
@@ -30,8 +34,17 @@ class Store():
             self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=12), ignore_index=True)
             self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=20), ignore_index=True)
 
-    def food_data(self, food_type: str, servings:int):
-        ''' RGO - 
+    def food_data(self, food_type: str, servings:int) -> dict:
+        """Creates a dictionary of a food to define its parameters
+
+        Args:
+            food_type (str): Food types
+            servings (int): amount of servings to adjust the values to
+
+        Returns:
+            food_data dict: food information
+        """        
+        ''' TODO: RGO - 
         Could make price smaller per kg for things with more 
         servings to improve accuracy to a real market'''
         inedible_parts = 0
