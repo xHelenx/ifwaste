@@ -25,6 +25,7 @@ class House():
         """        
         self.amount_adults = 2 #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children = random.randint(1,3) 
+        self.servings = self.amount_adults + self.amount_children
         self.adult_influence = 0.75 
         self.child_influence = 0.25         
         
@@ -48,6 +49,7 @@ class House():
         self.vegetarian = False # Flag for Vegetation GAK Addition
         
         self.todays_kcal = self.kcal
+        self.todays_servings = self.servings
         self.weekday = 0
         logging.debug("HOUSE INFO")
         logging.debug("req. kcal: %f, lvl of concern: %f", self.kcal, self.household_concern)
@@ -129,11 +131,13 @@ class House():
         logging.debug("Pantry: \n" + self.debug_get_content(self.pantry))
         logging.debug("Fridge: \n" + self.debug_get_content(self.fridge))
         
+        self.todays_kcal = self.kcal
+        self.todays_servings = self.servings
+        
         self.weekday = day%7 
         if day % self.shopping_frequency == 0:
             self.shop()
         
-        self.todays_kcal = self.kcal
         if random.uniform(0,1) < self.household_concern: #prio is to eat expiring food first
             logging.debug("Select expiring food")
             use_up_fridge = []
@@ -247,7 +251,7 @@ class House():
         while len(self.pantry) < amount_ingredients:  # If the pantry does not have enough different ingredients
             self.shop()
         ingredients = []
-        servings = random.randint(4, 7) #TODO
+        servings = random.randint(1,3) * self.servings #amount of servings that are cooked  
         
         logging.debug("Cook %i servings", servings)
         if strategy == "random":
