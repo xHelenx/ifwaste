@@ -31,24 +31,25 @@ class Food():
         """        
         if not self.frozen:
             self.exp -= 1
-    def split(self, f_list: list, to_list: list = None, servings: int = None, kcal: float = None):
+    def split(self, servings: int = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 
-        amount of calories
+        amount of calories XOR the servings
 
         Args:
             kcal (float): required calories
-            f_list (list): current meal/ingredients list
-            to_list (list, optional): Leftover part of the meal. Defaults to None.
+            servings (float): required servings 
+
+        return: [portioned_food(Food), leftover_food(Food)]  returns the meal into two portions, the first one being 
+        the one as defined by kcal/servings and the second the leftover_food. May be empty
         """  
-        to_list = f_list if to_list == None else to_list
         if servings == None and kcal == None:
             raise ValueError('Must specify either servings or kcal')
         elif servings != None and kcal != None:
             raise ValueError('Must specify either servings or kcal, not both')
-        elif servings != None:
+        elif servings != None: ##Serving based
             if servings > self.servings:
                 servings = self.servings
-            new_food = Food({
+            portioned_food = Food({
                 'Type': self.type,
                 'kg': servings*self.serving_size,
                 'Expiration Min.': self.exp,
@@ -58,13 +59,12 @@ class Food():
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts
             })
-            self.kg -= new_food.kg
-            self.servings -= new_food.servings
-            to_list.append(new_food)
-        elif kcal != None:
+            self.kg -= portioned_food.kg
+            self.servings -= portioned_food.servings
+        elif kcal != None: ##Kcal based
             if kcal > self.kcal_kg*self.kg:
                 kcal = self.kcal_kg*self.kg
-            new_food = Food({
+            portioned_food = Food({
                 'Type': self.type,
                 'kg': kcal/self.kcal_kg,
                 'Expiration Min.': self.exp,
@@ -74,8 +74,15 @@ class Food():
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts
             })
-            self.kg -= new_food.kg
-            self.servings -= new_food.servings
-            to_list.append(new_food)
+            self.kg -= portioned_food.kg
+            self.servings -= portioned_food.servings
         if self.kg <= 0.001 or self.servings <= 0.001:
-            f_list.remove(self)
+            self = None 
+
+        return (portioned_food, self)
+    
+    def get_kcal(self): 
+        return self.kcal_kg * self.kg
+    
+    def __lt__(self, other):
+        return self.exp < other.exp

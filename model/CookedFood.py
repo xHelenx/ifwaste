@@ -5,38 +5,57 @@ from Food import Food
 
 
 class CookedFood(Food):
-    def __init__(self, ingredients:list[Food]):
+    def __init__(self, ingredients:list[Food]=None, cooked_food:'CookedFood'=None, kg:float=-1, servings:float=-1): 
         """Create a CookedFood based on a list of ingredients
 
         Args:
             ingredients (list[Food]): list of ingredients to prepare meal
         """     
-        assert len(ingredients) > 0, "Len(Ingredients) must be > 0"
+        assert not (ingredients != None and cooked_food != None)
+        assert not (ingredients == None and cooked_food == None)
         
-        self.ingredients = ingredients
-        self.type = 'Cooked, Prepped, Leftovers'
-        self.servings = min([ingredient.servings for ingredient in self.ingredients])
-        self.kg = 0
-        self.frozen = False
-        self.inedible_parts = 0
-        self.exp = random.randint(4,7)
+        if ingredients != None: 
+            assert len(ingredients) > 0, "Len(Ingredients) must be > 0"
+            self.ingredients = ingredients
+            self.type = 'Cooked, Prepped, Leftovers'
+            self.servings = sum([ingredient.servings for ingredient in self.ingredients])
+            self.kg = 0
+            self.frozen = False
+            self.inedible_parts = 0
+            self.exp = random.randint(4,7)
+            
+            price = 0
+            kcal = 0
+            #debug_kcals = []
+            for ingredient in ingredients:
+                ingredient.status = 'Home-prepped'
+                self.kg += ingredient.kg
+                price += ingredient.price_kg*ingredient.kg
+                kcal += ingredient.kcal_kg*ingredient.kg
+                #debug_kcals += [int(ingredient.kcal_kg*ingredient.kg)]
+            
+            self.price_kg = price/self.kg
+            self.kcal_kg = kcal/self.kg
+            self.serving_size = self.kg/self.servings
+            self.status = 'Home-prepped'
+            #logging.debug("Servings: "+ str(self.servings) + " Kcals: " + str(debug_kcals)+ " Total: " + str(int(self.kcal_kg*self.kg)))
         
-        price = 0
-        kcal = 0
-        #debug_kcals = []
-        for ingredient in ingredients:
-            ingredient.status = 'Home-prepped'
-            self.kg += ingredient.kg
-            price += ingredient.price_kg*ingredient.kg
-            kcal += ingredient.kcal_kg*ingredient.kg
-            #debug_kcals += [int(ingredient.kcal_kg*ingredient.kg)]
+        else: #cooked_food is not none 
+            assert kg != -1 and servings != -1 
+            self.ingredients = cooked_food.ingredients
+            self.type = cooked_food.type
+            self.servings = servings
+            self.kg = kg
+            self.frozen = cooked_food.frozen
+            self.inedible_parts = cooked_food.inedible_parts
+            self.exp = cooked_food.exp
+            self.price_kg = cooked_food.price_kg
+            self.kcal_kg = cooked_food.kcal_kg
+            self.serving_size = cooked_food.serving_size
+            self.status = cooked_food.status
+
         
-        self.price_kg = price/self.kg
-        self.kcal_kg = kcal/self.kg
-        self.serving_size = self.kg/self.servings
-        self.status = 'Home-prepped'
-        #logging.debug("Servings: "+ str(self.servings) + " Kcals: " + str(debug_kcals)+ " Total: " + str(int(self.kcal_kg*self.kg)))
-    def split(self, kcal: float, f_list: list, to_list: list = None ):
+    def split(self, servings: int = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 
         amount of calories
 
@@ -45,16 +64,24 @@ class CookedFood(Food):
             f_list (list): current meal/ingredients list
             to_list (list, optional): Leftover part of the meal. Defaults to None.
         """        
-        new_ingredients = []
-        if kcal >= self.kcal_kg*self.kg:
-            kcal = self.kcal_kg*self.kg
-            f_list.remove(self)
-            to_list.append(self)
-        else:
-            # ratio to take the proper amount from each ingredient
-            kcal_ratio = kcal/(self.kcal_kg*self.kg)
-            for ingredient in self.ingredients:
-                new_food = ingredient.split(kcal=ingredient.kcal_kg*ingredient.kg*kcal_ratio, f_list = self.ingredients, to_list= new_ingredients) # take the proper amount of each ingredient
-            new_cfood = CookedFood(ingredients=new_ingredients)
-            self.kg -= new_cfood.kg
-            to_list.append(new_cfood)
+        if servings == None and kcal == None:
+            raise ValueError('Must specify either servings or kcal')
+        elif servings != None and kcal != None:
+            raise ValueError('Must specify either servings or kcal, not both')
+        elif servings != None: ##Serving based
+            if servings > self.servings: 
+                servings = self.servings
+            portioned_food = CookedFood(cooked_food=self,kg=servings*self.serving_size, servings=servings)
+            self.kg =- portioned_food.kg 
+            self.servings -= portioned_food.servings
+        else: #Kcal based 
+            if kcal > self.kcal_kg * self.kg: 
+                kcal = self.kcal_kg * self.kg
+            portioned_food = CookedFood(cooked_food=self,kg=kcal/self.kcal_kg, servings=(kcal/self.kcal_kg)/self.serving_size)
+            self.kg =- portioned_food.kg 
+            self.servings -= portioned_food.servings
+    
+        if self.kg <= 0.001 or self.servings <= 0.001: 
+            self = None 
+        
+        return (portioned_food, self)
