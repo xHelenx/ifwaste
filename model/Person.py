@@ -19,12 +19,12 @@ class Person():
         
         self.kcal = random.gauss(2000, 500) - 500*self.gender
         self.req_servings = dict() #TODO adapt number of servings accordingly
-        self.req_servings.update({FTMEAT:5})
-        self.req_servings.update({FTDAIRY:5})
-        self.req_servings.update({FTVEGETABLE:5})
-        self.req_servings.update({FTDRYFOOD:5})
-        self.req_servings.update({FTSNACKS:5})
-        self.req_servings.update({FTSTOREPREPARED:5})
+        self.req_servings.update({FTMEAT:3})
+        self.req_servings.update({FTDAIRY:3})
+        self.req_servings.update({FTVEGETABLE:3})
+        self.req_servings.update({FTDRYFOOD:3})
+        self.req_servings.update({FTSNACKS:3})
+        self.req_servings.update({FTSTOREPREPARED:3})
           
         logging.debug("Person needs %i per day", self.kcal)
         

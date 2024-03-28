@@ -20,12 +20,12 @@ class Child(Person):
         
         self.kcal = random.gauss(1200, 200) + self.age*50
         self.req_servings = dict() #TODO adapt number of servings accordingly
-        self.req_servings.update({FTMEAT:5})
-        self.req_servings.update({FTDAIRY:5})
-        self.req_servings.update({FTVEGETABLE:5})
-        self.req_servings.update({FTDRYFOOD:5})
-        self.req_servings.update({FTSNACKS:5})
-        self.req_servings.update({FTSTOREPREPARED:5})
+        self.req_servings.update({FTMEAT:2})
+        self.req_servings.update({FTDAIRY:2})
+        self.req_servings.update({FTVEGETABLE:2})
+        self.req_servings.update({FTDRYFOOD:2})
+        self.req_servings.update({FTSNACKS:2})
+        self.req_servings.update({FTSTOREPREPARED:2})
           
         
         self.susceptibility = 0
