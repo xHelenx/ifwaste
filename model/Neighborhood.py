@@ -98,7 +98,7 @@ class Neighborhood():
             }
             house.trash.remove(food)
     def get_storage(self, house: House):
-        for food in house.fridge:
+        for food in house.fridge.current_items:
             self.still_have.loc[len(self.still_have)] = {
                 'House': house.id,
                 'Type': food.type,
@@ -110,7 +110,7 @@ class Neighborhood():
                 'Status': food.status
             }
             house.fridge.remove(food)
-        for food in house.pantry:
+        for food in house.pantry.current_items:
             self.still_have.loc[len(self.still_have)] = {
                 'House': house.id,
                 'Type': food.type,
