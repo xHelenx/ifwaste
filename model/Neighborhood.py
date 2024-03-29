@@ -13,7 +13,7 @@ class Neighborhood():
         store = Store()
         for i in range(num_houses):
             self.houses.append(House(store=store, id = i))
-        self.bought = pd.DataFrame(columns=[
+        self.log_bought = pd.DataFrame(columns=[
             'House',
             'Day Bought',
             'Type',
@@ -21,9 +21,9 @@ class Neighborhood():
             'Price',
             'Servings',
             'kcal',
-            'Exp'
+            'Exp',
         ])
-        self.eaten = pd.DataFrame(columns=[
+        self.log_eaten = pd.DataFrame(columns=[
             'House',
             'Day Eaten',
             'Type',
@@ -33,7 +33,7 @@ class Neighborhood():
             'kcal',
             'Exp'
         ])
-        self.wasted = pd.DataFrame(columns=[
+        self.log_wasted = pd.DataFrame(columns=[
             'House',
             'Day Wasted',
             'Type',
@@ -43,7 +43,7 @@ class Neighborhood():
             'kcal',
             'Status'
         ])
-        self.still_have = pd.DataFrame(columns=[
+        self.log_still_have = pd.DataFrame(columns=[
             'House',
             'Type',
             'kg',
@@ -51,6 +51,15 @@ class Neighborhood():
             'Servings',
             'kcal',
             'Exp'
+        ])
+        self.log_daily = pd.DataFrame(columns=[
+            'Day',
+            'House',
+            "Budget",
+            "Servings",
+            "Kcal",
+            "RequiredKcal",
+            "ReqServings"
         ])
     def run(self, days= 365):
         for i in range(days):
@@ -60,8 +69,8 @@ class Neighborhood():
         for house in self.houses:
             self.get_storage(house=house)
     def collect_data(self, house: House, day: int):
-        for food in house.bought:
-            self.bought.loc[len(self.bought)] = {
+        for food in house.log_bought:
+            self.log_bought.loc[len(self.log_bought)] = {
                 'House': house.id,
                 'Day Bought': day,
                 'Type': food.type,
@@ -71,9 +80,9 @@ class Neighborhood():
                 'kcal':food.kcal_kg*food.kg,
                 'Exp': food.exp
             }
-            house.bought.remove(food)
-        for food in house.eaten:
-            self.eaten.loc[len(self.eaten)] = {
+            house.log_bought.remove(food)
+        for food in house.log_eaten:
+            self.log_eaten.loc[len(self.log_eaten)] = {
                 'House': house.id,
                 'Day Eaten': day,
                 'Type': food.type,
@@ -83,9 +92,9 @@ class Neighborhood():
                 'kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp
             }
-            house.eaten.remove(food)
-        for food in house.trash:
-            self.wasted.loc[len(self.wasted)] = {
+            house.log_eaten.remove(food)
+        for food in house.log_trash:
+            self.log_wasted.loc[len(self.log_wasted)] = {
                 'House': house.id,
                 'Day Wasted':day,
                 'Type': food.type,
@@ -96,10 +105,19 @@ class Neighborhood():
                 'Exp': food.exp,
                 'Status': food.status
             }
-            house.trash.remove(food)
+            house.log_trash.remove(food)
+        self.log_daily.loc[len(self.log_daily)] = {
+            'House': house.id,
+            'Day':day,
+            'Budget':house.current_budget,
+            "Servings":house.todays_servings,
+            "Kcal":house.todays_kcal,
+            "RequiredKcal":house.kcal,
+            "ReqServings":house.req_total_servings
+        }
     def get_storage(self, house: House):
         for food in house.fridge.current_items:
-            self.still_have.loc[len(self.still_have)] = {
+            self.log_still_have.loc[len(self.log_still_have)] = {
                 'House': house.id,
                 'Type': food.type,
                 'kg': food.kg,
@@ -111,7 +129,7 @@ class Neighborhood():
             }
             house.fridge.remove(food)
         for food in house.pantry.current_items:
-            self.still_have.loc[len(self.still_have)] = {
+            self.log_still_have.loc[len(self.log_still_have)] = {
                 'House': house.id,
                 'Type': food.type,
                 'kg': food.kg,
@@ -131,7 +149,8 @@ class Neighborhood():
         os.mkdir(path + "\\data\\" + foldername)
             
         
-        self.bought.to_csv( path + "\\data\\" + foldername+ "/bought.csv")
-        self.eaten.to_csv( path + "\\data\\" + foldername+ "/eaten.csv")
-        self.wasted.to_csv( path + "\\data\\" + foldername+ "/wasted.csv")
-        self.still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
+        self.log_bought.to_csv( path + "\\data\\" + foldername+ "/bought.csv")
+        self.log_eaten.to_csv( path + "\\data\\" + foldername+ "/eaten.csv")
+        self.log_wasted.to_csv( path + "\\data\\" + foldername+ "/wasted.csv")
+        self.log_still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
+        self.log_daily.to_csv( path + "\\data\\" + foldername+ "/daily.csv")
