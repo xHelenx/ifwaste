@@ -14,7 +14,7 @@ from Storage import Storage
 from globalValues import * 
 
 class House():
-    def __init__(self, store: Store, id: int):
+    def __init__(self, id: int, is_serving_based:bool = True):
         """Initializes a household
 
         Args:
@@ -40,17 +40,17 @@ class House():
         self.pantry = Storage()
         self.fridge = Storage()
         self.shopping_frequency = random.randint(1, 7)
-        self.store = store
+        self.store = None
         self.id = id
         self.maxTimeForCookingAndShopping = 3.0  # This will change and become a HH input
         self.time = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
                      random.random()*self.maxTimeForCookingAndShopping] #free time per day GAK Addition 
-        self.budget = random.randint(15, 50)*len(self.ppl) * 30 # per month GAK Addition
+        self.budget = random.randint(15, 50)*self.amount_adults * 30 # per month GAK Addition
         self.current_budget = self.budget
         self.vegetarian = False # Flag for Vegetation GAK Addition
-        self.is_serving_based = False #eat meals either based on servings or on kcal counter
+        self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
         
         self.todays_kcal = self.kcal
         self.todays_servings = sum(self.req_hh_servings.values())
@@ -61,6 +61,8 @@ class House():
         self.log_eaten = []
         self.log_trash = []
         self.log_bought = []
+    def add_store(self,store:Store): 
+        self.store = store
         
     def gen_ppl(self):
         """Generates the people living together in a household.
@@ -130,7 +132,7 @@ class House():
         if day % self.shopping_frequency == 0:
             self.shop()
             
-        if self.weekday % 30 == 0: 
+        if day % 30 == 0: 
             self.current_budget += self.budget
         
         if random.uniform(0,1) < self.household_concern: #prio is to eat expiring food first

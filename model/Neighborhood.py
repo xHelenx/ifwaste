@@ -8,11 +8,12 @@ import pandas as pd
 
 
 class Neighborhood():
-    def __init__(self, num_houses= 10):
-        self.houses = []
+    def __init__(self, houses:list):
+        self.houses = houses
         store = Store()
-        for i in range(num_houses):
-            self.houses.append(House(store=store, id = i))
+        for house in self.houses: 
+            house.add_store(store)
+            
         self.log_bought = pd.DataFrame(columns=[
             'House',
             'Day Bought',
