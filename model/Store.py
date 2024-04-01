@@ -1,5 +1,6 @@
+import numpy as np
 import pandas as pd
-
+from globalValues import * 
 
 class Store():
     def __init__(self):
@@ -13,7 +14,8 @@ class Store():
             'Price',
             'kg',
             'kcal_kg',
-            'Inedible Parts'
+            'Inedible Parts',
+            'ServingsPerType'
             ])
         self.stock_shelves()
         #self.inventory = []
@@ -22,12 +24,12 @@ class Store():
         """Stocks shelves with different food types and serving sizes
         """    
         food_types = [
-            "Meat & Fish", 
-            "Dairy & Eggs", 
-            "Fruits & Vegetables", 
-            "Dry Foods & Baked Goods", 
-            "Snacks, Condiments, Liquids, Oils, Grease, & Other", 
-            'Store-Prepared Items' 
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
             ]
         for food_type in food_types:
             self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=6), ignore_index=True)
@@ -48,6 +50,17 @@ class Store():
         Could make price smaller per kg for things with more 
         servings to improve accuracy to a real market'''
         inedible_parts = 0
+        
+        zero_array = np.zeros(shape=(1,TOTAL_FOOD_TYPES))
+        servings_per_type = pd.DataFrame(zero_array, columns= [
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
+            ])
+        servings_per_type[food_type] = servings 
         if food_type == 'Meat & Fish':
             exp_min = 4 # days 
             exp_max = 11 # days
@@ -96,6 +109,7 @@ class Store():
             'Price': price,
             'kg': kg,
             'kcal_kg': kcal_kg,
-            'Inedible Parts': inedible_parts
+            'Inedible Parts': inedible_parts,
+            'ServingsPerType': servings_per_type
             }
         return new_food

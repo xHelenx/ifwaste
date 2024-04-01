@@ -1,7 +1,10 @@
+
+import functools
 import logging
 import random
 
 from Food import Food
+import pandas as pd 
 
 
 class CookedFood(Food):
@@ -19,6 +22,12 @@ class CookedFood(Food):
             self.ingredients = ingredients
             self.type = 'Cooked, Prepped, Leftovers'
             self.servings = sum([ingredient.servings for ingredient in self.ingredients])
+            
+            ingredient_serving_sum = ingredients[0].servings_per_type
+            for ingredient in ingredients[1:]:
+                ingredient_serving_sum += ingredient.servings_per_type
+                
+            self.servings_per_type =  ingredient_serving_sum
             self.kg = 0
             self.frozen = False
             self.inedible_parts = 0
@@ -57,7 +66,7 @@ class CookedFood(Food):
         
     def split(self, servings: int = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 
-        amount of calories
+        amount of calories or servings
 
         Args:
             kcal (float): required calories
@@ -74,12 +83,14 @@ class CookedFood(Food):
             portioned_food = CookedFood(cooked_food=self,kg=servings*self.serving_size, servings=servings)
             self.kg =- portioned_food.kg 
             self.servings -= portioned_food.servings
+            self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x)
         else: #Kcal based 
             if kcal > self.kcal_kg * self.kg: 
                 kcal = self.kcal_kg * self.kg
             portioned_food = CookedFood(cooked_food=self,kg=kcal/self.kcal_kg, servings=(kcal/self.kcal_kg)/self.serving_size)
             self.kg =- portioned_food.kg 
             self.servings -= portioned_food.servings
+            self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
     
         if self.kg <= 0.001 or self.servings <= 0.001: 
             self = None 

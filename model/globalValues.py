@@ -5,6 +5,8 @@ FTDRYFOOD = "Dry Foods & Baked Goods"
 FTSNACKS = "Snacks, Condiments, Liquids, Oils, Grease, & Other" 
 FTSTOREPREPARED ='Store-Prepared Items' 
 
+TOTAL_FOOD_TYPES = 6
+
 
 EXPIRATION_THRESHOLD = 4
 MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients 

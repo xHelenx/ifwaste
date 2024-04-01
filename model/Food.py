@@ -15,6 +15,7 @@ class Food():
         self.exp = random.randint(food_data['Expiration Min.'], food_data['Expiration Max.'])
         self.price_kg = food_data['Price']/self.kg
         self.inedible_parts = food_data['Inedible Parts']
+        self.servings_per_type = food_data["ServingsPerType"]
         self.frozen = False
         self.serving_size = self.kg/self.servings
         self.kcal_kg = food_data['kcal_kg']
@@ -49,6 +50,9 @@ class Food():
         elif servings != None: ##Serving based
             if servings > self.servings:
                 servings = self.servings
+                
+            #calc how much of each servings is now in portioned food 
+            servings_per_type = self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
             portioned_food = Food({
                 'Type': self.type,
                 'kg': servings*self.serving_size,
@@ -57,13 +61,18 @@ class Food():
                 'Price': self.price_kg*servings*self.serving_size,
                 'Servings': servings,
                 'kcal_kg': self.kcal_kg,
-                'Inedible Parts': self.inedible_parts
+                'Inedible Parts': self.inedible_parts,
+                'ServingsPerType': servings_per_type
             })
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
+            self.servings_per_type -= servings_per_type
+            
         elif kcal != None: ##Kcal based
             if kcal > self.kcal_kg*self.kg:
                 kcal = self.kcal_kg*self.kg
+            servings = (kcal/self.kcal_kg)/self.serving_size
+            servings_per_type = self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
             portioned_food = Food({
                 'Type': self.type,
                 'kg': kcal/self.kcal_kg,
@@ -72,10 +81,12 @@ class Food():
                 'Price': self.price_kg*kcal/self.kcal_kg,
                 'Servings': (kcal/self.kcal_kg)/self.serving_size,
                 'kcal_kg': self.kcal_kg,
-                'Inedible Parts': self.inedible_parts
+                'Inedible Parts': self.inedible_parts,
+                'ServingsPerType': servings_per_type 
             })
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
+            self.servings_per_type -= servings_per_type
         if self.kg <= 0.001 or self.servings <= 0.001:
             self = None 
 
