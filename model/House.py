@@ -53,7 +53,8 @@ class House():
         self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
         
         self.todays_kcal = self.kcal
-        self.todays_servings = sum(self.req_hh_servings.values())
+        self.servings = sum(self.req_hh_servings.values())
+        self.todays_servings = self.servings
         
         self.weekday = -1
         logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)
@@ -126,7 +127,7 @@ class House():
         logging.debug("Fridge: \n" + self.fridge.debug_get_content())
         
         self.todays_kcal = self.kcal
-        self.todays_servings = sum(self.req_hh_servings.values())
+        self.todays_servings = self.servings
         
         self.weekday = day%7 
         if day % self.shopping_frequency == 0:

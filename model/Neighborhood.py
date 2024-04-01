@@ -59,9 +59,24 @@ class Neighborhood():
             "Budget",
             "Servings",
             "Kcal",
-            "RequiredKcal",
-            "ReqServings"
         ])
+        self.log_configuration = pd.DataFrame(columns=[
+            "House",
+            "RequiredKcal",
+            "ReqServings",
+            "Budget",
+            "IsServingBased"
+        ])
+        
+        for house in self.houses: 
+            self.log_configuration.loc[house.id] = {
+               "House" : house.id, 
+                "RequiredKcal" : house.kcal,
+                "ReqServings" : house.servings,
+                "Budget" : house.budget, 
+                "IsServingBased" : house.is_serving_based
+            }
+        
     def run(self, days= 365):
         for i in range(days):
             for house in self.houses:
@@ -112,9 +127,7 @@ class Neighborhood():
             'Day':day,
             'Budget':house.current_budget,
             "Servings":house.todays_servings,
-            "Kcal":house.todays_kcal,
-            "RequiredKcal":house.kcal,
-            "ReqServings":house.req_total_servings
+            "Kcal":house.todays_kcal
         }
     def get_storage(self, house: House):
         for food in house.fridge.current_items:
@@ -155,3 +168,4 @@ class Neighborhood():
         self.log_wasted.to_csv( path + "\\data\\" + foldername+ "/wasted.csv")
         self.log_still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
         self.log_daily.to_csv( path + "\\data\\" + foldername+ "/daily.csv")
+        self.log_configuration.to_csv( path + "\\data\\" + foldername+ "/config.csv")
