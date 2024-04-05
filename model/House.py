@@ -47,7 +47,7 @@ class House():
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
                      random.random()*self.maxTimeForCookingAndShopping] #free time per day GAK Addition 
-        self.budget = random.randint(15, 50)*self.amount_adults * 30 # per month GAK Addition
+        self.budget = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
         self.current_budget = self.budget
         self.vegetarian = False # Flag for Vegetation GAK Addition
         self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
@@ -260,7 +260,6 @@ class House():
         
         while len(self.pantry.current_items) < MIN_TILL_SHOP:  # If the pantry does not have enough different ingredients
             self.shop() 
-        
         grabbed_servings = SERVINGS_PER_GRAB
         if not is_quickcook: 
             while missing_servings > 0:
