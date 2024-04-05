@@ -19,9 +19,8 @@ class CookedFood(Food):
         
         if ingredients != None: 
             assert len(ingredients) > 0, "Len(Ingredients) must be > 0"
-            self.ingredients = ingredients
             self.type = 'Cooked, Prepped, Leftovers'
-            self.servings = sum([ingredient.servings for ingredient in self.ingredients])
+            self.servings = sum([ingredient.servings for ingredient in ingredients])
             
             ingredient_serving_sum = ingredients[0].servings_per_type
             for ingredient in ingredients[1:]:
@@ -51,7 +50,6 @@ class CookedFood(Food):
         
         else: #cooked_food is not none 
             assert kg != -1 and servings != -1 
-            self.ingredients = cooked_food.ingredients
             self.type = cooked_food.type
             self.servings = servings
             self.kg = kg
@@ -62,7 +60,9 @@ class CookedFood(Food):
             self.kcal_kg = cooked_food.kcal_kg
             self.serving_size = cooked_food.serving_size
             self.status = cooked_food.status
+            self.servings_per_type =  cooked_food.servings_per_type
 
+        
         
     def split(self, servings: int = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 

@@ -15,7 +15,7 @@ class Food():
         self.exp = random.randint(food_data['Expiration Min.'], food_data['Expiration Max.'])
         self.price_kg = food_data['Price']/self.kg
         self.inedible_parts = food_data['Inedible Parts']
-        self.servings_per_type = food_data["ServingsPerType"]
+        self.servings_per_type = food_data["ServingsPerType"].copy()
         self.frozen = False
         self.serving_size = self.kg/self.servings
         self.kcal_kg = food_data['kcal_kg']
@@ -26,7 +26,8 @@ class Food():
         Returns:
             str: includes expiration data, kcal and servings
         """        
-        return "exp: " + str(self.exp) + " kcal: " + str(int(self.kcal_kg*self.kg)) + " servings: " + str(self.servings)
+        return "exp: " + str(self.exp) + " kcal: " + str(int(self.kcal_kg*self.kg)) + " servings: " + str(self.servings) + "type: "  + \
+        str(self.servings_per_type.values)
     def decay(self):
         """Decays food by reducing the expiration dates
         """        
@@ -50,9 +51,10 @@ class Food():
         elif servings != None: ##Serving based
             if servings > self.servings:
                 servings = self.servings
-                
+            
             #calc how much of each servings is now in portioned food 
-            servings_per_type = self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
+            scaler = servings/self.servings_per_type.values.sum()
+            servings_per_type = self.servings_per_type.apply(lambda x: scaler * x).copy()
             portioned_food = Food({
                 'Type': self.type,
                 'kg': servings*self.serving_size,
@@ -67,6 +69,8 @@ class Food():
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
+            #assert self.servings_per_type.values.sum() == self.servings
+            #assert portioned_food.servings_per_type.values.sum() == portioned_food.servings
             
         elif kcal != None: ##Kcal based
             if kcal > self.kcal_kg*self.kg:
@@ -87,9 +91,11 @@ class Food():
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
+                
         if self.kg <= 0.001 or self.servings <= 0.001:
             self = None 
 
+        #assert self == None or self.servings_per_type.values.sum() >=  0
         return (portioned_food, self)
     
     def get_kcal(self): 
