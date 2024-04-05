@@ -61,6 +61,7 @@ class Store():
             FTSTOREPREPARED
             ])
         servings_per_type[food_type] = servings 
+        assert servings_per_type.values.sum() > 0
         if food_type == 'Meat & Fish':
             exp_min = 4 # days 
             exp_max = 11 # days
@@ -112,4 +113,6 @@ class Store():
             'Inedible Parts': inedible_parts,
             'ServingsPerType': servings_per_type
             }
+        assert new_food['ServingsPerType'].values.sum() >=  0
+        assert not new_food['ServingsPerType'].isnull().values.any()
         return new_food

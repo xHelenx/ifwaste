@@ -6,6 +6,8 @@ from House import House
 from Store import Store
 import pandas as pd
 
+from globalValues import *
+
 
 class Neighborhood():
     def __init__(self, houses:list):
@@ -23,6 +25,7 @@ class Neighborhood():
             'Servings',
             'kcal',
             'Exp',
+            'ServingsPerType'
         ])
         self.log_eaten = pd.DataFrame(columns=[
             'House',
@@ -32,7 +35,13 @@ class Neighborhood():
             'Price',
             'Servings',
             'kcal',
-            'Exp'
+            'Exp',
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
         ])
         self.log_wasted = pd.DataFrame(columns=[
             'House',
@@ -42,7 +51,13 @@ class Neighborhood():
             'Price',
             'Servings',
             'kcal',
-            'Status'
+            'Status',
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
         ])
         self.log_still_have = pd.DataFrame(columns=[
             'House',
@@ -51,7 +66,13 @@ class Neighborhood():
             'Price',
             'Servings',
             'kcal',
-            'Exp'
+            'Exp',
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
         ])
         self.log_daily = pd.DataFrame(columns=[
             'Day',
@@ -59,6 +80,12 @@ class Neighborhood():
             "Budget",
             "Servings",
             "Kcal",
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
         ])
         self.log_configuration = pd.DataFrame(columns=[
             "House",
@@ -94,7 +121,13 @@ class Neighborhood():
                 'Price': food.price_kg*food.kg,
                 'Servings': food.servings,
                 'kcal':food.kcal_kg*food.kg,
-                'Exp': food.exp
+                'Exp': food.exp,
+                FTMEAT: food.servings_per_type[FTMEAT].values[0],
+                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
+                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
+                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
+                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
+                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
             house.log_bought.remove(food)
         for food in house.log_eaten:
@@ -106,7 +139,13 @@ class Neighborhood():
                 'Price':food.price_kg*food.kg,
                 'Servings': food.servings,
                 'kcal': food.kcal_kg*food.kg,
-                'Exp': food.exp
+                'Exp': food.exp,
+                FTMEAT: food.servings_per_type[FTMEAT].values[0],
+                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
+                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
+                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
+                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
+                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
             house.log_eaten.remove(food)
         for food in house.log_trash:
@@ -119,7 +158,7 @@ class Neighborhood():
                 'Servings': food.servings,
                 'kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
-                'Status': food.status
+                'Status': food.status,
             }
             house.log_trash.remove(food)
         self.log_daily.loc[len(self.log_daily)] = {
@@ -127,7 +166,8 @@ class Neighborhood():
             'Day':day,
             'Budget':house.current_budget,
             "Servings":house.todays_servings,
-            "Kcal":house.todays_kcal
+            "Kcal":house.todays_kcal,
+            
         }
     def get_storage(self, house: House):
         for food in house.fridge.current_items:
@@ -139,7 +179,13 @@ class Neighborhood():
                 'Servings': food.servings,
                 'kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
-                'Status': food.status
+                'Status': food.status,
+                FTMEAT: food.servings_per_type[FTMEAT].values[0],
+                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
+                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
+                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
+                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
+                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
             house.fridge.remove(food)
         for food in house.pantry.current_items:
@@ -150,7 +196,13 @@ class Neighborhood():
                 'Price': food.price_kg*food.kg,
                 'Servings': food.servings,
                 'kcal': food.kcal_kg*food.kg,
-                'Exp': food.exp
+                'Exp': food.exp,
+                FTMEAT: food.servings_per_type[FTMEAT].values[0],
+                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
+                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
+                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
+                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
+                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
             house.pantry.remove(food)
     def data_to_csv(self):
@@ -169,3 +221,4 @@ class Neighborhood():
         self.log_still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
         self.log_daily.to_csv( path + "\\data\\" + foldername+ "/daily.csv")
         self.log_configuration.to_csv( path + "\\data\\" + foldername+ "/config.csv")
+        
