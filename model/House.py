@@ -60,7 +60,7 @@ class House():
         logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)
         
         self.log_eaten = []
-        self.log_trash = []
+        self.log_wasted = []
         self.log_bought = []
     def add_store(self,store:Store): 
         self.store = store
@@ -198,7 +198,6 @@ class House():
         # picks randomly currently
         n_items = SCALER_SHOPPING_AMOUNT*self.shopping_frequency
         basket = self.store.shelves.sample(n=n_items, replace=True)
-        # Deduct the cost of the food from the budget GAK Addition
         totalCost = basket['Price'].sum()
         self.current_budget = self.current_budget - totalCost
         return basket
@@ -240,7 +239,7 @@ class House():
             for food in location: 
                 if food.exp <= 0: 
                     location.remove(food)
-                    self.log_trash.append(food)
+                    self.log_wasted.append(food)
     def get_ingredients(self,is_quickcook,strategy="random") -> list: 
         """Chooses the ingredients to use for a meal depending on the chosen strategy
 
@@ -294,7 +293,7 @@ class House():
     def prep(self, food:Food):
             if food.inedible_parts > 0 : 
                 scraps = Inedible(food=food)
-                self.log_trash.append(scraps)
+                self.log_wasted.append(scraps)
     def cook(self,is_quickcook:bool, strategy="random"): 
         """Cooking a meal consists of choosing the ingredients and preparing the meal.
         CookedFood will always be moved to the fridge before eating
@@ -348,7 +347,7 @@ class House():
             (portioned_food, left_food) = meal.split(kcal=kcal_to_eat)
             self.todays_kcal -= kcal_to_eat
             self.todays_servings -= portioned_food.servings
-                
+               
         logging.debug("Eating: " + str(portioned_food))
         self.log_eaten.append(portioned_food)
         self.fridge.add(left_food)  
