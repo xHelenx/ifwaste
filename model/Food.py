@@ -92,9 +92,9 @@ class Food():
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
                 
-        if self.kg <= 0.001 or self.servings <= 0.001:
+        if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
             self = None 
-
+        
         #assert self == None or self.servings_per_type.values.sum() >=  0
         return (portioned_food, self)
     

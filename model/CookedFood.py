@@ -60,8 +60,7 @@ class CookedFood(Food):
             self.kcal_kg = cooked_food.kcal_kg
             self.serving_size = cooked_food.serving_size
             self.status = cooked_food.status
-            self.servings_per_type =  cooked_food.servings_per_type
-
+            self.servings_per_type =  cooked_food.servings_per_type.copy()
         
         
     def split(self, servings: int = None, kcal: float = None):
@@ -81,18 +80,19 @@ class CookedFood(Food):
             if servings > self.servings: 
                 servings = self.servings
             portioned_food = CookedFood(cooked_food=self,kg=servings*self.serving_size, servings=servings)
-            self.kg =- portioned_food.kg 
+            self.kg -= portioned_food.kg 
             self.servings -= portioned_food.servings
             self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x)
         else: #Kcal based 
             if kcal > self.kcal_kg * self.kg: 
                 kcal = self.kcal_kg * self.kg
-            portioned_food = CookedFood(cooked_food=self,kg=kcal/self.kcal_kg, servings=(kcal/self.kcal_kg)/self.serving_size)
-            self.kg =- portioned_food.kg 
+            servings = (kcal/self.kcal_kg)/self.serving_size
+            portioned_food = CookedFood(cooked_food=self,kg=kcal/self.kcal_kg, servings=servings)
+            self.kg -= portioned_food.kg 
             self.servings -= portioned_food.servings
             self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
     
-        if self.kg <= 0.001 or self.servings <= 0.001: 
+        if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
             self = None 
         
         return (portioned_food, self)
