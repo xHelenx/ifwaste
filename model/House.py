@@ -6,7 +6,6 @@ import logging
 
 from Food import Food
 from CookedFood import CookedFood
-from Inedible import Inedible
 from Person import Person
 from Store import Store
 from Child import Child
