@@ -1,5 +1,5 @@
 import random
-
+from globalValues import * 
 
 class Food():
     def __init__(self, food_data:dict):
@@ -64,8 +64,9 @@ class Food():
                 'Servings': servings,
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts,
-                'ServingsPerType': servings_per_type
-            })
+                'ServingsPerType': servings_per_type,   
+            })            
+            
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
@@ -88,6 +89,7 @@ class Food():
                 'Inedible Parts': self.inedible_parts,
                 'ServingsPerType': servings_per_type 
             })
+            
             self.kg -= portioned_food.kg
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
@@ -97,7 +99,51 @@ class Food():
         
         #assert self == None or self.servings_per_type.values.sum() >=  0
         return (portioned_food, self)
-    
+    def split_waste_from_food(self, waste_type, plate_waste_ratio=None): 
+        if waste_type == FW_INEDIBLE:
+            if self.inedible_parts > 0:
+                waste_kg = self.kg * self.inedible_parts
+                waste_servings = self.servings * self.inedible_parts
+                waste_servings_per_type = self.servings_per_type.apply(lambda x: (waste_servings/self.servings_per_type.values.sum()) * x) 
+                waste = Food({
+                'Type': self.type,
+                'kg': waste_kg,
+                'Expiration Min.': self.exp,
+                'Expiration Max.': self.exp,
+                'Price': self.price_kg*waste_kg/self.kcal_kg,
+                'Servings': waste_servings,
+                'kcal_kg': self.kcal_kg,
+                'Inedible Parts': 1,
+                'ServingsPerType': waste_servings_per_type 
+                })
+                self.inedible_parts = 0 #all inedible parts are now removed
+            else: 
+                return (self,None)
+        elif waste_type == FW_PLATE_WASTE: 
+                waste_kg = self.kg * plate_waste_ratio
+                waste_servings = self.servings * plate_waste_ratio
+                waste_servings_per_type = self.servings_per_type.apply(lambda x: (waste_servings/self.servings_per_type.values.sum()) * x) 
+                waste = Food({
+                'Type': self.type,
+                'kg': waste_kg,
+                'Expiration Min.': self.exp,
+                'Expiration Max.': self.exp,
+                'Price': self.price_kg*waste_kg/self.kcal_kg,
+                'Servings': waste_servings,
+                'kcal_kg': self.kcal_kg,
+                'Inedible Parts': self.inedible_parts,
+                'ServingsPerType': waste_servings_per_type 
+                })
+        else: 
+            raise Exception("Used non existent waste_type in split()")
+        
+        
+        waste.status = waste_type   
+        self.kg -= waste.kg
+        self.servings -= waste.servings
+        self.servings_per_type -= waste_servings_per_type   
+        return (self,waste)
+            
     def get_kcal(self): 
         return self.kcal_kg * self.kg
     

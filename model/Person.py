@@ -30,7 +30,7 @@ class Person():
         
         self.susceptibility = 0
         self.concern = [random.uniform(0.3,0.7),random.uniform(0.3,0.7),random.uniform(0.3,0.7)]
-    
+        self.plate_waste_ratio = random.uniform(0.02,0.1)
     
     
     

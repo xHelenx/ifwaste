@@ -28,13 +28,19 @@ class House():
         self.adult_influence = 0.75 
         self.child_influence = 0.25         
         self.ppl = self.gen_ppl()   
-        self.household_concern = self.calculate_household_concern()    
-        
+        self.household_concern = self.calculate_household_concern()          
         self.req_hh_servings = collections.Counter()
         ppl_serving_lists = [ppl.req_servings for ppl in self.ppl]
         for d in ppl_serving_lists:
             self.req_hh_servings.update(d)
         self.req_total_servings = sum(self.req_hh_servings.values())
+        
+        numerator = 0
+        for person in self.ppl: 
+            individual_waste_serv = person.plate_waste_ratio*sum(person.req_servings.values())
+            numerator += individual_waste_serv
+        self.household_plate_waste_ratio = numerator/self.req_total_servings
+        
         
         self.kcal = sum([person.kcal for person in self.ppl])
         self.pantry = Storage()
@@ -239,6 +245,7 @@ class House():
             for food in location: 
                 if food.exp <= 0: 
                     location.remove(food)
+                    food.status = "Expired"
                     self.log_wasted.append(food)
     def get_ingredients(self,is_quickcook,strategy="random") -> list: 
         """Chooses the ingredients to use for a meal depending on the chosen strategy
@@ -290,10 +297,6 @@ class House():
                     else: 
                         self.shop() #TODO: particular item is missing, for now get more food
         return ingredients
-    def prep(self, food:Food):
-            if food.inedible_parts > 0 : 
-                scraps = Inedible(food=food)
-                self.log_wasted.append(scraps)
     def cook(self,is_quickcook:bool, strategy="random"): 
         """Cooking a meal consists of choosing the ingredients and preparing the meal.
         CookedFood will always be moved to the fridge before eating
@@ -304,9 +307,15 @@ class House():
                 
         #logging.debug("Cook with " + str(amount_ingredients) + " ingredients")
         ingredients = self.get_ingredients(is_quickcook,strategy)
+        prepared_ingredients = []
         for ingredient in ingredients:
-            self.prep(ingredient)
-        meal = CookedFood(ingredients=ingredients)
+            #split ingredients in scraps and consumable food
+            (prepared_ingredient, scraps) = ingredient.split_waste_from_food(waste_type="Inedible")
+            prepared_ingredients.append(prepared_ingredient)
+            
+            if scraps != None:
+                self.log_wasted.append(scraps)
+        meal = CookedFood(ingredients=prepared_ingredients)
         logging.debug("Produced: " + str(meal))
         
         return meal 
@@ -348,7 +357,10 @@ class House():
             self.todays_kcal -= kcal_to_eat
             self.todays_servings -= portioned_food.servings
                
-        logging.debug("Eating: " + str(portioned_food))
-        self.log_eaten.append(portioned_food)
+        (consumed_food, plate_waste) = portioned_food.split_waste_from_food(waste_type="Plate Waste", plate_waste_ratio=self.household_plate_waste_ratio)
+        logging.debug("Eating: " + str(consumed_food))
+        self.log_eaten.append(consumed_food)
+        if plate_waste != None: 
+            self.log_wasted.append(plate_waste)
         self.fridge.add(left_food)  
         

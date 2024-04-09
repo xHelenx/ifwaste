@@ -30,3 +30,4 @@ class Child(Person):
         
         self.susceptibility = 0
         self.concern = [random.uniform(0,0.3),random.uniform(0,0.3),random.uniform(0,0.3)]
+        self.plate_waste_ratio = random.uniform(0.06,0.15)

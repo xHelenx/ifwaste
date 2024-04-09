@@ -25,7 +25,12 @@ class Neighborhood():
             'Servings',
             'kcal',
             'Exp',
-            'ServingsPerType'
+            FTMEAT,
+            FTDAIRY,
+            FTVEGETABLE,
+            FTDRYFOOD,
+            FTSNACKS,
+            FTSTOREPREPARED
         ])
         self.log_eaten = pd.DataFrame(columns=[
             'House',
@@ -79,13 +84,7 @@ class Neighborhood():
             'House',
             "Budget",
             "Servings",
-            "Kcal",
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            "Kcal"
         ])
         self.log_configuration = pd.DataFrame(columns=[
             "House",
@@ -148,7 +147,7 @@ class Neighborhood():
                 FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
             house.log_eaten.remove(food)
-        for food in house.log_trash:
+        for food in house.log_wasted:
             self.log_wasted.loc[len(self.log_wasted)] = {
                 'House': house.id,
                 'Day Wasted':day,
@@ -159,15 +158,20 @@ class Neighborhood():
                 'kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
                 'Status': food.status,
+                FTMEAT: food.servings_per_type[FTMEAT].values[0],
+                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
+                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
+                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
+                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
+                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
             }
-            house.log_trash.remove(food)
+            house.log_wasted.remove(food)
         self.log_daily.loc[len(self.log_daily)] = {
             'House': house.id,
             'Day':day,
             'Budget':house.current_budget,
             "Servings":house.todays_servings,
             "Kcal":house.todays_kcal,
-            
         }
     def get_storage(self, house: House):
         for food in house.fridge.current_items:

@@ -68,7 +68,7 @@ class Store():
             kg = 0.09*servings # assume 90g meat per serving
             price = 6*2.2*kg # assume $6/lb to total for kg
             kcal_kg = 2240 # assume 2240 kcal per kg of meat
-            inedible_parts = 0.1
+            inedible_parts = 0.1 #%
         elif food_type == 'Dairy & Eggs':
             exp_min = 7 # days 
             exp_max = 28 # days
