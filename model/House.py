@@ -29,11 +29,11 @@ class House():
         self.child_influence = 0.25         
         self.ppl = self.gen_ppl()   
         self.household_concern = self.calculate_household_concern()          
-        self.req_hh_servings = collections.Counter()
+        self.household_req_servings = collections.Counter()
         ppl_serving_lists = [ppl.req_servings for ppl in self.ppl]
         for d in ppl_serving_lists:
-            self.req_hh_servings.update(d)
-        self.req_total_servings = sum(self.req_hh_servings.values())
+            self.household_req_servings.update(d)
+        self.req_total_servings = sum(self.household_req_servings.values())
         
         numerator = 0
         for person in self.ppl: 
@@ -59,7 +59,7 @@ class House():
         self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
         
         self.todays_kcal = self.kcal
-        self.servings = sum(self.req_hh_servings.values())
+        self.servings = sum(self.household_req_servings.values())
         self.todays_servings = self.servings
         
         self.weekday = -1

@@ -91,7 +91,10 @@ class Neighborhood():
             "RequiredKcal",
             "ReqServings",
             "Budget",
-            "IsServingBased"
+            "IsServingBased",
+            "#Adults",
+            "#Children",
+            'LvlOfConcern'
         ])
         
         for house in self.houses: 
@@ -100,7 +103,11 @@ class Neighborhood():
                 "RequiredKcal" : house.kcal,
                 "ReqServings" : house.servings,
                 "Budget" : house.budget, 
-                "IsServingBased" : house.is_serving_based
+                "IsServingBased" : house.is_serving_based,
+                "#Adults" : house.amount_adults,
+                "#Children": house.amount_children,    
+                "LvlOfConcern": house.household_concern,
+                "PlateWasteRatio": house.household_plate_waste_ratio
             }
         
     def run(self, days= 365):
