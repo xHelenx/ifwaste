@@ -14,17 +14,33 @@ class Person():
 
         """        
         self.age = random.randint(18, 65)
-        self.gender = random.randint(0, 1) #1 is female
+        self.gender = random.randint(MALE, FEMALE) #1 is female
         self.is_adult = True
         
         self.kcal = random.gauss(2000, 500) - 500*self.gender
-        self.req_servings = dict() #TODO adapt number of servings accordingly
-        self.req_servings.update({FTMEAT:3})
-        self.req_servings.update({FTDAIRY:3})
-        self.req_servings.update({FTVEGETABLE:3})
-        self.req_servings.update({FTDRYFOOD:3})
-        self.req_servings.update({FTSNACKS:3})
-        self.req_servings.update({FTSTOREPREPARED:3})
+        self.req_servings = dict() 
+        if self.gender == MALE: 
+            veg_servings = random.uniform(2.6,2.9)
+            dry_food_servings = random.uniform(7.3,8)
+            dairy_servings = random.uniform(1.9,2)
+            meat_servings = 8
+            snacks_servings = 0
+            store_prepared_servings = 0
+        else: #FEMALE
+            veg_servings = random.uniform(2.5,2.8)
+            dry_food_servings = random.uniform(5.3,6)
+            dairy_servings = 1.3
+            meat_servings = random.uniform(5.2,5.5)
+            snacks_servings = 0
+            store_prepared_servings = 0
+        
+        
+        self.req_servings.update({FTVEGETABLE:veg_servings})
+        self.req_servings.update({FTDRYFOOD:dry_food_servings})
+        self.req_servings.update({FTDAIRY:dairy_servings})
+        self.req_servings.update({FTMEAT:meat_servings})
+        self.req_servings.update({FTSNACKS:snacks_servings})
+        self.req_servings.update({FTSTOREPREPARED:store_prepared_servings})
           
         logging.debug("Person needs %i per day", self.kcal)
         

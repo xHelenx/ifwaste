@@ -19,13 +19,29 @@ class Child(Person):
         self.is_adult = False 
         
         self.kcal = random.gauss(1200, 200) + self.age*50
-        self.req_servings = dict() #TODO adapt number of servings accordingly
-        self.req_servings.update({FTMEAT:2})
-        self.req_servings.update({FTDAIRY:2})
-        self.req_servings.update({FTVEGETABLE:2})
-        self.req_servings.update({FTDRYFOOD:2})
-        self.req_servings.update({FTSNACKS:2})
-        self.req_servings.update({FTSTOREPREPARED:2})
+        self.req_servings = dict()        
+        if self.gender == MALE: 
+            veg_servings = random.uniform(1.8,2.2)
+            dry_food_servings = random.uniform(5.1,8.7)
+            dairy_servings = random.uniform(2,2.1)
+            meat_servings = random.uniform(3,6)
+            snacks_servings = 0
+            store_prepared_servings = 0
+        else: #FEMALE
+            veg_servings = random.uniform(1.8,2)
+            dry_food_servings = random.uniform(4.5,7)
+            dairy_servings = random.uniform(1.7,1.95)
+            meat_servings = random.uniform(3,4)
+            snacks_servings = 0
+            store_prepared_servings = 0
+        
+        
+        self.req_servings.update({FTVEGETABLE:veg_servings})
+        self.req_servings.update({FTDRYFOOD:dry_food_servings})
+        self.req_servings.update({FTDAIRY:dairy_servings})
+        self.req_servings.update({FTMEAT:meat_servings})
+        self.req_servings.update({FTSNACKS:snacks_servings})
+        self.req_servings.update({FTSTOREPREPARED:store_prepared_servings})
           
         
         self.susceptibility = 0

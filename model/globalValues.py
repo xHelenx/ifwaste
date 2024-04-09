@@ -19,3 +19,6 @@ SCALER_SHOPPING_AMOUNT = 5
 FW_PLATE_WASTE = "Plate Waste"
 FW_INEDIBLE = "Inedible"
 FW_EXPIRED = "Expired"
+
+MALE = 0 
+FEMALE = 1
