@@ -84,30 +84,48 @@ class Neighborhood():
             'House',
             "Budget",
             "Servings",
-            "Kcal"
+            "Kcal", 
+            "EEF", 
+            "Cooked", 
+            "AteLeftOvers",
+            "QuickCook"
         ])
         self.log_configuration = pd.DataFrame(columns=[
             "House",
             "RequiredKcal",
-            "ReqServings",
+            "RequiredServings",
             "Budget",
             "IsServingBased",
             "Adults",
             "Children",
-            'LvlOfConcern'
+            'LvlOfConcern',
+            'AvailTimeMonday',
+            'AvailTimeTuesday',
+            'AvailTimeWednesday',
+            'AvailTimeThursday',
+            'AvailTimeFriday',
+            'AvailTimeSaturday',
+            'AvailTimeSunday'
         ])
         
         for house in self.houses: 
             self.log_configuration.loc[house.id] = {
                 "House" : house.id, 
                 "RequiredKcal" : house.kcal,
-                "ReqServings" : house.servings,
+                "RequiredServings" : house.servings,
                 "Budget" : house.budget, 
                 "IsServingBased" : house.is_serving_based,
                 "Adults" : house.amount_adults,
                 "Children": house.amount_children,    
                 "LvlOfConcern": house.household_concern,
-                "PlateWasteRatio": house.household_plate_waste_ratio
+                "PlateWasteRatio": house.household_plate_waste_ratio, 
+                'AvailTimeMonday' : house.time[0], 
+                'AvailTimeTuesday' : house.time[1], 
+                'AvailTimeWednesday' : house.time[2], 
+                'AvailTimeThursday' : house.time[3], 
+                'AvailTimeFriday' : house.time[4], 
+                'AvailTimeSaturday' : house.time[5], 
+                'AvailTimeSunday' : house.time[6]
             }
         
     def run(self, days= 365):
@@ -178,7 +196,11 @@ class Neighborhood():
             'Day':day,
             'Budget':house.current_budget,
             "Servings":house.todays_servings,
-            "Kcal":house.todays_kcal,
+            "Kcal":house.todays_kcal,            
+            "EEF": house.log_today_eef, 
+            "Cooked": house.log_today_cooked, 
+            "AteLeftOvers": house.log_today_leftovers,
+            "QuickCook":house.log_today_quickcook
         }
     def get_storage(self, house: House):
         for food in house.fridge.current_items:

@@ -1,6 +1,5 @@
 import random
 from globalValues import * 
-
 class Food():
     def __init__(self, food_data:dict):
         """Creates a new food product based on the chosen food_data
@@ -94,7 +93,9 @@ class Food():
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
                 
-        if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
+        if self.servings_per_type.values.sum() < 0.01 : #todo might be removed when added plate waste
+            #if self.servings_per_type.values.sum() > 0: 
+                #print(self.servings_per_type.values.sum())
             self = None 
         
         #assert self == None or self.servings_per_type.values.sum() >=  0

@@ -1,5 +1,6 @@
 import bisect
 import random
+import sys 
 
 from Food import Food 
 from globalValues import * 
@@ -40,6 +41,17 @@ class Storage:
         if result != None: 
             self.current_items.remove(result)
         return result 
+    
+    def get_earliest_expiry_date(self): 
+        if self.is_empty(): 
+            return sys.maxsize 
+        
+        curr_exp = sys.maxsize
+        for item in self.current_items: 
+            if item.exp < curr_exp: 
+                curr_exp = item.exp
+                
+        return curr_exp
     
     def _get_all_by_food_type(self, food_type): 
         
