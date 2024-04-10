@@ -7,4 +7,5 @@ model/__pycache__/*
 #ignore own datafiles + debug logs
 data/*
 debug.log 
+analysis/*.html 
 
