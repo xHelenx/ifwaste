@@ -1,48 +1,59 @@
 ```{r}
+#0. you might have to install missing packages, comment in the following 2 lines to do so
 #install.packages("RColorBrewer")
+#install.packages("tidyverse")
 library(RColorBrewer)
 library(tidyverse)
 
 ```
 
-## Importing the current dataset 
+## Importing the current dataset + setup 
 
 ```{r}
-PATH = "E:/UF/ifwaste/data/2024-04-09at16-31/"
+##if you want to run the code, you have to change the path to your folder
+#you can run main.py with you configuration, which will create a new folder with a timestamp
+#in the datafolder
+#1. add the path to the data folder in PATH
+#2. add the name of the folder you want to analyse e.g.  "2024-04-10at09-45/"
+PATH = "E:/UF/ifwaste/data/"
+INPUT_FOLDER = "2024-04-10at09-45/"
+
+#3. if you want to save all generated plots, set save_plots to TRUE, otherwise set it to FALSE
+save_plots = TRUE
+
+#4. optional: change the design settings: 
 PALETTE = "Spectral"
-hh_foodwasted <- read.csv(paste0(PATH, "/wasted.csv"))
-hh_foodeaten <- read.csv(paste0(PATH, "/eaten.csv"))
-hh_foodremaining <- read.csv(paste0(PATH, "/still_have.csv"))
-hh_foodbought <- read.csv(paste0(PATH, "/bought.csv"))
-hh_daily <- read.csv(paste0(PATH, "/daily.csv"))
-hh_config <- read.csv(paste0(PATH, "/config.csv"))
-colnames(hh_config)
+WIDTH = 1200
+HEIGHT = 900
 
-```
-Mini methods for plot names
-```{r}
-house_labels <- function(x) paste0("House ", x)
-type_labels <- function(x) paste0("Food Type: ", x)
 
-colnames(hh_config)
+OUTPUT_FOLDER = "plots/"
+
+hh_foodwasted <- read.csv(paste0(PATH, INPUT_FOLDER, "/wasted.csv"))
+hh_foodeaten <- read.csv(paste0(PATH, INPUT_FOLDER, "/eaten.csv"))
+hh_foodremaining <- read.csv(paste0(PATH, INPUT_FOLDER, "/still_have.csv"))
+hh_foodbought <- read.csv(paste0(PATH, INPUT_FOLDER, "/bought.csv"))
+hh_daily <- read.csv(paste0(PATH, INPUT_FOLDER, "/daily.csv"))
+hh_config <- read.csv(paste0(PATH, INPUT_FOLDER, "/config.csv"))
 
 ```
 
-Shows food waste split by household grouped by food type
-
+Label generator for plots
 ```{r}
 
 # Create named vector with labels for each house
 label_house_num_people <- as.vector(
   with(
     hh_config,
-    paste("House:", House, "Adults:", Adults, "Children:", Children, "Concern:", LvlOfConcern )
+    sprintf("House: %s Concern: %.2f", House, LvlOfConcern)
   )
 )
 
+house_labels <- function(x) paste0("House ", x)
 ```
 
 ## Biomass check: 
+### 1. in kg
 ```{r}
 
 sum(hh_foodbought$Kg) 
@@ -56,6 +67,8 @@ total
 missing <- sum(hh_foodbought$Kg) - total
 missing 
 ```
+
+### 2. in servings
 ```{r}
 
 sum(hh_foodbought$Servings) 
@@ -69,9 +82,9 @@ total
 missing <- sum(hh_foodbought$Servings) - total
 missing 
 ```
-
-
-Purchased Food per Household and Food type 
+---------------------------------------------------------
+## Analysis of food purchase
+### 1. Purchased food by household divided by type, in servings
 
 ```{r}
 
@@ -80,18 +93,24 @@ purchased_by_household <- ggplot(data = hh_foodbought) +
   geom_bar(mapping = aes(x = Day.Bought, fill = Type, weight = Servings), position = "stack") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in servings") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  ggtitle("Food waste per household and waste type")
+  scale_fill_brewer(palette = PALETTE) 
 
 # Display the plot
-print(purchased_by_household)
+purchased_by_household
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "bought_hh_servings.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(purchased_by_household)
+   dev.off()
+}
+
 
 ```
 
-```{r}
-```
 
-## Food waste per household and food type
+---------------------------------------------------------
+## Analysis of food waste 
+### 1. Food waste by household by kg
 
 ```{r}
 
@@ -101,101 +120,135 @@ wasted_by_household <- ggplot(data = hh_foodwasted) +
   stat_summary(aes(x = Day.Wasted, y = Kg), fun="sum", geom="line") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in Kg") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  ggtitle("Food waste per household and food type")
+  scale_fill_brewer(palette = PALETTE) 
 
-# Display the plot
-print(wasted_by_household)
+wasted_by_household
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_hh_kg.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_household)
+   dev.off()
+}
 
 ```
 
 ## Food waste per household and food type
-
+### 2. Food waste by household divided by type in kg
 ```{r}
 # Plotting
-wasted_by_household <- ggplot(data = hh_foodwasted) +
+wasted_by_household_kg <- ggplot(data = hh_foodwasted) +
   geom_bar(mapping = aes(x = Day.Wasted, fill = Type, weight = Kg), position = "stack") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in Kg") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  ggtitle("Food waste per household and food type")
+  scale_fill_brewer(palette = PALETTE)
 
 # Display the plot
-print(wasted_by_household)
+wasted_by_household_kg
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_hh_kg_type.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_household_kg)
+   dev.off()
+}
 
 ```
 
-## Food waste per household and waste type 
+### 3. Food waste by household divided by food waste type in kg
 
 ```{r}
 
 # Plotting
-wasted_by_household <- ggplot(data = hh_foodwasted) +
+wasted_by_household_fw_type <- ggplot(data = hh_foodwasted) +
   geom_bar(mapping = aes(x = Day.Wasted, fill = Status, weight = Kg), position = "stack") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in Kg") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  ggtitle("Food waste per household and waste type")
+  scale_fill_brewer(palette = PALETTE) 
 
 # Display the plot
-print(wasted_by_household)
+wasted_by_household_fw_type
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_hh_fwtype_kg.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_household_fw_type)
+   dev.off()
+}
+
 
 ```
 
-## Food waste per household and food type
-
+### 4. Food waste by household divided by food type in USD
 ```{r}
 # Plotting
-wasted_by_household <- ggplot(data = hh_foodwasted) +
+wasted_by_household_price <- ggplot(data = hh_foodwasted) +
   geom_bar(mapping = aes(x = Day.Wasted, fill = Type, weight = Price), position = "stack") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in USD") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  ggtitle("Food waste per household and food type")
+  scale_fill_brewer(palette = PALETTE) 
 
 # Display the plot
-print(wasted_by_household)
+wasted_by_household_price
 
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_hh_fwtype_usd.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_household_price)
+   dev.off()
+}
 ```
-## food waste split by food type over all households
+### 5. Food waste type in kg
 
 ```{r}
 wasted_by_type = ggplot(data=hh_foodwasted) +
     geom_bar(mapping = aes(x=Type, fill=House, weight=Kg), position="stack") +
     ylab("in Kg") + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+    scale_fill_brewer(palette = PALETTE) 
+wasted_by_type
 
-plot(wasted_by_type)
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_type_kg.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_type)
+   dev.off()
+}
 ```
 
-Total food wasted in Kg by food waste type: 
+### 6. Total food wasted in Kg by food waste type: 
 
 ```{r}
 sum_by_status <- aggregate(Kg ~ Status, data=hh_foodwasted, FUN = sum)
 print(sum_by_status)
 ```
 
-Shows the amount of missing servings and kcals per family 
+## Nutrients and Behavior
+
+### 1. Missing servings and kcals per household 
 
 ```{r}
 scaleFactor <- max(hh_daily$Serving)/ max(hh_daily$Kcal)
 
 consumption_serv_kcal = ggplot(data=hh_daily) + 
-    geom_line(mapping = aes(x=Day, y=Servings, group=House)) +
-    geom_line(mapping = aes(x=Day, y=Kcal*scaleFactor, group=House), color="blue") + 
+    geom_line(mapping = aes(x=Day, y=Servings, group=House), color="#216073") +
+    geom_line(mapping = aes(x=Day, y=Kcal*scaleFactor, group=House), color="#93144b") + 
     scale_y_continuous(name="Missing servings", sec.axis=sec_axis(~./scaleFactor, name="Missing kcal")) +
     facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
     theme(
-        axis.title.y.left=element_text(color="black"),
-        axis.text.y.left=element_text(color="black"),
-        axis.title.y.right=element_text(color="blue"),
-        axis.text.y.right=element_text(color="blue")
-    ) 
+        axis.title.y.left=element_text(color="#216073"),
+        axis.text.y.left=element_text(color="#216073"),
+        axis.title.y.right=element_text(color="#93144b"),
+        axis.text.y.right=element_text(color="#93144b")
+    )  +
+  scale_fill_brewer(palette = PALETTE) 
 
-plot(consumption_serv_kcal)
+consumption_serv_kcal
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "eaten_serv_kcal.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(consumption_serv_kcal)
+   dev.off()
+}
 ```
 
-Shows consumption in servings in relation to what is required
+### 2. Eaten servings in relation to what is required
 ```{r}
 consumed_by_household = ggplot(data=NULL) +
     geom_bar(data=hh_foodeaten, mapping = aes(x=Day.Eaten, fill=Type, weight=Servings), position="stack") +
@@ -203,32 +256,76 @@ consumed_by_household = ggplot(data=NULL) +
     facet_wrap(~House, labeller = as_labeller(house_labels)) +
     ylab("in servings") + 
     scale_fill_brewer(palette = PALETTE) + 
-    scale_linetype_manual(values = c("dashed"), labels = c("Required servings"), name = NULL) + # Remove linetype label
-    ggtitle("Consumed meals in servings")
+    scale_linetype_manual(values = c("dashed"), labels = c("Required servings"), name = NULL) 
 
-plot(consumed_by_household)
+consumed_by_household
+
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "eaten_serv_reqserv.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(consumed_by_household)
+   dev.off()
+}
 
 ``` 
-Shows consumption in kcal in relation to what is required
-```{r}
-#x_min <- head(dplyr::filter(hh_foodeaten,House==0)$Day.Eaten,n=1)
-#x_max <- tail(dplyr::filter(hh_foodeaten,House==0)$Day.Eaten,n=1)
-#x_axis <- x_min:x_max
 
+### 3. Eating kcal in relation to what is required
+```{r}
 consumed_by_household = ggplot(data=NULL) +
     geom_bar(data=hh_foodeaten, mapping = aes(x=Day.Eaten, fill=Type, weight=Kcal), position="stack") +
     geom_hline(data=hh_config, mapping= aes(yintercept=RequiredKcal, linetype="Threshold")) + 
     facet_wrap(~House, labeller = as_labeller(house_labels)) +
     ylab("in kcal") + 
     scale_fill_brewer(palette = PALETTE) + 
-    scale_linetype_manual(values = c("dashed"), labels = c("Required servings"), name = NULL) + # Remove linetype label
-    ggtitle("Consumed kcal")
+    scale_linetype_manual(values = c("dashed"), labels = c("Required servings"), name = NULL) 
 
-plot(consumed_by_household)
+consumed_by_household
+
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "eaten_kcal_reqkcal.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(consumed_by_household)
+   dev.off()
+}
 
 ``` 
 
-Shows the available budget per family 
+### 3. Meal preparation choice distribution 
+```{r}
+
+# Reshape data to long format
+hh_daily_long <- pivot_longer(hh_daily, cols = c("EEF","Cooked", "QuickCook","AteLeftOvers"), names_to = "Action", values_to = "Value")
+
+
+label_house_concern <- as.vector(
+  with(
+    hh_config,
+    sprintf("House: %s Concern: %.2f", House, LvlOfConcern)  
+)) 
+
+# Create the plot
+plot <- ggplot(data = hh_daily_long, aes(x = Day, y = Value, fill = Action)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_grid(rows = vars(Action), cols = vars(House), 
+      scales = "free",
+      labeller = labeller(House = as_labeller(setNames(label_house_concern, hh_config$House)))) +
+  labs(x = "Days",
+       y = "1 = action performed, 0 = not performed") +
+  scale_fill_brewer(palette = PALETTE) 
+
+plot
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "meal_prep_behavior.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(plot)
+   dev.off()
+}
+
+```
+
+
+## Budget
+### 1. Budget per household
 
 ```{r}
 
@@ -236,48 +333,63 @@ budget = ggplot(data=hh_daily) +
     geom_line(mapping = aes(x=Day, y=Budget, group=House)) +
     facet_wrap(~House, nrow=2,labeller = as_labeller(house_labels))
 
-plot(budget)
+budget
 
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "usd.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(budget)
+   dev.off()
+}
 ```
+
+### 2. Money spend on food vs. money wasted due to food waste
+
 ```{r}
 
 sum_by_status <- aggregate(Price ~ Type, data=hh_foodbought, FUN = sum)
-print(sum_by_status)
 
 # Plotting
-wasted_by_household <- ggplot(data =NULL) +
+bought_vs_wasted <- ggplot(data =NULL) +
   geom_bar(data=hh_foodbought, mapping = aes(x = Day.Bought, weight = Price, fill="Bought")) +
   geom_bar(data=hh_foodwasted, mapping = aes(x = Day.Wasted, weight = Price, fill="Wasted")) +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
   ylab("in USD") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  scale_fill_manual(values = c( "Bought" = "#6b6668", "Wasted" = "#a8325e")) +
-  ggtitle("Spendings for groceries vs lost value due to waste")
+  scale_fill_brewer(palette = PALETTE)
+  #scale_fill_manual(values = c( "Bought" = "#6b6668", "Wasted" = "#a8325e")) 
 
 # Display the plot
-print(wasted_by_household)
+bought_vs_wasted
+
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "bought_waste_usd.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(bought_vs_wasted)
+   dev.off()
+}
 
 ```
 
+
 ```{r}
 
-spendings_buying <- aggregate(Price ~ Type, data=hh_foodbought, FUN = sum)
-spendings_wasting <- aggregate(Price ~ Type, data=hh_foodwasted, FUN = sum)
-difference <- spendings_buying - spendings_wasting
-time <- hh_foodbought$Day.Bought
+#spendings_buying <- aggregate(Price ~ Type, data=hh_foodbought, FUN = sum)
+#spendings_wasting <- aggregate(Price ~ Type, data=hh_foodwasted, FUN = sum)
+#difference <- spendings_buying - spendings_wasting
+#time <- hh_foodbought$Day.Bought
 # Plotting
-wasted_by_household <- ggplot(data = NULL) +
-    geom_col(data = difference)
-  geom_bar(data=hh_foodbought, mapping = aes(x = Day.Bought, weight = Price, fill="Bought")) +
-  geom_bar(data=hh_foodwasted, mapping = aes(x = Day.Wasted, weight = Price, fill="Wasted")) +
-  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
-  ylab("in USD") + 
-  scale_fill_brewer(palette = PALETTE) + 
-  scale_fill_manual(values = c( "Bought" = "#6b6668", "Wasted" = "#a8325e")) +
-  ggtitle("Spendings for groceries vs lost value due to waste")
+#wasted_by_household <- ggplot(data = NULL) +
+#    geom_col(data = difference)
+#  geom_bar(data=hh_foodbought, mapping = aes(x = Day.Bought, weight = Price, fill="Bought")) +
+#  geom_bar(data=hh_foodwasted, mapping = aes(x = Day.Wasted, weight = Price, fill="Wasted")) +
+#  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
+#  ylab("in USD") + 
+#  scale_fill_brewer(palette = PALETTE) + 
+#  scale_fill_manual(values = c( "Bought" = "#6b6668", "Wasted" = "#a8325e")) +
+#  #ggtitle("Spendings for groceries vs lost value due to waste")
 
 # Display the plot
-print(wasted_by_household)
+#print(wasted_by_household)
 
 ```
 ```{r}                  
