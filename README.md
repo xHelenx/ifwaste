@@ -42,7 +42,7 @@ the R-markdown format.
 In order to run the simulation follow these steps: 
 
 1. Download/clone the git repository 
-2. Run *main.py*
+2. Run [main.py](model/main.py) located in the model folder
 
 After the simulation finished you should find a new folder with the current timestamp being generated in the data folder. It includes the generated .csv files that can be used for further analysis. 
 
