@@ -11,6 +11,12 @@ from globalValues import *
 
 class Neighborhood():
     def __init__(self, houses:list):
+        """Initializes the neighborhood, by assigning the store to the houses 
+        and setting up logging 
+
+        Args:
+            houses (list): _description_
+        """        
         self.houses = houses
         store = Store()
         for house in self.houses: 
@@ -129,6 +135,11 @@ class Neighborhood():
             }
         
     def run(self, days= 365):
+        """Runs the simulation for the amount of days specified
+
+        Args:
+            days (int, optional): number of days to simulate. Defaults to 365.
+        """        
         for i in range(days):
             for house in self.houses:
                 house.do_a_day(day=i)
@@ -136,6 +147,12 @@ class Neighborhood():
         for house in self.houses:
             self.get_storage(house=house)
     def collect_data(self, house: House, day: int):
+        """Collects the daily data from each house
+
+        Args:
+            house (House): current household
+            day (int): current day
+        """        
         for food in house.log_bought:
             self.log_bought.loc[len(self.log_bought)] = {
                 'House': house.id,
@@ -203,6 +220,11 @@ class Neighborhood():
             "QuickCook":house.log_today_quickcook
         }
     def get_storage(self, house: House):
+        """Tracks the final content of the storage, used after simulation is finished
+
+        Args:
+            house (House): house to track the storage off
+        """        
         for food in house.fridge.current_items:
             self.log_still_have.loc[len(self.log_still_have)] = {
                 'House': house.id,
@@ -239,6 +261,8 @@ class Neighborhood():
             }
             house.pantry.remove(food)
     def data_to_csv(self):
+        """Saves the finished tracked data to csv files
+        """        
         path = str(Path(__file__).parents[1])
         dt = datetime.datetime.now()
         foldername = f'{dt.date().__str__()}at{dt.time().__str__()[:2]}-{dt.time().__str__()[3:5]}'

@@ -17,7 +17,6 @@ class House():
         """Initializes a household
 
         Args:
-            store (Store): defines accessible store for the household
             id (int): unique id of the household
         """        
         logging.debug("HOUSE INFO")
@@ -75,8 +74,18 @@ class House():
         
         
     def add_store(self,store:Store): 
+        """relates a store to the household
+        TODO: atm only 1 store possible 
+
+        Args:
+            store (Store): store the household buys groceries from
+        """        
         self.store = store
     def reset_logging_todays_choices(self): 
+        """resets the logging variables tracking the meal preparation
+        
+        """        
+        
         self.log_today_eef = 0
         self.log_today_cooked = 0
         self.log_today_leftovers = 0
@@ -134,7 +143,7 @@ class House():
         (quick of full cooking procedure), eating a meal, food decaying + throwing out food
 
         Args:
-            day (int): _description_
+            day (int): current day
         """        
         logging.debug("###########################################")
         logging.debug("###########################################")
@@ -333,7 +342,8 @@ class House():
         
     def eat_meal(self, strategy=None, meal=None): #what_to_eat
         """Eating a meal consists of first choosing a meal by a strategy and then 
-        consuming it (calorie update)
+        consuming it (calorie update). Plate waste is generated during the eating 
+        process. 
 
         Args:
             strategy (str, optional): Strategy to choose a meal.Defaults to "EEF".

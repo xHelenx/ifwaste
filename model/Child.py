@@ -12,7 +12,8 @@ class Child(Person):
         - susceptibility = susceptibility to other opinions about economical, environmental and health concern
         within the household
         - concern = list of concern [env,eco,health], value between 0-1, 1 indicating a high concern
-
+        - req_serving = requried servings per food type 
+        - plate waste ratio 
         """ 
         super().__init__()
         self.age = random.randint(1, 18)

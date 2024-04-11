@@ -43,6 +43,11 @@ class Storage:
         return result 
     
     def get_earliest_expiry_date(self): 
+        """Returns the expiry date of the first expiry item in storage
+
+        Returns:
+            expiry date (int): earliest expiry date
+        """        
         if self.is_empty(): 
             return sys.maxsize 
         
@@ -54,7 +59,14 @@ class Storage:
         return curr_exp
     
     def _get_all_by_food_type(self, food_type): 
-        
+        """Returns all items, that match the food_type
+
+        Args:
+            food_type (str): food_type
+
+        Returns:
+            list[Food]: all items matching the food_type, not removed from storage!
+        """        
         all_items = []
         for item in self.current_items: 
             if item.type == food_type: 
@@ -62,9 +74,19 @@ class Storage:
         return all_items
       
     def remove(self,item:Food):
+        """Removes item from storage
+
+        Args:
+            item (Food): item to remove from storage
+        """        
         self.current_items.remove(item)
         
     def add(self, item:Food): 
+        """Adds item to storage sorted by expiry date. Ignores None items. 
+
+        Args:
+            item (Food): item to add
+        """        
         if item != None: 
             bisect.insort(self.current_items, item)
         

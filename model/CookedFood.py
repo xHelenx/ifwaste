@@ -9,10 +9,16 @@ import pandas as pd
 
 class CookedFood(Food):
     def __init__(self, ingredients:list[Food]=None, cooked_food:'CookedFood'=None, kg:float=-1, servings:float=-1): 
-        """Create a CookedFood based on a list of ingredients
+        """Create a CookedFood based on a list of ingredients XOR based on an existing 
+        cookedfood, which is split into portions
+
 
         Args:
             ingredients (list[Food]): list of ingredients to prepare meal
+            XOR 
+            cooked_food(CookedFood): existing cooked food 
+            kg = portion defining new cooked food 
+            servings = servings defining new cooked food 
         """     
         assert not (ingredients != None and cooked_food != None)
         assert not (ingredients == None and cooked_food == None)
@@ -69,8 +75,8 @@ class CookedFood(Food):
 
         Args:
             kcal (float): required calories
-            f_list (list): current meal/ingredients list
-            to_list (list, optional): Leftover part of the meal. Defaults to None.
+            XOR 
+            servings (float): required servings
         """        
         if servings == None and kcal == None:
             raise ValueError('Must specify either servings or kcal')

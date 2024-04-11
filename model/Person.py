@@ -11,7 +11,8 @@ class Person():
         - susceptibility = susceptibility to other opinions about economical, environmental and health concern
         within the household
         - concern = list of concern [env,eco,health], value between 0-1, 1 indicating a high concern
-
+        - req_serving = requried servings per food type 
+        - plate waste ratio 
         """        
         self.age = random.randint(18, 65)
         self.gender = random.randint(MALE, FEMALE) #1 is female
@@ -47,8 +48,6 @@ class Person():
         self.susceptibility = 0
         self.concern = [random.uniform(0.3,0.7),random.uniform(0.3,0.7),random.uniform(0.3,0.7)]
         self.plate_waste_ratio = random.uniform(0.02,0.1)
-    
-    
     
     #def old(self):
     #    self.age += 1

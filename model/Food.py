@@ -100,7 +100,23 @@ class Food():
         
         #assert self == None or self.servings_per_type.values.sum() >=  0
         return (portioned_food, self)
+    
     def split_waste_from_food(self, waste_type, plate_waste_ratio=None): 
+        """Splits the current meal into waste and consumable food as defined through
+        waste_type. 
+
+            waste_type = [FW_PLATE_WASTE, FW_INEDIBLE, FW_EXPIRED]
+            plate_waste_ratio = if FW_PLATE_WASTE is selected, define the plate_waste_ratio
+
+        Args:
+            kcal (float): required calories
+            servings (float): required servings 
+
+        return: [edible food (Food), waste(Food)]  returns the meal into two portions, the first one being 
+        edible part and the second one the waste of the waste_type defined above. 
+        """  
+        assert waste_type != FW_PLATE_WASTE or (waste_type == FW_PLATE_WASTE and plate_waste_ratio != None)
+        
         if waste_type == FW_INEDIBLE:
             if self.inedible_parts > 0:
                 waste_kg = self.kg * self.inedible_parts
