@@ -1,7 +1,8 @@
 {
     "Simulation" : { 
         "runs" : 2, 
-        "total_days" : 5
+        "total_days" : 5,
+        "name": "kids_waste_more"
     },
     "Neighborhood" : {
         "neighborhood_houses" : 10, 

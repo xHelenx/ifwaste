@@ -261,23 +261,30 @@ class Neighborhood():
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.pantry.remove(food)
-    def data_to_csv(self, run=""):
+    def data_to_csv(self, experiment_name=None, run=None): 
         """Saves the finished tracked data to csv files
         """        
         path = str(Path(__file__).parents[1])
         dt = datetime.datetime.now()
-        foldername = f'{dt.date().__str__()}at{dt.time().__str__()[:2]}-{dt.time().__str__()[3:5]}'
         if (not os.path.isdir(path + "\\data")): 
             os.mkdir(path + "\\data\\")
-                        
-        if run != "": 
-            foldername = "run_" + str(run) + "_" + foldername 
-        os.mkdir(path + "\\data\\" + foldername)
         
-        self.log_bought.to_csv( path + "\\data\\" + foldername+ "/bought.csv")
-        self.log_eaten.to_csv( path + "\\data\\" + foldername+ "/eaten.csv")
-        self.log_wasted.to_csv( path + "\\data\\" + foldername+ "/wasted.csv")
-        self.log_still_have.to_csv( path + "\\data\\" + foldername+ "/still_have.csv")
-        self.log_daily.to_csv( path + "\\data\\" + foldername+ "/daily.csv")
-        self.log_configuration.to_csv( path + "\\data\\" + foldername+ "/config.csv")
+        if experiment_name != None: 
+            path = path + "\\data\\" + experiment_name + "\\"
+            if (not os.path.isdir(path )): 
+                os.mkdir(path)
+        
+        foldername = ""              
+        if run != None: #either save by run id 
+            foldername = "run_" + str(run)
+        else:  #or by date if it is a single experiment
+            foldername = f'{dt.date().__str__()}at{dt.time().__str__()[:2]}-{dt.time().__str__()[3:5]}'
+        os.mkdir(path + foldername)
+        
+        self.log_bought.to_csv( path + foldername+ "/bought.csv")
+        self.log_eaten.to_csv( path + foldername+ "/eaten.csv")
+        self.log_wasted.to_csv( path + foldername+ "/wasted.csv")
+        self.log_still_have.to_csv( path + foldername+ "/still_have.csv")
+        self.log_daily.to_csv( path + foldername+ "/daily.csv")
+        self.log_configuration.to_csv( path + foldername+ "/config.csv")
         

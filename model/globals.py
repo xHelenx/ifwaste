@@ -56,6 +56,7 @@ NEIGHBORHOOD_SERVING_BASED = None
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
 
+EXPERIMENT_NAME = None 
 def configure_simulation(): 
     global CHILD_PLATE_WASTE_MIN
     global CHILD_PLATE_WASTE_MAX
@@ -67,6 +68,7 @@ def configure_simulation():
     global NEIGHBORHOOD_SERVING_BASED
     global SIMULATION_RUNS
     global SIMULATION_DAYS
+    global EXPERIMENT_NAME
     with open('model/config.json') as f:
         config = json.load(f)
 
@@ -85,7 +87,6 @@ def configure_simulation():
 
             
     SIMULATION_RUNS = config["Simulation"]["runs"]
-    print(SIMULATION_RUNS)
     SIMULATION_DAYS = config["Simulation"]["total_days"]
-
+    EXPERIMENT_NAME = config["Simulation"]["name"]
         

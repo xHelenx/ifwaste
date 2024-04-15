@@ -10,7 +10,8 @@ logging.basicConfig(filename="debug.log",encoding="utf-8",level=logging.DEBUG, f
 
 #read configuration file 
 globals.configure_simulation() 
-print(globals.SIMULATION_RUNS)
+
+
 
 for run in range(0,globals.SIMULATION_RUNS): 
     print("Start run", run )
@@ -25,5 +26,5 @@ for run in range(0,globals.SIMULATION_RUNS):
     #run simulation
     neighborhood.run(days=globals.SIMULATION_DAYS)
     #collect data
-    neighborhood.data_to_csv(run)
+    neighborhood.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run)
     
