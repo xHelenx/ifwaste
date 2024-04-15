@@ -1,5 +1,6 @@
 import random
-from globalValues import * 
+import globals 
+
 class Food():
     def __init__(self, food_data:dict):
         """Creates a new food product based on the chosen food_data
@@ -105,8 +106,8 @@ class Food():
         """Splits the current meal into waste and consumable food as defined through
         waste_type. 
 
-            waste_type = [FW_PLATE_WASTE, FW_INEDIBLE, FW_EXPIRED]
-            plate_waste_ratio = if FW_PLATE_WASTE is selected, define the plate_waste_ratio
+            waste_type = [globals.FW_PLATE_WASTE, globals.FW_INEDIBLE, globals.FW_EXPIRED]
+            plate_waste_ratio = if globals.FW_PLATE_WASTE is selected, define the plate_waste_ratio
 
         Args:
             kcal (float): required calories
@@ -115,9 +116,9 @@ class Food():
         return: [edible food (Food), waste(Food)]  returns the meal into two portions, the first one being 
         edible part and the second one the waste of the waste_type defined above. 
         """  
-        assert waste_type != FW_PLATE_WASTE or (waste_type == FW_PLATE_WASTE and plate_waste_ratio != None)
+        assert waste_type != globals.FW_PLATE_WASTE or (waste_type == globals.FW_PLATE_WASTE and plate_waste_ratio != None)
         
-        if waste_type == FW_INEDIBLE:
+        if waste_type == globals.FW_INEDIBLE:
             if self.inedible_parts > 0:
                 waste_kg = self.kg * self.inedible_parts
                 waste_servings = self.servings * self.inedible_parts
@@ -136,7 +137,7 @@ class Food():
                 self.inedible_parts = 0 #all inedible parts are now removed
             else: 
                 return (self,None)
-        elif waste_type == FW_PLATE_WASTE: 
+        elif waste_type == globals.FW_PLATE_WASTE: 
                 waste_kg = self.kg * plate_waste_ratio
                 waste_servings = self.servings * plate_waste_ratio
                 waste_servings_per_type = self.servings_per_type.apply(lambda x: (waste_servings/self.servings_per_type.values.sum()) * x) 

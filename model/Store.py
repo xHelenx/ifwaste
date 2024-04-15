@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from globalValues import * 
+import globals
 
 class Store():
     def __init__(self):
@@ -24,12 +24,12 @@ class Store():
         """Stocks shelves with different food types and serving sizes
         """    
         food_types = [
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
             ]
         for food_type in food_types:
             self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=6), ignore_index=True)
@@ -51,14 +51,14 @@ class Store():
         servings to improve accuracy to a real market'''
         inedible_parts = 0
         
-        zero_array = np.zeros(shape=(1,TOTAL_FOOD_TYPES))
+        zero_array = np.zeros(shape=(1,globals.TOTAL_FOOD_TYPES))
         servings_per_type = pd.DataFrame(zero_array, columns= [
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
             ])
         servings_per_type[food_type] = servings 
         assert servings_per_type.values.sum() > 0

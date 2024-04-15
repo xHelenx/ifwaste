@@ -1,0 +1,22 @@
+{
+    "Simulation" : { 
+        "runs" : 2, 
+        "total_days" : 5
+    },
+    "Neighborhood" : {
+        "neighborhood_houses" : 10, 
+        "neighborhood_serving_based" : 5
+    },
+    "House" : {
+        "hh_amount_children" : 6, 
+        "hh_amount_adults"  : 2
+    },
+    "Adult" : {
+        "adult_plate_waste_min" : 0.03,
+        "adult_plate_waste_max" : 0.12
+    },
+    "Child": {
+        "child_plate_waste_min" : 0.06,
+        "child_plate_waste_max" : 0.15
+    }
+}

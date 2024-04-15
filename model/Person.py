@@ -1,6 +1,6 @@
 import logging
 import random
-from globalValues import * 
+import globals
 
 class Person():
     def __init__(self):
@@ -14,13 +14,13 @@ class Person():
         - req_serving = requried servings per food type 
         - plate waste ratio 
         """        
-        self.age = random.randint(18, 65)
-        self.gender = random.randint(MALE, FEMALE) #1 is female
+        self.age = random.randint(globals.ADULT_AGE_MIN,globals.ADULT_AGE_MAX)
+        self.gender = random.randint(globals.MALE, globals.FEMALE) #1 is female
         self.is_adult = True
         
         self.kcal = random.gauss(2000, 500) - 500*self.gender
         self.req_servings = dict() 
-        if self.gender == MALE: 
+        if self.gender == globals.MALE: 
             veg_servings = random.uniform(2.6,2.9)
             dry_food_servings = random.uniform(7.3,8)
             dairy_servings = random.uniform(1.9,2)
@@ -36,18 +36,18 @@ class Person():
             store_prepared_servings = 0
         
         
-        self.req_servings.update({FTVEGETABLE:veg_servings})
-        self.req_servings.update({FTDRYFOOD:dry_food_servings})
-        self.req_servings.update({FTDAIRY:dairy_servings})
-        self.req_servings.update({FTMEAT:meat_servings})
-        self.req_servings.update({FTSNACKS:snacks_servings})
-        self.req_servings.update({FTSTOREPREPARED:store_prepared_servings})
+        self.req_servings.update({globals.FTVEGETABLE:veg_servings})
+        self.req_servings.update({globals.FTDRYFOOD:dry_food_servings})
+        self.req_servings.update({globals.FTDAIRY:dairy_servings})
+        self.req_servings.update({globals.FTMEAT:meat_servings})
+        self.req_servings.update({globals.FTSNACKS:snacks_servings})
+        self.req_servings.update({globals.FTSTOREPREPARED:store_prepared_servings})
           
         logging.debug("Person needs %i per day", self.kcal)
         
         self.susceptibility = 0
-        self.concern = [random.uniform(0.3,0.7),random.uniform(0.3,0.7),random.uniform(0.3,0.7)]
-        self.plate_waste_ratio = random.uniform(0.02,0.1)
+        self.concern = [random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX)]
+        self.plate_waste_ratio = random.uniform(globals.ADULT_PLATE_WASTE_MIN,globals.ADULT_PLATE_WASTE_MAX)
     
     #def old(self):
     #    self.age += 1

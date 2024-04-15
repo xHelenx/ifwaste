@@ -1,6 +1,3 @@
-
-import functools
-import logging
 import random
 
 from Food import Food

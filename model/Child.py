@@ -1,6 +1,6 @@
 import random
 from Person import Person
-from globalValues import * 
+import globals
 
 
 class Child(Person):
@@ -16,12 +16,12 @@ class Child(Person):
         - plate waste ratio 
         """ 
         super().__init__()
-        self.age = random.randint(1, 18)
+        self.age = random.randint(2, 18)
         self.is_adult = False 
         
         self.kcal = random.gauss(1200, 200) + self.age*50
         self.req_servings = dict()        
-        if self.gender == MALE: 
+        if self.gender == globals.MALE: 
             veg_servings = random.uniform(1.8,2.2)
             dry_food_servings = random.uniform(5.1,8.7)
             dairy_servings = random.uniform(2,2.1)
@@ -37,14 +37,14 @@ class Child(Person):
             store_prepared_servings = 0
         
         
-        self.req_servings.update({FTVEGETABLE:veg_servings})
-        self.req_servings.update({FTDRYFOOD:dry_food_servings})
-        self.req_servings.update({FTDAIRY:dairy_servings})
-        self.req_servings.update({FTMEAT:meat_servings})
-        self.req_servings.update({FTSNACKS:snacks_servings})
-        self.req_servings.update({FTSTOREPREPARED:store_prepared_servings})
+        self.req_servings.update({globals.FTVEGETABLE:veg_servings})
+        self.req_servings.update({globals.FTDRYFOOD:dry_food_servings})
+        self.req_servings.update({globals.FTDAIRY:dairy_servings})
+        self.req_servings.update({globals.FTMEAT:meat_servings})
+        self.req_servings.update({globals.FTSNACKS:snacks_servings})
+        self.req_servings.update({globals.FTSTOREPREPARED:store_prepared_servings})
           
         
         self.susceptibility = 0
-        self.concern = [random.uniform(0,0.3),random.uniform(0,0.3),random.uniform(0,0.3)]
-        self.plate_waste_ratio = random.uniform(0.06,0.15)
+        self.concern = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
+        self.plate_waste_ratio = random.uniform(globals.CHILD_PLATE_WASTE_MIN,globals.CHILD_PLATE_WASTE_MAX)

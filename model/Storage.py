@@ -3,7 +3,7 @@ import random
 import sys 
 
 from Food import Food 
-from globalValues import * 
+
 class Storage: 
     def __init__(self) -> None:
         self.current_items = []

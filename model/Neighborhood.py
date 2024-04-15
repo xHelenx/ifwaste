@@ -5,8 +5,7 @@ from pathlib import Path
 from House import House
 from Store import Store
 import pandas as pd
-
-from globalValues import *
+import globals 
 
 
 class Neighborhood():
@@ -31,12 +30,12 @@ class Neighborhood():
             'Servings',
             'Kcal',
             'Exp',
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
         ])
         self.log_eaten = pd.DataFrame(columns=[
             'House',
@@ -47,12 +46,12 @@ class Neighborhood():
             'Servings',
             'Kcal',
             'Exp',
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
         ])
         self.log_wasted = pd.DataFrame(columns=[
             'House',
@@ -63,12 +62,12 @@ class Neighborhood():
             'Servings',
             'Kcal',
             'Status',
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
         ])
         self.log_still_have = pd.DataFrame(columns=[
             'House',
@@ -78,12 +77,12 @@ class Neighborhood():
             'Servings',
             'Kcal',
             'Exp',
-            FTMEAT,
-            FTDAIRY,
-            FTVEGETABLE,
-            FTDRYFOOD,
-            FTSNACKS,
-            FTSTOREPREPARED
+            globals.FTMEAT,
+            globals.FTDAIRY,
+            globals.FTVEGETABLE,
+            globals.FTDRYFOOD,
+            globals.FTSNACKS,
+            globals.FTSTOREPREPARED
         ])
         self.log_daily = pd.DataFrame(columns=[
             'Day',
@@ -111,7 +110,8 @@ class Neighborhood():
             'AvailTimeThursday',
             'AvailTimeFriday',
             'AvailTimeSaturday',
-            'AvailTimeSunday'
+            'AvailTimeSunday',
+            'totalRuns'            
         ])
         
         for house in self.houses: 
@@ -131,7 +131,8 @@ class Neighborhood():
                 'AvailTimeThursday' : house.time[3], 
                 'AvailTimeFriday' : house.time[4], 
                 'AvailTimeSaturday' : house.time[5], 
-                'AvailTimeSunday' : house.time[6]
+                'AvailTimeSunday' : house.time[6],
+                'totalRuns' : globals.SIMULATION_RUNS,
             }
         
     def run(self, days= 365):
@@ -163,12 +164,12 @@ class Neighborhood():
                 'Servings': food.servings,
                 'Kcal':food.kcal_kg*food.kg,
                 'Exp': food.exp,
-                FTMEAT: food.servings_per_type[FTMEAT].values[0],
-                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
-                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
-                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
-                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
-                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
+                globals.FTMEAT: food.servings_per_type[globals.FTMEAT].values[0],
+                globals.FTDAIRY: food.servings_per_type[globals.FTDAIRY].values[0],
+                globals.FTVEGETABLE: food.servings_per_type[globals.FTVEGETABLE].values[0],
+                globals.FTDRYFOOD: food.servings_per_type[globals.FTDRYFOOD].values[0],
+                globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
+                globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.log_bought.remove(food)
         for food in house.log_eaten:
@@ -181,12 +182,12 @@ class Neighborhood():
                 'Servings': food.servings,
                 'Kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
-                FTMEAT: food.servings_per_type[FTMEAT].values[0],
-                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
-                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
-                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
-                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
-                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
+                globals.FTMEAT: food.servings_per_type[globals.FTMEAT].values[0],
+                globals.FTDAIRY: food.servings_per_type[globals.FTDAIRY].values[0],
+                globals.FTVEGETABLE: food.servings_per_type[globals.FTVEGETABLE].values[0],
+                globals.FTDRYFOOD: food.servings_per_type[globals.FTDRYFOOD].values[0],
+                globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
+                globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.log_eaten.remove(food)
         for food in house.log_wasted:
@@ -200,12 +201,12 @@ class Neighborhood():
                 'Kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
                 'Status': food.status,
-                FTMEAT: food.servings_per_type[FTMEAT].values[0],
-                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
-                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
-                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
-                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
-                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
+                globals.FTMEAT: food.servings_per_type[globals.FTMEAT].values[0],
+                globals.FTDAIRY: food.servings_per_type[globals.FTDAIRY].values[0],
+                globals.FTVEGETABLE: food.servings_per_type[globals.FTVEGETABLE].values[0],
+                globals.FTDRYFOOD: food.servings_per_type[globals.FTDRYFOOD].values[0],
+                globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
+                globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.log_wasted.remove(food)
         self.log_daily.loc[len(self.log_daily)] = {
@@ -220,7 +221,7 @@ class Neighborhood():
             "QuickCook":house.log_today_quickcook
         }
     def get_storage(self, house: House):
-        """Tracks the final content of the storage, used after simulation is finished
+        """Tracks the final content of the storage, used aglobals.fter simulation is finished
 
         Args:
             house (House): house to track the storage off
@@ -235,12 +236,12 @@ class Neighborhood():
                 'Kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
                 'Status': food.status,
-                FTMEAT: food.servings_per_type[FTMEAT].values[0],
-                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
-                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
-                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
-                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
-                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
+                globals.FTMEAT: food.servings_per_type[globals.FTMEAT].values[0],
+                globals.FTDAIRY: food.servings_per_type[globals.FTDAIRY].values[0],
+                globals.FTVEGETABLE: food.servings_per_type[globals.FTVEGETABLE].values[0],
+                globals.FTDRYFOOD: food.servings_per_type[globals.FTDRYFOOD].values[0],
+                globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
+                globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.fridge.remove(food)
         for food in house.pantry.current_items:
@@ -252,15 +253,15 @@ class Neighborhood():
                 'Servings': food.servings,
                 'Kcal': food.kcal_kg*food.kg,
                 'Exp': food.exp,
-                FTMEAT: food.servings_per_type[FTMEAT].values[0],
-                FTDAIRY: food.servings_per_type[FTDAIRY].values[0],
-                FTVEGETABLE: food.servings_per_type[FTVEGETABLE].values[0],
-                FTDRYFOOD: food.servings_per_type[FTDRYFOOD].values[0],
-                FTSNACKS: food.servings_per_type[FTSNACKS].values[0],
-                FTSTOREPREPARED: food.servings_per_type[FTSTOREPREPARED].values[0]
+                globals.FTMEAT: food.servings_per_type[globals.FTMEAT].values[0],
+                globals.FTDAIRY: food.servings_per_type[globals.FTDAIRY].values[0],
+                globals.FTVEGETABLE: food.servings_per_type[globals.FTVEGETABLE].values[0],
+                globals.FTDRYFOOD: food.servings_per_type[globals.FTDRYFOOD].values[0],
+                globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
+                globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
             house.pantry.remove(food)
-    def data_to_csv(self):
+    def data_to_csv(self, run=""):
         """Saves the finished tracked data to csv files
         """        
         path = str(Path(__file__).parents[1])
@@ -268,9 +269,10 @@ class Neighborhood():
         foldername = f'{dt.date().__str__()}at{dt.time().__str__()[:2]}-{dt.time().__str__()[3:5]}'
         if (not os.path.isdir(path + "\\data")): 
             os.mkdir(path + "\\data\\")
-        
+                        
+        if run != "": 
+            foldername = "run_" + str(run) + "_" + foldername 
         os.mkdir(path + "\\data\\" + foldername)
-            
         
         self.log_bought.to_csv( path + "\\data\\" + foldername+ "/bought.csv")
         self.log_eaten.to_csv( path + "\\data\\" + foldername+ "/eaten.csv")
