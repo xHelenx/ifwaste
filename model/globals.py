@@ -28,6 +28,7 @@ SERVINGS_PER_GRAB = 8
 KCAL_PER_GRAB = 100 
 INGREDIENTS_PER_QUICKCOOK = 2
 MAX_SCALER_COOKING_AMOUNT = 3
+SERVING_SIZES = [6,12,20]
 ##----------------------------------------------------
 ## Person 
 ADULT_AGE_MIN = 18 

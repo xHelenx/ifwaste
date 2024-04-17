@@ -3,6 +3,7 @@ import collections
 import copy
 import random
 import logging
+import pandas as pd
 
 from Food import Food
 from CookedFood import CookedFood
@@ -186,7 +187,8 @@ class House():
                 if self.is_more_food_needed():
                     logging.debug("Cook for missing %f kcal, %i servings", self.todays_kcal, self.todays_servings)
                     is_quickcook = True
-                    meal = self.cook(is_quickcook=is_quickcook,strategy="random") 
+                    if not self.pantry.is_empty(): 
+                        meal = self.cook(is_quickcook=is_quickcook,strategy="random") 
                     self.eat_meal(meal=meal)
             #sth from pantry expires first
             elif (earliest_pantry <= globals.EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge):
@@ -233,10 +235,18 @@ class House():
         """        
     
         #big shop 
-        n_items = 10 
+        basket = pd.DataFrame()
+        n_servings = self.servings * self.shopping_frequency 
         if is_quickshop: 
-            n_items = 3 
-        basket = self.store.shelves.sample(n=n_items, replace=True)
+            n_servings = self.servings 
+            if random.uniform(0,1) > 0.5: #buy store prepared 
+                basket = basket._append(self.store.buy_by_type(type=globals.FTSTOREPREPARED,servings=n_servings), ignore_index=True)
+                basket = basket._append(self.store.buy_by_items(amount=random.randint(1,3)), ignore_index=True) #TODO could be store prepared again
+            else: 
+                basket = basket._append(self.store.buy_by_servings(servings=n_servings),ignore_index=True)
+        else:     
+            basket = basket._append(self.store.buy_by_servings(servings=n_servings),ignore_index=True)
+            
         totalCost = basket['Price'].sum()
         self.current_budget = self.current_budget - totalCost
         return basket
@@ -305,7 +315,6 @@ class House():
             if ratio_avail_req > globals.MAX_SCALER_COOKING_AMOUNT: 
                 ratio_avail_req = globals.MAX_SCALER_COOKING_AMOUNT
         else: 
-            print(ratio_avail_req)
             ratio_avail_req = 1 
             
             

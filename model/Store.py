@@ -17,12 +17,7 @@ class Store():
             'Inedible Parts',
             'ServingsPerType'
             ])
-        self.stock_shelves()
-        #self.inventory = []
-    
-    def stock_shelves(self):
-        """Stocks shelves with different food types and serving sizes
-        """    
+
         food_types = [
             globals.FTMEAT,
             globals.FTDAIRY,
@@ -32,10 +27,29 @@ class Store():
             globals.FTSTOREPREPARED
             ]
         for food_type in food_types:
-            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=6), ignore_index=True)
-            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=12), ignore_index=True)
-            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=20), ignore_index=True)
-
+            for serving in globals.SERVING_SIZES: 
+                self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=serving), ignore_index=True)
+        
+    def buy_by_type(self, type, servings): 
+        basket = pd.DataFrame()
+        relevant_items = self.shelves[self.shelves["Type"] == type]
+        while servings > 0: 
+            item = relevant_items.sample(1,replace=True)
+            basket = basket._append(item, ignore_index=True)
+            servings -= item.Servings.values[0]
+        return basket
+        
+    def buy_by_items(self, amount): 
+        return self.shelves.sample(amount,replace=True)
+        
+    def buy_by_servings(self, servings): 
+        basket = pd.DataFrame()
+        while servings > 0: 
+            item = self.shelves.sample(1,replace=True)
+            basket = basket._append(item, ignore_index=True)
+            servings -= item.Servings.values[0]
+        return basket
+        
     def food_data(self, food_type: str, servings:int) -> dict:
         """Creates a dictionary of a food to define its parameters
 
