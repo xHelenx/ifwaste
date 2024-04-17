@@ -168,6 +168,7 @@ class House():
         ##choose meal 
         self.log_today_eef = int(random.uniform(0,1) < self.household_concern)
         strategy = "random"
+        is_quickcook = False
         has_enough_time = self.time[self.weekday] < globals.MIN_TIME_TO_COOK
         has_enough_ingredients = self.pantry.get_total_servings() > self.servings 
         if not self.is_serving_based: 
@@ -184,7 +185,8 @@ class House():
                     self.eat_meal(strategy="EEF") #TODO maybe not enough intake?
                 if self.is_more_food_needed():
                     logging.debug("Cook for missing %f kcal, %i servings", self.todays_kcal, self.todays_servings)
-                    meal = self.cook(is_quickcook=True,strategy="random") 
+                    is_quickcook = True
+                    meal = self.cook(is_quickcook=is_quickcook,strategy="random") 
                     self.eat_meal(meal=meal)
             #sth from pantry expires first
             elif (earliest_pantry <= globals.EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge):
@@ -194,7 +196,8 @@ class House():
         #random cooking or parametrized through EEF
         if not self.log_today_eef:  #random cooking 
             if has_enough_ingredients: 
-                meal = self.cook(is_quickcook=has_enough_time, strategy=strategy)
+                is_quickcook = has_enough_time
+                meal = self.cook(is_quickcook=is_quickcook, strategy=strategy)
                 self.eat_meal(meal=meal) 
                 if self.is_more_food_needed() and not self.fridge.is_empty():  
                     self.eat_meal(strategy=strategy)     
@@ -202,13 +205,16 @@ class House():
                 self.shop(is_quickshop=True) 
                 #eat SPF or QC mit bought ingredients 
                 if self.pantry.get_total_items() > 0: 
-                    meal = self.cook(is_quickcook=True, strategy=strategy)
+                    is_quickcook = True 
+                    meal = self.cook(is_quickcook=is_quickcook, strategy=strategy)
                     self.eat_meal(meal=meal)
                     if self.is_more_food_needed() and not self.fridge.is_empty():  
                         self.eat_meal(strategy=strategy)   
             
         logging.debug("---> Missing servings: %f, missing kcal %f:", self.todays_servings, self.todays_kcal)
-        
+        self.log_today_cooked = int(not is_quickcook)
+        self.log_today_quickcook = int(is_quickcook)
+    
         #decay food and throw spoiled food out
         self.decay_food()
         self.throw_food_out()
@@ -366,9 +372,6 @@ class House():
         """      
                 
         #logging.debug("Cook with " + str(amount_ingredients) + " ingredients")
-        self.log_today_cooked = int(not is_quickcook)
-        self.log_today_quickcook = int(is_quickcook)
-        
         ingredients = self.get_ingredients(is_quickcook,strategy)
         
         prepared_ingredients = []
