@@ -11,11 +11,10 @@ logging.basicConfig(filename="debug.log",encoding="utf-8",level=logging.DEBUG, f
 #read configuration file 
 globals.configure_simulation() 
 
-
-
 for run in range(0,globals.SIMULATION_RUNS): 
     print("Start run", run )
     houses = []
+    assert globals.NEIGHBORHOOD_HOUSES >= globals.NEIGHBORHOOD_SERVING_BASED 
     for i in range(0,globals.NEIGHBORHOOD_SERVING_BASED): 
        houses += [House(i,is_serving_based=True)] 
     for i in range(globals.NEIGHBORHOOD_SERVING_BASED,globals.NEIGHBORHOOD_HOUSES): 
