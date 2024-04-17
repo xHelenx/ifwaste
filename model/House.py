@@ -189,7 +189,7 @@ class House():
                     is_quickcook = True
                     if not self.pantry.is_empty(): 
                         meal = self.cook(is_quickcook=is_quickcook,strategy="random") 
-                    self.eat_meal(meal=meal)
+                        self.eat_meal(meal=meal)
             #sth from pantry expires first
             elif (earliest_pantry <= globals.EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge):
                 #now we do RANDOM but with EXPIRY PRIO 
