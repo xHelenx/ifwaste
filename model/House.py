@@ -268,68 +268,95 @@ class House():
                     location.remove(food)
                     food.status = "Expired"
                     self.log_wasted.append(food)
-    def get_ingredients(self,is_quickcook,strategy="random") -> list: 
-        """Chooses the ingredients to use for a meal depending on the chosen strategy
+    
+    def get_ingredients(self, is_quickcook, strategy): 
+        """Chooses the ingredients to use for a meal. Takes into account the way the family is eating (servings based 
+        kcal)
 
         Args:
             strategy (str, optional):Default:   "random" = choose random ingredients to cook wit
                                                 "EEF"    = choose "Earliest Expiration First" 
+            is_quickcook (boolean): decides how man ingredients to get 
+            
             
         Returns:
             ingredients: list[Food] with chosen ingredients for the meal to cook 
-        """        
-
+        """    
         ingredients = []
+        todays_requirements = self.todays_servings
+        per_grab = globals.SERVINGS_PER_GRAB
+        if not self.is_serving_based: 
+            todays_requirements = self.todays_kcal
+            per_grab = globals.KCAL_PER_GRAB
 
         #decide if and how much more to cook 
-        available_servings = self.pantry.get_total_servings()
-        ratio_avail_req  = available_servings/self.todays_servings
+        available = self.pantry.get_total_servings() 
+        if not self.is_serving_based: 
+            available = self.pantry.get_total_kcal()
+        ratio_avail_req  = available/todays_requirements 
+        
         if ratio_avail_req > 1: 
             if ratio_avail_req > globals.MAX_SCALER_COOKING_AMOUNT: 
                 ratio_avail_req = globals.MAX_SCALER_COOKING_AMOUNT
         else: 
+            print(ratio_avail_req)
             ratio_avail_req = 1 
             
-        planned_servings = random.uniform(1,ratio_avail_req) * self.todays_servings 
-        missing_servings = planned_servings
+            
+        planned = random.uniform(1,ratio_avail_req) * todays_requirements
+        missing = planned
     
-        logging.debug("Cook %i servings, using QC: %s", planned_servings, is_quickcook)
+        if self.is_serving_based: 
+            logging.debug("Cook %i servings, using QC: %s", planned, is_quickcook)
+        else: 
+            logging.debug("Cook %i kcal, using QC: %s", planned, is_quickcook)
         
-        grabbed_servings = globals.SERVINGS_PER_GRAB
+        grabbed = per_grab
         if not is_quickcook: 
-            while missing_servings > 0:
+            while missing > 0:
                 item = self.pantry.get_item_by_strategy(strategy)
                 if item != None:
-                    if missing_servings < globals.SERVINGS_PER_GRAB: 
-                        grabbed_servings = missing_servings
-                    (portioned_food, left_food) = item.split(servings=grabbed_servings)
+                    if grabbed < per_grab: 
+                        grabbed = missing
+                    if self.is_serving_based:
+                        (portioned_food, left_food) = item.split(servings=grabbed)
+                    else: 
+                        (portioned_food, left_food) = item.split(kcal=grabbed)
+                        
                     ingredients.append(portioned_food)
                     self.pantry.add(left_food)
-                    #logging.debug("Cooking with: " + str(ingredients[-1]))
-                    missing_servings -= ingredients[-1].servings
                     
-                    logging.debug("portion %f", portioned_food.kg)
-                    if left_food != None: 
-                        logging.debug("left %f", left_food.kg)
-                    
-        else: 
+                    if self.is_serving_based: 
+                        missing -= ingredients[-1].servings
+                    else: 
+                        missing -= ingredients[-1].kcal_kg * ingredients[-1].kg
+        else: #now we only want to use few ingredients, so we might use the entire thing (as long as it is not too much)
             used_ingredients = 0 
-            while missing_servings > 0 and used_ingredients == 0 and used_ingredients <= globals.INGREDIENTS_PER_QUICKCOOK:         
+            while missing > 0 and used_ingredients <= globals.INGREDIENTS_PER_QUICKCOOK:         
                 item = self.pantry.get_item_by_strategy(strategy)
                 if item != None:
-                    if missing_servings < globals.SERVINGS_PER_GRAB: 
-                        grabbed_servings = missing_servings
-                    (portioned_food, left_food) = item.split(servings=grabbed_servings)
+                    if self.is_serving_based:
+                        if item.servings > missing: 
+                            grabbed = item.servings
+                        (portioned_food, left_food) = item.split(servings=grabbed)
+                    else: 
+                        if item.kcal_kg * item.kg > missing: 
+                            grabbed = item.kcal_kg * item.kg
+                        (portioned_food, left_food) = item.split(kcal=grabbed)
+                        
                     ingredients.append(portioned_food)
                     self.pantry.add(left_food)
                     logging.debug("Cooking with: " + str(ingredients[-1]))
-                    missing_servings -= ingredients[-1].servings
+                    if self.is_serving_based: 
+                        missing -= ingredients[-1].servings
+                    else: 
+                        missing -= ingredients[-1].kcal_kg * ingredients[-1].kg
                     used_ingredients += 1
-                #else: 
-                #    logging.debug("nothing in pantry")
-                #    self.shop() #TODO: particular item is missing, for now get more food
+                else: 
+                    break #pantry is empty but we used at least one ingredient
         assert ingredients != []
         return ingredients
+        
     def cook(self,is_quickcook:bool, strategy="random"): 
         """Cooking a meal consists of choosing the ingredients and preparing the meal.
         CookedFood will always be moved to the fridge before eating

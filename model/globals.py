@@ -25,6 +25,7 @@ EXPIRATION_THRESHOLD = 4
 MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients 
 MIN_TILL_SHOP = 5
 SERVINGS_PER_GRAB = 8
+KCAL_PER_GRAB = 100 
 INGREDIENTS_PER_QUICKCOOK = 2
 MAX_SCALER_COOKING_AMOUNT = 3
 ##----------------------------------------------------
