@@ -12,8 +12,8 @@ FTSTOREPREPARED ='Store-Prepared Items'
 
 ### Waste types 
 FW_PLATE_WASTE = "Plate Waste"
-FW_INEDIBLE = "Inedible"
-FW_EXPIRED = "Expired"
+FW_INEDIBLE = "Inedible Parts"
+FW_EXPIRED = "Spoiled Food"
 
 MALE = 0 
 FEMALE = 1
@@ -26,7 +26,6 @@ MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients
 MIN_TILL_SHOP = 5
 SERVINGS_PER_GRAB = 8
 INGREDIENTS_PER_QUICKCOOK = 2
-SCALER_SHOPPING_AMOUNT = 5
 ##----------------------------------------------------
 ## Person 
 ADULT_AGE_MIN = 18 
