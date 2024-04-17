@@ -165,7 +165,7 @@ wasted_by_household_kg <- ggplot(data = hh_foodwasted) +
 wasted_by_household_kg
 
 if (save_plots) {
-   png(file = paste0(OUTPUT_FOLDER, "waste_  ype.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   png(file = paste0(OUTPUT_FOLDER, "waste_type.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
    print(wasted_by_household_kg)
    dev.off()
 }
@@ -217,10 +217,10 @@ if (save_plots) {
 
 ```{r}
 wasted_by_type = ggplot(data=hh_foodwasted) +
-    geom_bar(mapping = aes(x=Type, fill=House, weight=Kg), position="stack") +
+    geom_bar(mapping = aes(x=Type, weight=Kg), position="stack") +
     ylab("in Kg") + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-    scale_fill_brewer(palette = PALETTE) 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))  
+    #scale_fill_brewer(palette = PALETTE) 
 wasted_by_type
 
 
