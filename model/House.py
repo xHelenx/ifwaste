@@ -219,7 +219,7 @@ class House():
             basket [list]: List of items to buy
         """        
         # picks randomly currently
-        n_items = globals.SCALER_SHOPPING_AMOUNT*self.shopping_frequency
+        n_items = globals.SCALER_SHOPPING_AMOUNT *self.shopping_frequency #TODO 
         basket = self.store.shelves.sample(n=n_items, replace=True)
         totalCost = basket['Price'].sum()
         self.current_budget = self.current_budget - totalCost
@@ -227,26 +227,23 @@ class House():
     
     def shop(self):
         """Shops for groceries and stores them in the correct location in the house
-        
         """        
-        
         basket = self.what_to_buy()
-        logging.debug("---------------------------------------------")
-        logging.debug("Get groceries, %i things bought", len(basket))
         for i in range(len(basket)):
             item_info = basket.iloc[i].to_dict()
             food = Food(item_info)
+            logging.debug("Grocery: %f", food.kg)
             self.log_bought.append(copy.deepcopy(food))
             if food.type == 'Store-Prepared Items':
-                self.fridge.add(food)
+                self.fridge.add(copy.deepcopy(food))
             else:
-                self.pantry.add(food)
-        logging.debug("---------------------------------------------")
-        logging.debug("Pantry: \n" + self.pantry.debug_get_content())
-        logging.debug("Pantry: total of %i items", len(self.pantry.current_items))
-        logging.debug("Fridge: \n" + self.fridge.debug_get_content())
-        logging.debug("Fridge: total of %i items", len(self.fridge.current_items))
-        logging.debug("---------------------------------------------")
+                self.pantry.add(copy.deepcopy(food))
+        #logging.debug("---------------------------------------------")
+        #logging.debug("Pantry: \n" + self.pantry.debug_get_content())
+        #logging.debug("Pantry: total of %i items", len(self.pantry.current_items))
+        #logging.debug("Fridge: \n" + self.fridge.debug_get_content())
+        #logging.debug("Fridge: total of %i items", len(self.fridge.current_items))
+        #logging.debug("---------------------------------------------")
         
     def decay_food(self):
         """Decays the food in the household
@@ -278,9 +275,8 @@ class House():
         ingredients = []
         planned_servings = random.randint(1,3) * self.todays_servings #TODO: cooking 1-3 times the currently (!!)
         missing_servings = planned_servings
-        
+    
         logging.debug("Cook %i servings, using QC: %s", planned_servings, is_quickcook)
-        
         while len(self.pantry.current_items) < globals.MIN_TILL_SHOP:  # If the pantry does not have enough different ingredients
             self.shop() 
         grabbed_servings = globals.SERVINGS_PER_GRAB
@@ -293,9 +289,15 @@ class House():
                     (portioned_food, left_food) = item.split(servings=grabbed_servings)
                     ingredients.append(portioned_food)
                     self.pantry.add(left_food)
-                    logging.debug("Cooking with: " + str(ingredients[-1]))
+                    #logging.debug("Cooking with: " + str(ingredients[-1]))
                     missing_servings -= ingredients[-1].servings
+                    
+                    logging.debug("portion %f", portioned_food.kg)
+                    if left_food != None: 
+                        logging.debug("left %f", left_food.kg)
+                    logging.debug("Fridge + Pantry/NACH GET 1 ING: %f", self.fridge.debug_get_weight() + self.pantry.debug_get_weight() )
                 else: 
+                    logging.debug("nothing in pantry")
                     self.shop() #TODO: particular item is missing, for now get more food
         else: 
             missing_ingredients = globals.INGREDIENTS_PER_QUICKCOOK
@@ -311,6 +313,7 @@ class House():
                     missing_servings -= ingredients[-1].servings
                     missing_ingredients -= 1
                 else: 
+                    logging.debug("nothing in pantry")
                     self.shop() #TODO: particular item is missing, for now get more food
         assert ingredients != []
         return ingredients
@@ -327,16 +330,21 @@ class House():
         self.log_today_quickcook = int(is_quickcook)
         
         ingredients = self.get_ingredients(is_quickcook,strategy)
+        
         prepared_ingredients = []
         for ingredient in ingredients:
             #split ingredients in scraps and consumable food
             (prepared_ingredient, scraps) = ingredient.split_waste_from_food(waste_type="Inedible")
             prepared_ingredients.append(prepared_ingredient)
-            
             if scraps != None:
                 self.log_wasted.append(scraps)
         meal = CookedFood(ingredients=prepared_ingredients)
-        logging.debug("Produced: " + str(meal))
+        
+        #logging.debug("Scraps kg: %f", debug_scraps_weight)
+        #logging.debug("Ingredients kg: %f", debug_weight)
+        #logging.debug("scraps + ingredients kg: %f", debug_scraps_weight + debug_weight)
+        #logging.debug("ingredients - scraps kg: %f", debug_weight - debug_scraps_weight)
+        #logging.debug("Produced: %f", meal.kg)
         
         return meal 
         
@@ -382,8 +390,9 @@ class House():
         #eating part includes plate waste
         (consumed_food, plate_waste) = portioned_food.split_waste_from_food(waste_type="Plate Waste", plate_waste_ratio=self.household_plate_waste_ratio)
         logging.debug("Eating: " + str(consumed_food))
+        
         self.log_eaten.append(consumed_food)
         if plate_waste != None: 
             self.log_wasted.append(plate_waste)
         self.fridge.add(left_food)  
-        
+        #logging.debug("-------------------")

@@ -100,9 +100,18 @@ class Storage:
             str: string representing content of location
         """    
         debug_str = ""
+        total_weight = 0
         for content in self.current_items: 
             debug_str += str(content) + "\n"
+            total_weight += content.kg
+        debug_str += "total: " + str(total_weight)
         return debug_str 
+    
+    def debug_get_weight(self) -> float: 
+        total_weight = 0 
+        for item in self.current_items: 
+            total_weight += item.kg 
+        return total_weight
     
     def is_empty(self): 
         return len(self.current_items) == 0

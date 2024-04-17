@@ -70,6 +70,7 @@ class Neighborhood():
             globals.FTSTOREPREPARED
         ])
         self.log_still_have = pd.DataFrame(columns=[
+            'Day',
             'House',
             'Type',
             'Kg',
@@ -145,8 +146,8 @@ class Neighborhood():
             for house in self.houses:
                 house.do_a_day(day=i)
                 self.collect_data(house=house, day=i)
-        for house in self.houses:
-            self.get_storage(house=house)
+                self.get_storage(house=house, day=i)
+                
     def collect_data(self, house: House, day: int):
         """Collects the daily data from each house
 
@@ -171,7 +172,7 @@ class Neighborhood():
                 globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
-            house.log_bought.remove(food)
+        house.log_bought = []
         for food in house.log_eaten:
             self.log_eaten.loc[len(self.log_eaten)] = {
                 'House': house.id,
@@ -189,7 +190,7 @@ class Neighborhood():
                 globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
-            house.log_eaten.remove(food)
+        house.log_eaten = []
         for food in house.log_wasted:
             self.log_wasted.loc[len(self.log_wasted)] = {
                 'House': house.id,
@@ -208,7 +209,7 @@ class Neighborhood():
                 globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
-            house.log_wasted.remove(food)
+        house.log_wasted = []
         self.log_daily.loc[len(self.log_daily)] = {
             'House': house.id,
             'Day':day,
@@ -220,7 +221,7 @@ class Neighborhood():
             "AteLeftOvers": house.log_today_leftovers,
             "QuickCook":house.log_today_quickcook
         }
-    def get_storage(self, house: House):
+    def get_storage(self, house: House, day):
         """Tracks the final content of the storage, used aglobals.fter simulation is finished
 
         Args:
@@ -228,6 +229,7 @@ class Neighborhood():
         """        
         for food in house.fridge.current_items:
             self.log_still_have.loc[len(self.log_still_have)] = {
+                'Day' : day ,
                 'House': house.id,
                 'Type': food.type,
                 'Kg': food.kg,
@@ -243,9 +245,9 @@ class Neighborhood():
                 globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
-            house.fridge.remove(food)
         for food in house.pantry.current_items:
             self.log_still_have.loc[len(self.log_still_have)] = {
+                'Day' : day ,
                 'House': house.id,
                 'Type': food.type,
                 'Kg': food.kg,
@@ -260,7 +262,6 @@ class Neighborhood():
                 globals.FTSNACKS: food.servings_per_type[globals.FTSNACKS].values[0],
                 globals.FTSTOREPREPARED: food.servings_per_type[globals.FTSTOREPREPARED].values[0]
             }
-            house.pantry.remove(food)
     def data_to_csv(self, experiment_name=None, run=None): 
         """Saves the finished tracked data to csv files
         """        
