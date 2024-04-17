@@ -42,6 +42,23 @@ class Storage:
             self.current_items.remove(result)
         return result 
     
+    def get_total_items(self): 
+        return len(self.current_items)
+    
+    def get_total_servings(self): 
+        servings = 0
+        for item in self.current_items: 
+            servings += item.servings 
+        return servings 
+    
+    def get_total_kcal(self): 
+        kcal = 0
+        for item in self.current_items: 
+            kcal += item.kcal_kg * item.kg
+        return kcal 
+    
+    
+    
     def get_earliest_expiry_date(self): 
         """Returns the expiry date of the first expiry item in storage
 

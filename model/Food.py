@@ -19,7 +19,7 @@ class Food():
         self.frozen = False
         self.serving_size = self.kg/self.servings
         self.kcal_kg = food_data['kcal_kg']
-        self.status = 'Un-prepped' if self.type != 'Store-Prepared Items' else 'Store-prepped'
+        self.status = 'Un-prepped' if self.type != globals.FTSTOREPREPARED else 'Store-prepped'
     def __str__(self) -> str:
         """returns a readable string of a food
 

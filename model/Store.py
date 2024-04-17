@@ -94,7 +94,7 @@ class Store():
             kg = 0.095*servings # assume 95g per serving
             price = 3.3*2.2*kg # assume $3.30/lb to total for kg
             kcal_kg = 2790 # assume 2790 kcal per kg
-        elif food_type == 'Store-Prepared Items':
+        elif food_type == globals.FTSTOREPREPARED:
             exp_min = 2 # days 
             exp_max = 7 # days
             kg = 0.095*servings # assume 95g per serving
