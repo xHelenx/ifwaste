@@ -16,7 +16,7 @@ library(tidyverse)
 #1. add the path to the data folder in PATH
 #2. add the name of the folder you want to analyse e.g.  "2024-04-10at09-45/"
 PATH = "E:/UF/ifwaste/data/"
-INPUT_FOLDER = "2024-04-10at09-45/"
+INPUT_FOLDER = "run_0/"
 
 #3. if you want to save all generated plots, set save_plots to TRUE, otherwise set it to FALSE
 save_plots = TRUE
@@ -45,7 +45,7 @@ Label generator for plots
 label_house_num_people <- as.vector(
   with(
     hh_config,
-    sprintf("House: %s Concern: %.2f", House, LvlOfConcern)
+    sprintf("House: %s, Adults: %i, Children: %i Concern: %.2f", House, Adults, Children, LvlOfConcern)
   )
 )
 
@@ -56,29 +56,48 @@ house_labels <- function(x) paste0("House ", x)
 ### 1. in kg
 ```{r}
 
-sum(hh_foodbought$Kg) 
+remaining <- aggregate(Kg ~ Day, data = hh_foodremaining, FUN = sum)
+remaining <- tail(remaining, n = 1)$Kg
+tail(hh_foodremaining, n = 1)
+print("bought:")
+sum(hh_foodbought$Kg)
+print("wasted:")
 sum(hh_foodwasted$Kg)
+print("eaten:")
 sum(hh_foodeaten$Kg)
-sum(hh_foodremaining$Kg)
+print("remained:")
+remaining
 
-total <- sum(hh_foodwasted$Kg) + sum(hh_foodeaten$Kg) + sum(hh_foodremaining$Kg) 
+print("total:")
+
+total <- sum(hh_foodwasted$Kg) + sum(hh_foodeaten$Kg) + remaining
 total 
 
+print("difference b-t:")
 missing <- sum(hh_foodbought$Kg) - total
 missing 
 ```
-
 ### 2. in servings
 ```{r}
 
-sum(hh_foodbought$Servings) 
+remaining <- aggregate(Servings ~ Day, data = hh_foodremaining, FUN = sum)
+remaining <- tail(remaining, n = 1)$Servings
+tail(hh_foodremaining, n = 1)
+print("bought:")
+sum(hh_foodbought$Servings)
+print("wasted:")
 sum(hh_foodwasted$Servings)
+print("eaten:")
 sum(hh_foodeaten$Servings)
-sum(hh_foodremaining$Servings)
+print("remained:")
+remaining
 
-total <- sum(hh_foodwasted$Servings) + sum(hh_foodeaten$Servings) + sum(hh_foodremaining$Servings) 
+print("total:")
+
+total <- sum(hh_foodwasted$Servings) + sum(hh_foodeaten$Servings) + remaining
 total 
 
+print("difference b-t:")
 missing <- sum(hh_foodbought$Servings) - total
 missing 
 ```
@@ -146,7 +165,7 @@ wasted_by_household_kg <- ggplot(data = hh_foodwasted) +
 wasted_by_household_kg
 
 if (save_plots) {
-   png(file = paste0(OUTPUT_FOLDER, "waste_hh_kg_type.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   png(file = paste0(OUTPUT_FOLDER, "waste_  ype.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
    print(wasted_by_household_kg)
    dev.off()
 }
