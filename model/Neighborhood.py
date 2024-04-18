@@ -143,6 +143,7 @@ class Neighborhood():
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
         for i in range(days):
+            print(i)
             for house in self.houses:
                 house.do_a_day(day=i)
                 self.collect_data(house=house, day=i)

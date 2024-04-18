@@ -282,7 +282,7 @@ class House():
             for food in location: 
                 if food.exp <= 0: 
                     location.remove(food)
-                    food.status = "Expired"
+                    food.status = globals.FW_EXPIRED
                     self.log_wasted.append(food)
     
     def get_ingredients(self, is_quickcook, strategy): 
@@ -446,5 +446,11 @@ class House():
         self.log_eaten.append(consumed_food)
         if plate_waste != None: 
             self.log_wasted.append(plate_waste)
-        self.fridge.add(left_food)  
+            
+        if left_food != None:
+            if left_food.servings > 1: 
+                self.fridge.add(left_food)
+            else:
+                left_food.status = globals.FW_PLATE_WASTE
+                self.log_wasted.append(left_food)  
         #logging.debug("-------------------")
