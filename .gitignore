@@ -8,4 +8,5 @@ model/__pycache__/*
 data/*
 debug.log 
 analysis/*.html 
+analysis/plots/*.png
 
