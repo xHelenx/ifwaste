@@ -59,4 +59,20 @@ Once you got familar with this workflow, you can also change the simulation para
 For now most parameter are defined directly in the class, a few have already been migrated to *globalValues.py*. 
 
 
- **TODO: move all parameters to one file.**
+## Parameterization of the simulation
+
+| **Parameter** | **Description** | **Value** |
+|:----------------------------:|-----------------------------------------------------------------------------------------|:------------------:|
+| EXPIRATION\_THRESHOLD        | expiry threshold causing a family, that eats by expiry date to use this ingredient first | 4                  |
+| MIN\_TIME\_TO\_COOK          | minimal required time to be able to cook                                                 | 0.8 (48min)        |
+| SERVINGS\_PER\_GRAB          | portion in servings of an ingredient that is taken when choosing ingredients for a meal  | 8                  |
+| KCAL\_PER\_GRAB              | portion in kcal of an ingredient that is taken when choosing ingredients for a meal      | 100                |
+| INGREDIENTS\_PER\_QUICKCOOK  | number of ingredients used for a quickcook                                               | 2                  |
+| MAX\_SCALER\_COOKING\_AMOUNT | maximal multiplier for how much more food to cook, 1 is for one day                      | 3                  |
+| SERVING\_SIZES               | portion sizes that are can be purchased at the store                                     | [6,12,20]          |
+| ADULT\_AGE\_MIN              | minimal considered adult age                                                             | 18                 |
+| ADULT\_AGE\_MAX              | maximal considered adult age                                                             | 65                 |
+| ADULT\_CONCERN\_MIN          | minimal concern value for eating expiring food, range 0-1                                | 0.3                |
+| ADULT\_CONCERN\_MAX          | maximal concern value for eating expiring food, range 0-1                                | 0.7                |
+| CHILD\_CONCERN\_MIN          | minimal concern value for eating expiring food, range 0-1                                | 0                  |
+| CHILD\_CONCERN\_MAX          | maximal concern value for eating expiring food, range 0-1                                | 0.3                |
