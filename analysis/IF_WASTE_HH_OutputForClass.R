@@ -56,7 +56,9 @@ hh6bought_only<- dplyr::filter(hh_foodbought,House==6)
 
 
 
-ggplot()+ggtitle("Fruits & Veg") +geom_line(data=fnvbought,aes(x=Day.Bought,y=Price,group=House,colour = House), alpha = 0.4, size = 2)+ geom_line()+labs(y= "Fruits&Veg Bought (kg)", x = "Month") + scale_color_gradientn(colours = rainbow(20))+ ylim(0, 25)
+ggplot()+ggtitle("Fruits & Veg") +
+geom_line(data=fnvbought,aes(x=Day.Bought,y=Price,group=House,colour = House), alpha = 0.4, size = 2)
++ geom_line()+labs(y= "Fruits&Veg Bought (kg)", x = "Month") + scale_color_gradientn(colours = rainbow(20))+ ylim(0, 25)
 
 
 #Stacked Bar
@@ -69,7 +71,8 @@ fill_wasted <- c("darkgrey","purple","pink","cyan")
 leglabels_wasted <- c("Inedible","Store-Prepped","Home-Prepped, Un-Prepped")
 
 
-hh0_buy <- ggplot()+ggtitle("HH #0 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh0bought_only, stat="identity") +
+hh0_buy <- ggplot()+ggtitle("HH #0 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") 
+    + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh0bought_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -79,7 +82,8 @@ hh0_buy <- ggplot()+ggtitle("HH #0 Food Kg Purchased")+labs(y= "Food Purchased (
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh0_buy
 
-hh0_wasted <- ggplot()+ggtitle("HH #0 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Wasted, fill = Type), data = hh0wasted_only, stat="identity") +
+hh0_wasted <- ggplot()+ggtitle("HH #0 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Wasted, fill = Type), data = hh0wasted_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -89,7 +93,8 @@ hh0_wasted <- ggplot()+ggtitle("HH #0 Food Kg Wasted")+labs(y= "Food Wasted (kg)
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh0_wasted
 
-hh0_wasted_cost <- ggplot()+ggtitle("HH #0 Food $ Wasted")+labs(y= "Food Wasted ($)", x = "Simuated Days") + geom_bar(aes(y = Price, x = Day.Wasted, fill = Type), data = hh0wasted_only, stat="identity") +
+hh0_wasted_cost <- ggplot()+ggtitle("HH #0 Food $ Wasted")+labs(y= "Food Wasted ($)", x = "Simuated Days")
+ + geom_bar(aes(y = Price, x = Day.Wasted, fill = Type), data = hh0wasted_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -100,7 +105,8 @@ hh0_wasted_cost <- ggplot()+ggtitle("HH #0 Food $ Wasted")+labs(y= "Food Wasted 
 hh0_wasted_cost
 
 
-hh0_wasted_status <- ggplot()+ggtitle("HH #0 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Wasted, fill = Status), data = hh0wasted_only, stat="identity") +
+hh0_wasted_status <- ggplot()+ggtitle("HH #0 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days")
+ + geom_bar(aes(y = kg, x = Day.Wasted, fill = Status), data = hh0wasted_only, stat="identity") +
   scale_fill_manual(values = fill_wasted)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -113,7 +119,8 @@ hh0_wasted_status
 
 
 
-hh1_buy <- ggplot()+ggtitle("HH #1 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh1bought_only, stat="identity") +
+hh1_buy <- ggplot()+ggtitle("HH #1 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh1bought_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -123,7 +130,8 @@ hh1_buy <- ggplot()+ggtitle("HH #1 Food Kg Purchased")+labs(y= "Food Purchased (
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh1_buy
 
-hh1_wasted <- ggplot()+ggtitle("HH #1 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Wasted, fill = Type), data = hh1wasted_only, stat="identity") +
+hh1_wasted <- ggplot()+ggtitle("HH #1 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Wasted, fill = Type), data = hh1wasted_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -133,7 +141,8 @@ hh1_wasted <- ggplot()+ggtitle("HH #1 Food Kg Wasted")+labs(y= "Food Wasted (kg)
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh1_wasted
 
-hh1_wasted_cost <- ggplot()+ggtitle("HH #1 Food $ Wasted")+labs(y= "Food Wasted ($)", x = "Simuated Days") + geom_bar(aes(y = Price, x = Day.Wasted, fill = Type), data = hh1wasted_only, stat="identity") +
+hh1_wasted_cost <- ggplot()+ggtitle("HH #1 Food $ Wasted")+labs(y= "Food Wasted ($)", x = "Simuated Days") 
++ geom_bar(aes(y = Price, x = Day.Wasted, fill = Type), data = hh1wasted_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -144,7 +153,8 @@ hh1_wasted_cost <- ggplot()+ggtitle("HH #1 Food $ Wasted")+labs(y= "Food Wasted 
 hh1_wasted_cost
 
 
-hh1_wasted_status <- ggplot()+ggtitle("HH #1 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Wasted, fill = Status), data = hh1wasted_only, stat="identity") +
+hh1_wasted_status <- ggplot()+ggtitle("HH #1 Food Kg Wasted")+labs(y= "Food Wasted (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Wasted, fill = Status), data = hh1wasted_only, stat="identity") +
   scale_fill_manual(values = fill_wasted)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -157,7 +167,8 @@ hh1_wasted_status
 
 
 
-hh2_buy <- ggplot()+ggtitle("HH #2 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh2bought_only, stat="identity") +
+hh2_buy <- ggplot()+ggtitle("HH #2 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh2bought_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -167,7 +178,8 @@ hh2_buy <- ggplot()+ggtitle("HH #2 Food Kg Purchased")+labs(y= "Food Purchased (
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh2_buy
 
-hh3_buy <- ggplot()+ggtitle("HH #3 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh3bought_only, stat="identity") +
+hh3_buy <- ggplot()+ggtitle("HH #3 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") 
++ geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh3bought_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -177,7 +189,8 @@ hh3_buy <- ggplot()+ggtitle("HH #3 Food Kg Purchased")+labs(y= "Food Purchased (
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
 hh3_buy
 
-hh4_buy <- ggplot()+ggtitle("HH #4 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days") + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh4bought_only, stat="identity") +
+hh4_buy <- ggplot()+ggtitle("HH #4 Food Kg Purchased")+labs(y= "Food Purchased (kg)", x = "Simuated Days")
+ + geom_bar(aes(y = kg, x = Day.Bought, fill = Type), data = hh4bought_only, stat="identity") +
   scale_fill_manual(values = fill)  + 
   theme(legend.position = c(0.72, 0.85),
         legend.key.size = unit(1, 'mm'), #change legend key size
@@ -185,4 +198,4 @@ hh4_buy <- ggplot()+ggtitle("HH #4 Food Kg Purchased")+labs(y= "Food Purchased (
         legend.key.width = unit(1, 'mm'), #change legend key width
         legend.title = element_text(size=10), #change legend title font size
         legend.text = element_text(size=6)) #change legend text font size)+ theme_bw()
-plot(hh4_buy)
+hh4_buy

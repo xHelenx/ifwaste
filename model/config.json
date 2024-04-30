@@ -1,15 +1,15 @@
 {
     "Simulation" : { 
-        "runs" : 2, 
-        "total_days" : 5,
-        "name": "kids_waste_more"
+        "runs" : 5, 
+        "total_days" : 40,
+        "name": "2_kids_50hh"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 10, 
+        "neighborhood_houses" : 50, 
         "neighborhood_serving_based" : 5
     },
     "House" : {
-        "hh_amount_children" : 6, 
+        "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2
     },
     "Adult" : {

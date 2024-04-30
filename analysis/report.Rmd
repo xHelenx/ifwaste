@@ -15,7 +15,7 @@ library(tidyverse)
 #in the datafolder
 #1. add the path to the data folder in PATH
 #2. add the name of the folder you want to analyse e.g.  "2024-04-10at09-45/"
-PATH = "E:/UF/ifwaste/data/"
+PATH = "E:/UF/ifwaste/data/testing_new_shopping/"
 INPUT_FOLDER = "run_0/"
 
 #3. if you want to save all generated plots, set save_plots to TRUE, otherwise set it to FALSE
@@ -440,3 +440,151 @@ if (save_plots) {
 #  theme_minimal()
 
 ```
+
+```{r}
+
+
+PATH <- "E:/UF/ifwaste/data/"
+
+setup_dataset<- function(PATH,foldername) {
+  # Get the list of subfolder paths
+  subfolder_paths <- list.files(paste0(PATH,foldername), full.names = TRUE)
+  # Get the list of unique file names across all subfolders
+  unique_file_names <- subfolder_paths %>%
+    map(~ list.files(., pattern = "\\.csv$", full.names = TRUE)) %>%
+    unlist() %>%
+    basename() %>%
+    unique()
+  # Create individual data frames for each unique file name
+  df <- unique_file_names %>%
+    set_names() %>%
+    map(~ {
+      file_name_with_slash <- paste0("/",.x)  # Add "/" before unique filename
+      # Print the pattern being used
+      file_paths <- subfolder_paths %>%
+        map(~ {
+          files <- (paste0(.x, file_name_with_slash))
+        }) %>%
+        unlist() %>%
+        discard(~ length(.x) == 0)
+      map_dfr(file_paths, read.csv,.id = "Run")
+    })
+  names(df) <- str_remove(names(df), "....$")
+
+  #group by house an run 
+  df[["wasted"]]$Group <- paste(df[["wasted"]]$Run,df[["wasted"]]$House,sep="_")
+  #wasted <- df[["wasted"]] #for now only the wasted subfolder is relevant
+   head(df[["config"]])
+
+  return(df)
+}
+
+
+
+```
+
+# PLOTS FOR PAPER 
+
+## Plot food waste for specific groups
+```{r}
+df_6 <- setup_dataset(PATH,"6_kids/")
+df_waste_6 <- df_6[["wasted"]]
+df_config_6 <- df_6[["config"]]
+df_4 <- setup_dataset(PATH,"4_kids/")
+df_waste_4 <- df_4[["wasted"]]
+df_config_4 <- df_4[["config"]]
+df_2 <- setup_dataset(PATH,"2_kids/")
+df_waste_2 <- df_2[["wasted"]]
+df_config_2 <- df_2[["config"]]
+df_1 <- setup_dataset(PATH,"1_kids/")
+df_waste_1 <- df_1[["wasted"]]
+df_config_1 <- df_1[["config"]]
+```
+
+```{r}
+
+df_waste_1 <- subset(df_waste_1, Run == 1 & House == 1)
+df_config_1 <- subset(df_config_1, Run == 1 & House == 1)
+
+
+df_waste_2 <- subset(df_waste_2, Run == 1 & House == 2)
+df_config_2 <- subset(df_config_2, Run == 1 & House == 2)
+
+
+df_waste_4 <- subset(df_waste_4, Run == 1 & House == 3)
+df_config_4 <- subset(df_config_4, Run == 1 & House == 3)
+
+
+df_waste_6 <- subset(df_waste_6, Run == 1 & House == 4)
+df_config_6 <- subset(df_config_6, Run == 1 & House == 4)
+
+df_waste <- rbind(df_waste_1,df_waste_2,df_waste_4, df_waste_6)
+df_config <- rbind(df_config_1,df_config_2,df_config_4, df_config_6)
+
+```
+```{r}
+```
+
+```{r}
+PALETTE = "Spectral"
+ #Create named vector with labels for each house
+label_house_num_people <- as.vector(
+  with(
+    df_config,
+    sprintf("House: %s, Adults: %i, Children: %i Concern: %.2f", House, Adults, Children, LvlOfConcern)
+  )
+)
+
+
+
+# Plotting
+wasted_by_household_fw_type <- ggplot(data = df_waste) +
+  geom_bar(mapping = aes(x = Day.Wasted, fill = Status, weight = Kg), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config$House)))) +
+  ylab("Kg") + 
+  xlab("Day") + 
+  scale_fill_brewer(palette = PALETTE) 
+
+# Display the plot
+wasted_by_household_fw_type
+
+```
+
+```{r}
+# Plotting
+wasted_by_household_kg <- ggplot(data = df_waste) +
+  geom_bar(mapping = aes(x = Day.Wasted, fill = Type, weight = Kg), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config$House)))) +
+  ylab("Kg") + 
+  xlab("Day") + 
+  scale_fill_brewer(palette = PALETTE) 
+
+# Display the plot
+wasted_by_household_kg
+
+```
+
+
+## Sum by Food type 
+
+```{r}
+#calc food types portions
+#sum_by_type <- aggregate(Kg ~ Type + House, data = df_waste, FUN = sum)
+sum_by_type <- aggregate(Kg ~ Type , data = df_waste, FUN = sum)
+sum_by_type$Percentage <- sum_by_type$Kg / sum(sum_by_type$Kg)
+sum_by_type
+
+sum(sum_by_type$Kg)
+```
+
+## Sum by Waste type
+```{r}
+#calc food types portions
+#sum_by_type <- aggregate(Kg ~ Type + House, data = df_waste, FUN = sum)
+sum_by_status <- aggregate(Kg ~ Status , data = df_waste, FUN = sum)
+sum_by_status$Percentage <- sum_by_status$Kg / sum(sum_by_status$Kg)
+sum_by_status
+
+sum(sum_by_status$Kg)
+```
+

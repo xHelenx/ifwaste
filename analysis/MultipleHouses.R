@@ -1,16 +1,14 @@
 
 # Loading necessary libraries
-
 # Install packages if you haven't already 
-#install.packages("ggplot2")
-#install.packages("patchwork")
-
+install.packages("ggplot2")
+install.packages("patchwork")
 
 library(ggplot2)
 library(patchwork)
 
 # Read the CSV file
-data <- read.csv("/Users/ziynetboz/Desktop/IFWASTE Codes for Ziynets USe/outputs/wasted.csv")
+data <- read.csv("E:/UF/ifwaste/data/2024-03-21at14-38/wasted.csv")
 
 # Assuming your data frame has columns 'House', 'DayWasted', and 'KgWasted'
 # Convert House to a factor if it's not already
@@ -39,7 +37,7 @@ plot_layout <- wrap_plots(plots_list)
 plot_layout <- wrap_plots(plots_list, ncol = 2)
 
 # Combining the plots.Layouts can be adjusted here
-plot_layout <- reduce(plots_list, `+`)
-plot_layout + plot_layout_guides(ncol = 2)
+#plot_layout <- reduce(plots_list, `+`)
+#plot_layout + plot_layout_guides(ncol = 2)
 
 print(plot_layout)
