@@ -10,3 +10,6 @@ debug.log
 analysis/*.html 
 analysis/plots/*
 
+#ignore archive files
+archive/*
+
