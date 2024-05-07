@@ -76,33 +76,33 @@ class Store():
             ])
         servings_per_type[food_type] = servings 
         assert servings_per_type.values.sum() > 0
-        if food_type == 'Meat & Fish':
+        if food_type == globals.FTMEAT:
             exp_min = 4 # days 
             exp_max = 11 # days
             kg = 0.09*servings # assume 90g meat per serving
             price = 6*2.2*kg # assume $6/lb to total for kg
             kcal_kg = 2240 # assume 2240 kcal per kg of meat
             inedible_parts = 0.1 #%
-        elif food_type == 'Dairy & Eggs':
+        elif food_type == globals.FTDAIRY:
             exp_min = 7 # days 
             exp_max = 28 # days
             kg = 0.109*servings # assume 109g dairy&egg per serving
             price = 6*16/27*2.2*kg # assume $6/27oz to total for kg
             kcal_kg = 1810 # assume 1810 kcal per kg of dairy&eggs
             inedible_parts = 0.1
-        elif food_type == 'Fruits & Vegetables':
+        elif food_type == globals.FTVEGETABLE:
             exp_min = 5 # days 
             exp_max = 15 # days
             kg = 0.116*servings # assume 116g f,v per serving
             price = 3.62*2.2*kg # assume $3.62/lb to total for kg
             kcal_kg = 790 # assume 790 kcal per kg of f,v
-        elif food_type == 'Dry Foods & Baked Goods':
+        elif food_type == globals.FTDRYFOOD:
             exp_min = 7 # days 
             exp_max = 8*7 # days
             kg = 0.065*servings # assume 65g per serving
-            price = 1.5*2.2*kg # assume $1.50/lb to total for kg
+            price = 1.5*2.2*kg # assume $1.50/lb to total for kg 
             kcal_kg = 3360 # assume 3360 kcal per kg
-        elif food_type == 'Snacks, Condiments, Liquids, Oils, Grease, & Other':
+        elif food_type == globals.FTSNACKS:
             exp_min = 7 # days 
             exp_max = 8*7 # days
             kg = 0.095*servings # assume 95g per serving

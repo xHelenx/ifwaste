@@ -26,7 +26,7 @@ MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients
 SERVINGS_PER_GRAB = 8
 KCAL_PER_GRAB = 100 
 INGREDIENTS_PER_QUICKCOOK = 2
-MAX_SCALER_COOKING_AMOUNT = 3
+MAX_SCALER_COOKING_AMOUNT = 2
 SERVING_SIZES = [6,12,20]
 ##----------------------------------------------------
 ## Person 

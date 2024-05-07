@@ -44,7 +44,7 @@ class House():
         self.kcal = sum([person.kcal for person in self.ppl])
         self.pantry = Storage()
         self.fridge = Storage()
-        self.shopping_frequency = random.randint(1, 7)
+        self.shopping_frequency = random.randint(2, 7)
         self.store = None
         self.id = id
         self.maxTimeForCookingAndShopping = 3.0  # This will change and become a HH input
@@ -236,7 +236,7 @@ class House():
     
         #big shop 
         basket = pd.DataFrame()
-        n_servings = self.servings * self.shopping_frequency 
+        n_servings = self.servings * 0.9 * self.shopping_frequency 
         if is_quickshop: 
             n_servings = self.servings 
             if random.uniform(0,1) > 0.5: #buy store prepared 
