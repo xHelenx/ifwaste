@@ -112,6 +112,7 @@ class Neighborhood():
             'AvailTimeFriday',
             'AvailTimeSaturday',
             'AvailTimeSunday',
+            'ShoppingFrequency',
             'totalRuns'            
         ])
         
@@ -133,6 +134,7 @@ class Neighborhood():
                 'AvailTimeFriday' : house.time[4], 
                 'AvailTimeSaturday' : house.time[5], 
                 'AvailTimeSunday' : house.time[6],
+                'ShoppingFrequency': house.shopping_frequency,
                 'totalRuns' : globals.SIMULATION_RUNS,
             }
         
@@ -268,11 +270,11 @@ class Neighborhood():
         """        
         path = str(Path(__file__).parents[1])
         dt = datetime.datetime.now()
-        if (not os.path.isdir(path + "\\data")): 
-            os.mkdir(path + "\\data\\")
+        if (not os.path.isdir(path + "//data")): 
+            os.mkdir(path + "//data//")
         
         if experiment_name != None: 
-            path = path + "\\data\\" + experiment_name + "\\"
+            path = path + "//data//" + experiment_name + "//"
             if (not os.path.isdir(path )): 
                 os.mkdir(path)
         
