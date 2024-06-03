@@ -89,13 +89,13 @@ class Store():
             kg = 0.109*servings # assume 109g dairy&egg per serving
             price = 6*16/27*2.2*kg # assume $6/27oz to total for kg
             kcal_kg = 1810 # assume 1810 kcal per kg of dairy&eggs
-            inedible_parts = 0.1
         elif food_type == globals.FTVEGETABLE:
             exp_min = 5 # days 
             exp_max = 15 # days
             kg = 0.116*servings # assume 116g f,v per serving
             price = 3.62*2.2*kg # assume $3.62/lb to total for kg
             kcal_kg = 790 # assume 790 kcal per kg of f,v
+            inedible_parts = 0.1
         elif food_type == globals.FTDRYFOOD:
             exp_min = 7 # days 
             exp_max = 8*7 # days
