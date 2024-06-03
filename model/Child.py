@@ -46,5 +46,5 @@ class Child(Person):
           
         
         self.susceptibility = 0
-        self.concern = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
+        self.concern = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),1- random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
         self.plate_waste_ratio = random.uniform(globals.CHILD_PLATE_WASTE_MIN,globals.CHILD_PLATE_WASTE_MAX)

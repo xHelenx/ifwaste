@@ -46,7 +46,7 @@ class Person():
         logging.debug("Person needs %i per day", self.kcal)
         
         self.susceptibility = 0
-        self.concern = [random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX)]
+        self.concern = [random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX),1- random.uniform(globals.ADULT_CONCERN_MIN,globals.ADULT_CONCERN_MAX)]
         self.plate_waste_ratio = random.uniform(globals.ADULT_PLATE_WASTE_MIN,globals.ADULT_PLATE_WASTE_MAX)
     
     #def old(self):
