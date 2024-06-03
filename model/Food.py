@@ -13,7 +13,8 @@ class Food():
         self.kg = food_data['kg']
         self.servings = food_data['Servings']
         self.exp = random.randint(food_data['Expiration Min.'], food_data['Expiration Max.'])
-        self.price_kg = food_data['Price']/self.kg
+        self.price_kg = food_data['Price'] #general price per kg
+        self.price = food_data["Price"]/self.kg #price of current product
         self.inedible_parts = food_data['Inedible Parts']
         self.servings_per_type = food_data["ServingsPerType"].copy()
         self.frozen = False
@@ -60,7 +61,7 @@ class Food():
                 'kg': servings*self.serving_size,
                 'Expiration Min.': self.exp,
                 'Expiration Max.': self.exp,
-                'Price': self.price_kg*servings*self.serving_size,
+                'Price': self.price_kg,
                 'Servings': servings,
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts,
@@ -68,6 +69,7 @@ class Food():
             })            
             
             self.kg -= portioned_food.kg
+            self.price = self.kg * self.price_kg
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
             #assert self.servings_per_type.values.sum() == self.servings
@@ -83,7 +85,7 @@ class Food():
                 'kg': kcal/self.kcal_kg,
                 'Expiration Min.': self.exp,
                 'Expiration Max.': self.exp,
-                'Price': self.price_kg*kcal/self.kcal_kg,
+                'Price': self.price_kg,
                 'Servings': (kcal/self.kcal_kg)/self.serving_size,
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts,
@@ -91,6 +93,7 @@ class Food():
             })
             
             self.kg -= portioned_food.kg
+            self.price = self.kg * self.price
             self.servings -= portioned_food.servings
             self.servings_per_type -= servings_per_type
                 
@@ -128,7 +131,7 @@ class Food():
                 'kg': waste_kg,
                 'Expiration Min.': self.exp,
                 'Expiration Max.': self.exp,
-                'Price': self.price_kg*waste_kg/self.kcal_kg,
+                'Price': self.price_kg,
                 'Servings': waste_servings,
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': 1,
@@ -146,7 +149,7 @@ class Food():
                 'kg': waste_kg,
                 'Expiration Min.': self.exp,
                 'Expiration Max.': self.exp,
-                'Price': self.price_kg*waste_kg/self.kcal_kg,
+                'Price': self.price_kg,
                 'Servings': waste_servings,
                 'kcal_kg': self.kcal_kg,
                 'Inedible Parts': self.inedible_parts,

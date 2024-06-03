@@ -46,6 +46,7 @@ class CookedFood(Food):
                 #debug_kcals += [int(ingredient.kcal_kg*ingredient.kg)]
             
             self.price_kg = price/self.kg
+            self.price = price 
             self.kcal_kg = kcal/self.kg
             self.serving_size = self.kg/self.servings
             self.status = 'Home-prepped'
@@ -60,6 +61,7 @@ class CookedFood(Food):
             self.inedible_parts = cooked_food.inedible_parts
             self.exp = cooked_food.exp
             self.price_kg = cooked_food.price_kg
+            self.price = cooked_food.price_kg * cooked_food.kg
             self.kcal_kg = cooked_food.kcal_kg
             self.serving_size = cooked_food.serving_size
             self.status = cooked_food.status
@@ -86,6 +88,7 @@ class CookedFood(Food):
             self.kg -= portioned_food.kg 
             self.servings -= portioned_food.servings
             self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x)
+            self.price = self.kg * self.price_kg
         else: #Kcal based 
             if kcal > self.kcal_kg * self.kg: 
                 kcal = self.kcal_kg * self.kg
@@ -94,7 +97,8 @@ class CookedFood(Food):
             self.kg -= portioned_food.kg 
             self.servings -= portioned_food.servings
             self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
-    
+            self.price = self.kg * self.price_kg
+            
         if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
             self = None 
         
