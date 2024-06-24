@@ -1,14 +1,14 @@
 {
     "Simulation" : { 
-        "runs" : 5, 
-        "total_days" : 40,
-        "name": "2_kids_50hh"
+        "runs" : 1, 
+        "total_days" : 3,
+        "name": "rerun_prices_changes"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 50, 
+        "neighborhood_houses" : 5, 
         "neighborhood_serving_based" : 5
     },
-    "House" : {
+    "Household" : {
         "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2
     },
@@ -20,4 +20,4 @@
         "child_plate_waste_min" : 0.06,
         "child_plate_waste_max" : 0.15
     }
-}
+} 

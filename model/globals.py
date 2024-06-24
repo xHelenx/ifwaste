@@ -76,8 +76,8 @@ def configure_simulation():
     CHILD_PLATE_WASTE_MIN = config["Child"]["child_plate_waste_min"]
     CHILD_PLATE_WASTE_MAX = config["Child"]["child_plate_waste_max"] 
 
-    HH_AMOUNT_CHILDREN = config["House"]["hh_amount_children"]
-    HH_AMOUNT_ADULTS = config["House"]["hh_amount_adults"]
+    HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
+    HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
 
     ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
     ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"] 

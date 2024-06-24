@@ -13,7 +13,7 @@ from Child import Child
 from Storage import Storage
 import globals
 
-class House():
+class Household():
     def __init__(self, id: int, is_serving_based:bool = True):
         """Initializes a household
 
@@ -25,7 +25,7 @@ class House():
         self.amount_children = globals.HH_AMOUNT_CHILDREN
         logging.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
         self.adult_influence = 0.75 
-        self.child_influence = 0.25         
+        self.child_influence = 1 - self.adult_influence
         self.ppl = self.gen_ppl()   
         self.household_concern = self.calculate_household_concern()          
         self.household_req_servings = collections.Counter()

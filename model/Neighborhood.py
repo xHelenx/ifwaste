@@ -2,7 +2,7 @@
 import datetime
 import os
 from pathlib import Path
-from House import House
+from House import Household
 from Store import Store
 import pandas as pd
 import globals 
@@ -22,7 +22,7 @@ class Neighborhood():
             house.add_store(store)
             
         self.log_bought = pd.DataFrame(columns=[
-            'House',
+            'Household',
             'Day Bought',
             'Type',
             'Kg',
@@ -38,7 +38,7 @@ class Neighborhood():
             globals.FTSTOREPREPARED
         ])
         self.log_eaten = pd.DataFrame(columns=[
-            'House',
+            'Household',
             'Day Eaten',
             'Type',
             'Kg',
@@ -54,7 +54,7 @@ class Neighborhood():
             globals.FTSTOREPREPARED
         ])
         self.log_wasted = pd.DataFrame(columns=[
-            'House',
+            'Household',
             'Day Wasted',
             'Type',
             'Kg',
@@ -71,7 +71,7 @@ class Neighborhood():
         ])
         self.log_still_have = pd.DataFrame(columns=[
             'Day',
-            'House',
+            'Household',
             'Type',
             'Kg',
             'Price',
@@ -87,7 +87,7 @@ class Neighborhood():
         ])
         self.log_daily = pd.DataFrame(columns=[
             'Day',
-            'House',
+            'Household',
             "Budget",
             "Servings",
             "Kcal", 
@@ -97,7 +97,7 @@ class Neighborhood():
             "QuickCook"
         ])
         self.log_configuration = pd.DataFrame(columns=[
-            "House",
+            "Household",
             "RequiredKcal",
             "RequiredServings",
             "Budget",
@@ -118,7 +118,7 @@ class Neighborhood():
         
         for house in self.houses: 
             self.log_configuration.loc[house.id] = {
-                "House" : house.id, 
+                "Household" : house.id, 
                 "RequiredKcal" : house.kcal,
                 "RequiredServings" : house.servings,
                 "Budget" : house.budget, 
@@ -151,16 +151,16 @@ class Neighborhood():
                 self.collect_data(house=house, day=i)
                 self.get_storage(house=house, day=i)
                 
-    def collect_data(self, house: House, day: int):
+    def collect_data(self, house: Household, day: int):
         """Collects the daily data from each house
 
         Args:
-            house (House): current household
+            house (Household): current household
             day (int): current day
         """        
         for food in house.log_bought:
             self.log_bought.loc[len(self.log_bought)] = {
-                'House': house.id,
+                'Household': house.id,
                 'Day Bought': day,
                 'Type': food.type,
                 'Kg': food.kg,
@@ -178,7 +178,7 @@ class Neighborhood():
         house.log_bought = []
         for food in house.log_eaten:
             self.log_eaten.loc[len(self.log_eaten)] = {
-                'House': house.id,
+                'Household': house.id,
                 'Day Eaten': day,
                 'Type': food.type,
                 'Kg': food.kg,
@@ -196,7 +196,7 @@ class Neighborhood():
         house.log_eaten = []
         for food in house.log_wasted:
             self.log_wasted.loc[len(self.log_wasted)] = {
-                'House': house.id,
+                'Household': house.id,
                 'Day Wasted':day,
                 'Type': food.type,
                 'Kg': food.kg,
@@ -214,7 +214,7 @@ class Neighborhood():
             }
         house.log_wasted = []
         self.log_daily.loc[len(self.log_daily)] = {
-            'House': house.id,
+            'Household': house.id,
             'Day':day,
             'Budget':house.current_budget,
             "Servings":house.todays_servings,
@@ -224,7 +224,7 @@ class Neighborhood():
             "AteLeftOvers": house.log_today_leftovers,
             "QuickCook":house.log_today_quickcook
         }
-    def get_storage(self, house: House, day):
+    def get_storage(self, house: Household, day):
         """Tracks the final content of the storage, used aglobals.fter simulation is finished
 
         Args:
@@ -233,7 +233,7 @@ class Neighborhood():
         for food in house.fridge.current_items:
             self.log_still_have.loc[len(self.log_still_have)] = {
                 'Day' : day ,
-                'House': house.id,
+                'Household': house.id,
                 'Type': food.type,
                 'Kg': food.kg,
                 'Price': food.price_kg*food.kg,
@@ -251,7 +251,7 @@ class Neighborhood():
         for food in house.pantry.current_items:
             self.log_still_have.loc[len(self.log_still_have)] = {
                 'Day' : day ,
-                'House': house.id,
+                'Household': house.id,
                 'Type': food.type,
                 'Kg': food.kg,
                 'Price': food.price_kg*food.kg,

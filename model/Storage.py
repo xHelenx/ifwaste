@@ -19,7 +19,7 @@ class Storage:
 
         Returns:
             result (Food): food, might be none 
-        """         
+        """             
         if self.is_empty(): 
             return None 
         
