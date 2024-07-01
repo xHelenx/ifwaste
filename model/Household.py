@@ -7,19 +7,23 @@ import pandas as pd
 
 from Food import Food
 from CookedFood import CookedFood
-from Person import Person
 from Store import Store
 from Child import Child
 from Storage import Storage
 import globals
+from Adult import Adult
 
 class Household():
-    def __init__(self, id: int, is_serving_based:bool = True):
+    def __init__(self, id: int, location:tuple, is_serving_based:bool = True):
         """Initializes a household
 
         Args:
             id (int): unique id of the household
         """        
+        
+        
+        
+        self.location = location
         logging.debug("HOUSE INFO")
         self.amount_adults = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children = globals.HH_AMOUNT_CHILDREN
@@ -28,24 +32,28 @@ class Household():
         self.child_influence = 1 - self.adult_influence
         self.ppl = self.gen_ppl()   
         self.household_concern = self.calculate_household_concern()          
-        self.household_req_servings = collections.Counter()
-        ppl_serving_lists = [ppl.req_servings for ppl in self.ppl]
+       
+        self.req_servings_per_fg = collections.Counter()
+        ppl_serving_lists = [ppl.req_servings_per_fg for ppl in self.ppl]
         for d in ppl_serving_lists:
-            self.household_req_servings.update(d)
-        self.req_total_servings = sum(self.household_req_servings.values())
+            self.req_servings_per_fg.update(d)
+        self.req_servings = sum(self.req_servings_per_fg.values())
+            
+        print(self.req_servings)
+        print(self.req_servings_per_fg)
+        
         
         numerator = 0
         for person in self.ppl: 
-            individual_waste_serv = person.plate_waste_ratio*sum(person.req_servings.values())
+            individual_waste_serv = person.plate_waste_ratio*person.req_servings
             numerator += individual_waste_serv
-        self.household_plate_waste_ratio = numerator/self.req_total_servings
+        self.household_plate_waste_ratio = numerator/self.req_servings
         
         
         self.kcal = sum([person.kcal for person in self.ppl])
         self.pantry = Storage()
         self.fridge = Storage()
         self.shopping_frequency = random.randint(2, 7)
-        self.store = None
         self.id = id
         self.maxTimeForCookingAndShopping = 3.0  # This will change and become a HH input
         self.time = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
@@ -58,8 +66,8 @@ class Household():
         self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
         
         self.todays_kcal = self.kcal
-        self.servings = sum(self.household_req_servings.values())
-        self.todays_servings = self.servings
+        self.todays_servings = self.req_servings
+        self.todays_servings_fg = self.req_servings_per_fg
         
         self.weekday = -1
         logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)
@@ -73,15 +81,6 @@ class Household():
         self.log_today_leftovers = 0
         self.log_today_quickcook = 0
         
-        
-    def add_store(self,store:Store): 
-        """relates a store to the household
-        TODO: atm only 1 store possible 
-
-        Args:
-            store (Store): store the household buys groceries from
-        """        
-        self.store = store
     def reset_logging_todays_choices(self): 
         """resets the logging variables tracking the meal preparation
         
@@ -99,11 +98,14 @@ class Household():
         """  
         ppl = []
         for _ in range(self.amount_adults):
-            ppl += [Person()]
+            ppl += [Adult()]
         for _ in range(self.amount_children):
             ppl += [Child()]
         
         return ppl
+    
+    #def assess_what_to_buy(self): 
+        
     
     def calculate_household_concern(self): 
         """Calculates the current average concern of the household 
@@ -240,7 +242,7 @@ class Household():
         if is_quickshop: 
             n_servings = self.servings 
             if random.uniform(0,1) > 0.5: #buy store prepared 
-                basket = basket._append(self.store.buy_by_type(type=globals.FTSTOREPREPARED,servings=n_servings), ignore_index=True)
+                basket = basket._append(self.store.buy_by_type(type=globals.FGSTOREPREPARED,servings=n_servings), ignore_index=True)
                 basket = basket._append(self.store.buy_by_items(amount=random.randint(1,3)), ignore_index=True) #TODO could be store prepared again
             else: 
                 basket = basket._append(self.store.buy_by_servings(servings=n_servings),ignore_index=True)
@@ -263,7 +265,7 @@ class Household():
             food = Food(item_info)
             logging.debug("Grocery: %f", food.kg)
             self.log_bought.append(copy.deepcopy(food))
-            if food.type == globals.FTSTOREPREPARED:
+            if food.type == globals.FGSTOREPREPARED:
                 self.fridge.add(copy.deepcopy(food))
             else:
                 self.pantry.add(copy.deepcopy(food))
