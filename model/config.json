@@ -6,7 +6,12 @@
     },
     "Neighborhood" : {
         "neighborhood_houses" : 5, 
-        "neighborhood_serving_based" : 5
+        "neighborhood_serving_based" : 5,
+        "neighborhood_store_types": "['low-tier']",
+        "neighborhood_store_amounts": "[1]"
+    },
+    "Grid": {
+        "travel_time_per_cell" : 2
     },
     "Household" : {
         "hh_amount_children" : 2, 
@@ -14,10 +19,121 @@
     },
     "Adult" : {
         "adult_plate_waste_min" : 0.03,
-        "adult_plate_waste_max" : 0.12
+        "adult_plate_waste_max" : 0.12, 
+        "adult_concern_min" : 0.3,
+        "adult_concern_max" : 0.7,
+
+        "male_veg_servings_min" : 2.6,
+        "male_veg_servings_max" : 2.9,
+        "male_dry_food_servings_min" : 7.3,
+        "male_dry_food_servings_max" : 8,
+        "male_dairy_servings_min" : 1.9,
+        "male_dairy_servings_max" : 2,
+        "male_meat_servings_min" : 8,
+        "male_meat_servings_max" : 8,
+        "male_snacks_servings_min" : 0,
+        "male_snacks_servings_max" : 0,
+        "male_store_prepared_servings_min" : 0,
+        "male_store_prepared_servings_max" : 0,
+
+        "female_veg_servings_min" : 2.5,
+        "female_veg_servings_max" : 2.8,
+        "female_dry_food_servings_min" : 5.3,
+        "female_dry_food_servings_max" : 6,
+        "female_dairy_servings_min" : 1.3,
+        "female_dairy_servings_max" : 1.3,
+        "female_meat_servings_min" : 5.2,
+        "female_meat_servings_max" : 5.5,
+        "female_snacks_servings_min" : 0,
+        "female_snacks_servings_max" : 0,
+        "female_store_prepared_servings_min" : 0,
+        "female_store_prepared_servings_max" : 0
     },
     "Child": {
         "child_plate_waste_min" : 0.06,
-        "child_plate_waste_max" : 0.15
+        "child_plate_waste_max" : 0.15,
+        "child_concern_min" : 0,
+        "child_concern_max" : 0.3,
+
+        "male_veg_servings_min" : 1.8,
+        "male_veg_servings_max" : 2.2,
+        "male_dry_food_servings_min" : 5.1,
+        "male_dry_food_servings_max" : 8.7,
+        "male_dairy_servings_min" : 2,
+        "male_dairy_servings_max" : 2.2,
+        "male_meat_servings_min" : 3,
+        "male_meat_servings_max" : 6,
+        "male_snacks_servings_min" : 0,
+        "male_snacks_servings_max" : 0,
+        "male_store_prepared_servings_min" : 0,
+        "male_store_prepared_servings_max" : 0,
+
+        "female_veg_servings_min" : 1.8,
+        "female_veg_servings_max" : 2,
+        "female_dry_food_servings_min" : 4.5,
+        "female_dry_food_servings_max" : 7,
+        "female_dairy_servings_min" : 1.7,
+        "female_dairy_servings_max" : 1.95,
+        "female_meat_servings_min" : 3,
+        "female_meat_servings_max" : 4,
+        "female_snacks_servings_min" : 0,
+        "female_snacks_servings_max" : 0,
+        "female_store_prepared_servings_min" : 0,
+        "female_store_prepared_servings_max" : 0
+    },
+    "Food": {
+        "FGMEAT" : {
+            "type" : "FGMEAT",
+            "kg_per_serving" : 0.09,
+            "kcal_per_kg": 2240,
+            "inedible_percentage": 0.1,
+            "exp_min":4,
+            "exp_max":11
+        },
+        "FGDAIRY" : {
+            "type" : "FGDAIRY",
+            "kg_per_serving" : 0.109,
+            "kcal_per_kg": 1810,
+            "inedible_percentage": 0,
+            "exp_min":7,
+            "exp_max":28
+        },
+        "FGVEGETABLE" : {
+            "type" : "FGVEGETABLE",
+            "kg_per_serving" : 0.116,
+            "kcal_per_kg": 790,
+            "inedible_percentage": 0.1,
+            "exp_min":5,
+            "exp_max":15
+        },
+        "FGDRYFOOD" : {
+            "type" : "FGDRYFOOD",
+            "kg_per_serving" : 0.065,
+            "kcal_per_kg": 3360,
+            "inedible_percentage": 0,
+            "exp_min":7,
+            "exp_max":56
+        },
+        "FGSNACKS" : {
+            "type" : "FGSNACKS",
+            "kg_per_serving" : 0.095,
+            "kcal_per_kg": 2790,
+            "inedible_percentage": 0,
+            "exp_min":7,
+            "exp_max":56
+        },
+        "FGSTOREPREPARED" : {
+            "type" : "FGSTOREPREPARED",
+            "kg_per_serving" : 0.095,
+            "kcal_per_kg": 2790,
+            "inedible_percentage": 0,
+            "exp_min":2,
+            "exp_max":7
+        }
+    },
+    "Store": {
+        "low-tier": {
+            "product_range": "parameterization\\store_type1.csv"
+        }
     }
 } 
