@@ -9,31 +9,25 @@ class Food():
             food_data (dict): Food data includes type, expiration intervals, 
             servings, price, kg, kcal per kg, and amount of edible parts per kg
         """        
-        self.type = food_data['Type']
-        self.kg = food_data['kg']
-        self.servings = food_data['Servings']
-        self.exp = random.randint(food_data['Expiration Min.'], food_data['Expiration Max.'])
-        self.price_kg = food_data['Price'] #general price per kg
-        self.price = food_data["Price"]/self.kg #price of current product
-        self.inedible_parts = food_data['Inedible Parts']
-        self.servings_per_type = food_data["ServingsPerType"].copy()
-        self.frozen = False
-        self.serving_size = self.kg/self.servings
-        self.kcal_kg = food_data['kcal_kg']
-        self.status = 'Un-prepped' if self.type != globals.FTSTOREPREPARED else 'Store-prepped'
+        self.type = food_data['type']
+        self.servings = food_data['servings']
+        self.days_till_expiry = food_data["days_till_expiry"]
+        
     def __str__(self) -> str:
         """returns a readable string of a food
 
         Returns:
             str: includes expiration data, kcal and servings
         """        
-        return "exp: " + str(self.exp) + " kcal: " + str(int(self.kcal_kg*self.kg)) + " servings: " + str(self.servings) + "type: "  + \
-        str(self.servings_per_type.values)
+        return "type: "  +  str(self.type) + " exp: " + str(self.days_till_expiry) +  " servings: " + str(self.servings) 
+    
     def decay(self):
         """Decays food by reducing the expiration dates
         """        
         if not self.frozen:
-            self.exp -= 1
+            self.days_till_expiry -= 1
+    
+    #TODO redo
     def split(self, servings: int = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 
         amount of calories XOR the servings

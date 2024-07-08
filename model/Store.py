@@ -24,14 +24,9 @@ class Store():
             'exp_min', 
             'exp_max',
             'price_per_serving',
-            'kg_per_serving',
-            'kcal_per_kg',
-            'inedible_percentage',
             'amount'])        
         
         self.buy_stock(10)
-        
-
         
     
     def buy_stock(self, amount_per_item): 
@@ -47,9 +42,6 @@ class Store():
                             curr_fg["exp_min"], 
                             curr_fg["exp_min"],
                             self.product_range.loc[i,"price_per_serving"], 
-                            curr_fg["kg_per_serving"], 
-                            curr_fg["kcal_per_kg"], 
-                            curr_fg["inedible_percentage"], 
                             amount_per_item]
                         
                 self.stock.loc[len(self.stock)] = new_item                            
