@@ -7,7 +7,9 @@ from pathlib import Path
 
 class DataLogger: 
 
-    def __init__(self) -> None:
+    def __init__(self,houses, stores) -> None:
+        self.houses = houses 
+        self.stores = stores
         columns = [
             'Household',
             'Day',
@@ -81,7 +83,7 @@ class DataLogger:
             self.log_configuration.loc[house.id] = {
                 "Household" : house.id, 
                 "RequiredKcal" : house.kcal,
-                "RequiredServings" : house.servings,
+                "RequiredServings" : house.req_servings,
                 "Budget" : house.budget, 
                 "IsServingBased" : house.is_serving_based,
                 "Adults" : house.amount_adults,

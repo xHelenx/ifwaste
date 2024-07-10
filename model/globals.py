@@ -11,6 +11,10 @@ FGDRYFOOD = "FGDRYFOOD"
 FGSNACKS = "FGSNACKS"
 FGSTOREPREPARED = "FGSTOREPREPARED"
 
+
+##Store names
+LOWTIER = "low-tier"
+
 ### Waste types 
 FW_PLATE_WASTE = "Plate Waste"
 FW_INEDIBLE = "Inedible Parts"
@@ -42,9 +46,10 @@ HH_AMOUNT_ADULTS = None
 
 NEIGHBORHOOD_HOUSES = None
 NEIGHBORHOOD_SERVING_BASED = None
-NEIGHBORHOOD_STORE_TYPE = None 
+NEIGHBORHOOD_STORE_TYPES = None 
 NEIGHBORHOOD_STORE_AMOUNTS = None 
-TRAVEL_TIME_PER_CELL = None 
+NEIGHBORHOOD_PAY_DAY_INTERVAL = None
+GRID_TRAVEL_TIME_PER_CELL = None 
 
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
@@ -115,7 +120,7 @@ def configure_simulation():
     global HH_AMOUNT_ADULTS
     global NEIGHBORHOOD_HOUSES
     global NEIGHBORHOOD_SERVING_BASED
-    global NEIGHBORHOOD_STORE_TYPE
+    global NEIGHBORHOOD_STORE_TYPES
     global NEIGHBORHOOD_STORE_AMOUNTS    
     global GRID_TRAVEL_TIME_PER_CELL
     global SIMULATION_RUNS
@@ -177,6 +182,7 @@ def configure_simulation():
     global CHILD_FEMALE_SNACKS_SERVINGS_MAX
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
+    global NEIGHBORHOOD_PAY_DAY_INTERVAL
    
     with open(CONFIG_PATH) as f:
         config = json.load(f)
@@ -187,15 +193,18 @@ def configure_simulation():
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     NEIGHBORHOOD_SERVING_BASED = config["Neighborhood"]["neighborhood_serving_based"]
-    NEIGHBORHOOD_STORE_TYPE = config["Neighborhood"]["neighborhood_store_types"]
-    NEIGHBORHOOD_STORE_AMOUNTS = config["Neighborhood"]["neighborhood_store_amounts"]
+    
+    store_types = config["Neighborhood"]["neighborhood_store_types"]
+    parts = store_types.strip('[]').split(',')
+    NEIGHBORHOOD_STORE_TYPES = [part.strip().strip("'") for part in parts]
+    NEIGHBORHOOD_STORE_AMOUNTS = [int(item) for item in json.loads(config["Neighborhood"]["neighborhood_store_amounts"])]
+    NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
     
     GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
     HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
     
-    #TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
     
     ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
     ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"]
