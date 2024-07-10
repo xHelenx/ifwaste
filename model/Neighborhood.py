@@ -6,6 +6,8 @@ from Household import Household
 from Store import Store
 import pandas as pd
 import globals 
+from Grid import Grid
+from StoreLowTier import StoreLowTier 
 
 
 class Neighborhood():
@@ -18,29 +20,32 @@ class Neighborhood():
         self.houses = []
         
         
-        self.grid = self.get_grid(gridsize)
-        available_positions = [(r, c) for r in range(self.grid) for c in range(self.grid[0])]      
+        self.grid = Grid()
               
         #setup all stores
-        for store in globals.NEIGHBORHOOD_STORE_TYPE:
-            for i in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS): 
-                location = self.assign_location(available_positions)
-                store = Store(globals.NEIGHBORHOOD_STORE_TYPE, location)
-                self.store.append(store)
+        for i in range(len(globals.NEIGHBORHOOD_STORE_TYPES)):
+            for _ in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
+                if globals.NEIGHBORHOOD_STORE_TYPES[i] == globals.LOWTIER:
+                    store = StoreLowTier(globals.NEIGHBORHOOD_STORE_TYPES[i], self.grid)
+                else: 
+                    raise ValueError("store type does not exist")
+                self.grid.assign_location(store)
+                self.stores.append(store)
 
         
         #setup all households
         assert globals.NEIGHBORHOOD_HOUSES >= globals.NEIGHBORHOOD_SERVING_BASED 
         for i in range(0,globals.NEIGHBORHOOD_SERVING_BASED): 
-            location = self.assign_location(available_positions)
-            house = Household(i,location,is_serving_based=True)
+            house = Household(i,self.grid,is_serving_based=True)
+            self.grid.assign_location(house)
             self.houses.append(house)
         for i in range(globals.NEIGHBORHOOD_SERVING_BASED,globals.NEIGHBORHOOD_HOUSES): 
-            location = self.assign_location(available_positions)
-            house = Household(i,location,is_serving_based=False)
+            house = Household(i,self.grid,is_serving_based=False)
+            self.grid.assign_location(house)
+            self.houses.append(house)
         
         #setup datalogger
-        self.data_logger = DataLogger()
+        self.data_logger = DataLogger(self.houses, self.stores)
         
     def run(self, days= 365):
         """Runs the simulation for the amount of days specified

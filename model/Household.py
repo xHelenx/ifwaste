@@ -1,77 +1,80 @@
 
 import collections
-import copy
 import random
 import logging
 import pandas as pd
 
-from Food import Food
 from CookedFood import CookedFood
-from Store import Store
 from Child import Child
 from Storage import Storage
 import globals
 from Adult import Adult
+from Grid import Grid 
 
 class Household():
-    def __init__(self, id: int, location:tuple, is_serving_based:bool = True):
+    def __init__(self, id: int, grid:Grid, is_serving_based:bool = True):
         """Initializes a household
 
         Args:
             id (int): unique id of the household
         """        
+        self.grid = grid  
+        self.weekday = -1   
+        self.pantry = Storage()
+        self.fridge = Storage()
+        self.id = id
         
-        
-        
-        self.location = location
+        ###HOUSEHOLD MEMBER
         logging.debug("HOUSE INFO")
         self.amount_adults = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children = globals.HH_AMOUNT_CHILDREN
         logging.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
         self.adult_influence = 0.75 
         self.child_influence = 1 - self.adult_influence
-        self.ppl = self.gen_ppl()   
-        self.household_concern = self.calculate_household_concern()          
-       
+        self.ppl = self.gen_ppl()
+        self.household_concern = self.calculate_household_concern()     
+        
+        ### HOUSEHOLD FOOD DEMAND
         self.req_servings_per_fg = collections.Counter()
         ppl_serving_lists = [ppl.req_servings_per_fg for ppl in self.ppl]
         for d in ppl_serving_lists:
             self.req_servings_per_fg.update(d)
         self.req_servings = sum(self.req_servings_per_fg.values())
-            
-        print(self.req_servings)
-        print(self.req_servings_per_fg)
-        
         
         numerator = 0
         for person in self.ppl: 
             individual_waste_serv = person.plate_waste_ratio*person.req_servings
             numerator += individual_waste_serv
         self.household_plate_waste_ratio = numerator/self.req_servings
-        
-        
         self.kcal = sum([person.kcal for person in self.ppl])
-        self.pantry = Storage()
-        self.fridge = Storage()
+        self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
+
+        
+        ### SHOPPING CHARACTERISTICS
         self.shopping_frequency = random.randint(2, 7)
-        self.id = id
         self.maxTimeForCookingAndShopping = 3.0  # This will change and become a HH input
         self.time = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping, 
                      random.random()*self.maxTimeForCookingAndShopping] #free time per day GAK Addition 
         self.budget = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
-        self.current_budget = self.budget
-        #self.vegetarian = False # Flag for Vegetation GAK Addition
-        self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
+        self.pay_day_interval = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL     
+        self.price_sens = random.uniform(0,1)
+        self.brand_sens = {store:random.uniform(0,1) for store in globals.NEIGHBORHOOD_STORE_TYPES}
+        self.quality_sens = random.uniform(0,1)
+        self.availability_sens = random.uniform(0,1)
+        self.deal_sens = random.uniform(0,1)
+        self.planner = random.uniform(0,1)
         
+        
+        ### TRACKING CURRENT STATUS
         self.todays_kcal = self.kcal
         self.todays_servings = self.req_servings
         self.todays_servings_fg = self.req_servings_per_fg
+        self.todays_budget = self.budget       
+        logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)                
         
-        self.weekday = -1
-        logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)
-        
+        ### LOGGING 
         self.log_eaten = []
         self.log_wasted = []
         self.log_bought = []
@@ -85,7 +88,6 @@ class Household():
         """resets the logging variables tracking the meal preparation
         
         """        
-        
         self.log_today_eef = 0
         self.log_today_cooked = 0
         self.log_today_leftovers = 0
@@ -104,8 +106,25 @@ class Household():
         
         return ppl
     
-    #def assess_what_to_buy(self): 
+    def get_what_to_buy(self): ##assess what to buy
+        return (self.fridge.get_servings_per_fg() + self.pantry.get_servings_per_fg) -\
+            (self.req_servings_per_fg * self.shopping_frequency)
+    
+    def get_budget(self,day): #estimate budget for current shopping tour
+        days_till_payday = day % self.pay_day_interval
+        req_servings_till_payday = (self.fridge.get_servings() + self.pantry.get_servings()) - (self.req_servings * days_till_payday)
         
+        if self.todays_budget == 0: 
+            return 0 
+        
+        price_per_serving = req_servings_till_payday/self.todays_budget
+        budget = price_per_serving * (self.req_servings * self.shopping_frequency) * 1.2
+        if budget > self.todays_budget: 
+            budget = self.todays_budget
+        
+        return budget 
+    
+    #def 
     
     def calculate_household_concern(self): 
         """Calculates the current average concern of the household 
@@ -165,7 +184,7 @@ class Household():
             self.shop(is_quickshop=False)
             
         # check if it is payday
-        if day % 30 == 0: #pay day
+        if day % self.pay_day_interval == 0: #pay day
             self.current_budget += self.budget
         
         ##choose meal 
@@ -256,20 +275,41 @@ class Household():
     def shop(self, is_quickshop=False):
         """Shops for groceries and stores them in the correct location in the house
         """        
+        servings_to_buy_fg = self.get_what_to_buy()
+        budget = self.get_budget() 
+        
+        is_planner = self.planner > random.uniform(0,1)
+        store_order = self.get_store_order(is_planner)
+            
+        
         #get groceries
-        basket = self.get_groceries(is_quickshop)
+        #basket = self.get_groceries(is_quickshop)
         
         #put groceries away
-        for i in range(len(basket)):
-            item_info = basket.iloc[i].to_dict()
-            food = Food(item_info)
-            logging.debug("Grocery: %f", food.kg)
-            self.log_bought.append(copy.deepcopy(food))
-            if food.type == globals.FGSTOREPREPARED:
-                self.fridge.add(copy.deepcopy(food))
-            else:
-                self.pantry.add(copy.deepcopy(food))
+        #for i in range(len(basket)):
+        #    item_info = basket.iloc[i].to_dict()
+        #    food = Food(item_info)
+        #    logging.debug("Grocery: %f", food.kg)
+        #    self.log_bought.append(copy.deepcopy(food))
+        #    if food.type == globals.FGSTOREPREPARED:
+        #        self.fridge.add(copy.deepcopy(food))
+        #    else:
+        #        self.pantry.add(copy.deepcopy(food))
         
+    def get_store_order(self, is_planner):        
+        stores = self.grid.get_relevant_stores(self, self.av)
+        #TODO what if no store is within reach
+        
+        store_preference = {store:0 for store in stores}
+        
+        if not is_planner: 
+            for store in stores: 
+                preference = self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
+                    self.brand_sens[store.store_type]
+            
+            
+        
+    
     def decay_food(self):
         """Decays the food in the household
         """    
