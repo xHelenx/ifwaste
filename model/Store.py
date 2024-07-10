@@ -1,19 +1,21 @@
 
 
+import random
 import pandas as pd
 import globals
 import json
 
 from FoodGroups import FoodGroups
-
+from EnumSales import EnumSales
 
 
 class Store():
-    def __init__(self, store_type:str, location ) -> None:
-        self.quality = 0.5 #todo
-        self.price = 0.5 #todo calc based on stock avg p serving?
+    def __init__(self, store_type:str, grid) -> None:
+        self.quality = None 
+        self.price = None 
+        self.grid = grid 
         self.food_groups = FoodGroups.get_instance()
-        self.location = location
+        self.store_type = store_type
         with open(globals.CONFIG_PATH) as f: 
             config = json.load(f)
             self.product_range = pd.read_csv(config["Store"][store_type]["product_range"])
@@ -21,13 +23,13 @@ class Store():
         self.stock = pd.DataFrame(columns= [
             'type', 
             'servings', 
-            'exp_min', 
-            'exp_max',
+            'days_till_expiry',
             'price_per_serving',
+            'sale_type',
             'amount'])        
         
-        self.buy_stock(10)
-        
+    def __str__(self) -> str:
+        return self.store_type + " at " + str(self.grid.get_location(self))
     
     def buy_stock(self, amount_per_item): 
         
@@ -39,9 +41,9 @@ class Store():
             else: 
                 new_item = [self.product_range.loc[i,"type"],
                             self.product_range.loc[i,"servings"],
-                            curr_fg["exp_min"], 
-                            curr_fg["exp_min"],
+                            random.uniform(curr_fg["exp_min"], curr_fg["exp_max"]), #TODO entire stock has same expiry date
                             self.product_range.loc[i,"price_per_serving"], 
+                            EnumSales.NONE, 
                             amount_per_item]
                         
                 self.stock.loc[len(self.stock)] = new_item                            

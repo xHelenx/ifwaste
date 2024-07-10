@@ -134,7 +134,7 @@
     },
     "Store": {
         "low-tier": {
-            "product_range": "parameterization\\store_type1.csv"
+            "product_range": "parameterization\\store_type_low_tier.csv"
         }
     }
 } 
