@@ -40,7 +40,7 @@ class Household():
         for d in ppl_serving_lists:
             self.req_servings_per_fg.update(d)
         self.req_servings = sum(self.req_servings_per_fg.values())
-        
+        self.req_servings_per_fg = self.req_servings_per_fg
         numerator = 0
         for person in self.ppl: 
             individual_waste_serv = person.plate_waste_ratio*person.req_servings
@@ -107,9 +107,17 @@ class Household():
         return ppl
     
     def get_what_to_buy(self): ##assess what to buy
-        return (self.fridge.get_servings_per_fg() + self.pantry.get_servings_per_fg) -\
-            (self.req_servings_per_fg * self.shopping_frequency)
-    
+        
+#        for item in self.req_servings
+        required_servings = dict()
+        required_servings.update((x, y*self.shopping_frequency) for x, y in self.req_servings_per_fg.items())
+        required_servings = pd.Series(required_servings)
+        fridge_content = pd.Series(self.fridge.get_servings_per_fg())
+        pantry_content = pd.Series(self.pantry.get_servings_per_fg())
+        
+        return required_servings - (fridge_content + pantry_content)
+        
+        
     def get_budget(self,day): #estimate budget for current shopping tour
         days_till_payday = day % self.pay_day_interval
         req_servings_till_payday = (self.fridge.get_servings() + self.pantry.get_servings()) - (self.req_servings * days_till_payday)
@@ -279,7 +287,7 @@ class Household():
         budget = self.get_budget() 
         
         is_planner = self.planner > random.uniform(0,1)
-        store_order = self.get_store_order(is_planner)
+        store_order = self.get_store_order(is_planner, servings_to_buy_fg)
             
         
         #get groceries
@@ -296,7 +304,7 @@ class Household():
         #    else:
         #        self.pantry.add(copy.deepcopy(food))
         
-    def get_store_order(self, is_planner):        
+    def get_store_order(self, is_planner, servings_to_buy_fg):        
         stores = self.grid.get_relevant_stores(self, self.av)
         #TODO what if no store is within reach
         
@@ -304,9 +312,24 @@ class Household():
         
         if not is_planner: 
             for store in stores: 
-                preference = self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
-                    self.brand_sens[store.store_type]
-            
+                preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
+                    self.brand_sens[store.store_type])/3
+                store_preference[store] = preference
+            return sorted(stores.items(), key=lambda x: x[1])
+        else: 
+         #   for store in stores: 
+                #calculate deal value
+             #   for fg in 
+                
+                
+                
+          #      preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
+          #          self.brand_sens[store.store_type] + )
+          #      store_preference[store] = preference
+            return sorted(stores.items(), key=lambda x: x[1])
+                
+    
+        
             
         
     

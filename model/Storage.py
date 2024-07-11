@@ -1,6 +1,7 @@
 import pandas as pd
 
 from Food import Food
+from FoodGroups import FoodGroups
 
 class Storage: 
 
@@ -9,6 +10,7 @@ class Storage:
             'type', 
             'servings', 
             'days_till_expiry'])
+        self.food_groups = FoodGroups.get_instance()
     
     def add(self, item:Food): 
         new_row = {"type" : item.type, "servings": item.servings, "days_till_expiry":item.days_till_expiry}
@@ -26,10 +28,24 @@ class Storage:
         return len(self.current_items)
     
     def get_servings(self): 
+        if len(self.current_items) == 0:
+            return 0
+            
         return self.current_items["servings"].sum()
     
     def get_servings_per_fg(self):
-        return self.current_items.groupby("type")["servings"].sum()
+        fgs = self.food_groups.get_all_food_groups()
+        result = pd.Series(dict(zip(fgs, [0]*len(fgs))))
+        
+        for fg in fgs: 
+            servings_fg = self.current_items[self.current_items["type"] ==fg]["servings"].sum()
+            print(servings_fg)
+            if servings_fg != None: 
+                result[fg] = 0
+            else:
+                result[fg] = servings_fg
+            
+        return result      
     
     def get_earliest_expiry_date(self): 
         return self.current_items["days_till_expiry"].min()
