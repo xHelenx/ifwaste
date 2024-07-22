@@ -1,14 +1,11 @@
 
-import math
-import random
 from DataLogger import DataLogger
 from Household import Household
-from Store import Store
-import pandas as pd
 import globals 
 from Grid import Grid
 from StoreLowTier import StoreLowTier 
-
+from StoreMidTier import StoreMidTier
+from EnumStoreTier import EnumStoreTier 
 
 class Neighborhood():
     def __init__(self):
@@ -18,15 +15,15 @@ class Neighborhood():
         """  
         self.stores = []
         self.houses = []
-        
-        
         self.grid = Grid()
               
         #setup all stores
         for i in range(len(globals.NEIGHBORHOOD_STORE_TYPES)):
-            for _ in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
-                if globals.NEIGHBORHOOD_STORE_TYPES[i] == globals.LOWTIER:
-                    store = StoreLowTier(globals.NEIGHBORHOOD_STORE_TYPES[i], self.grid)
+            for j in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
+                if globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.LOWTIER.name:
+                    store = StoreLowTier(EnumStoreTier.LOWTIER, self.grid,i*j+j)
+                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.MIDTIER.name:
+                    store = StoreMidTier(EnumStoreTier.MIDTIER, self.grid,i*j+j)
                 else: 
                     raise ValueError("store type does not exist")
                 self.grid.assign_location(store)
