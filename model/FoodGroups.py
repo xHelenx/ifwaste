@@ -23,7 +23,7 @@ class FoodGroups():
                 self.food_groups = food_groups
                 FoodGroups._instance = self
                 
-        self.food_groups = pd.DataFrame(food_groups)
+            self.food_groups = pd.DataFrame(food_groups)
         
         
     @staticmethod   
