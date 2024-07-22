@@ -12,9 +12,6 @@ FGSNACKS = "FGSNACKS"
 FGSTOREPREPARED = "FGSTOREPREPARED"
 
 
-##Store names
-LOWTIER = "low-tier"
-
 ### Waste types 
 FW_PLATE_WASTE = "Plate Waste"
 FW_INEDIBLE = "Inedible Parts"
@@ -42,14 +39,16 @@ ADULT_AGE_MAX = 65
 
 HH_AMOUNT_CHILDREN = None
 HH_AMOUNT_ADULTS = None
-
+HH_OVER_BUDGET_FACTOR = None
 
 NEIGHBORHOOD_HOUSES = None
 NEIGHBORHOOD_SERVING_BASED = None
 NEIGHBORHOOD_STORE_TYPES = None 
 NEIGHBORHOOD_STORE_AMOUNTS = None 
 NEIGHBORHOOD_PAY_DAY_INTERVAL = None
+
 GRID_TRAVEL_TIME_PER_CELL = None 
+GRID_TIME_PER_STORE = None
 
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
@@ -112,17 +111,19 @@ CHILD_FEMALE_SNACKS_SERVINGS_MAX = None
 CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = None 
 CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None 
 
-
+DEALASSESSOR_WEIGHT_SERVING_PRICE = None
 
 
 def configure_simulation(): 
     global HH_AMOUNT_CHILDREN
     global HH_AMOUNT_ADULTS
+    global HH_OVER_BUDGET_FACTOR
     global NEIGHBORHOOD_HOUSES
     global NEIGHBORHOOD_SERVING_BASED
     global NEIGHBORHOOD_STORE_TYPES
     global NEIGHBORHOOD_STORE_AMOUNTS    
     global GRID_TRAVEL_TIME_PER_CELL
+    global GRID_TIME_PER_STORE
     global SIMULATION_RUNS
     global SIMULATION_DAYS
     global EXPERIMENT_NAME
@@ -183,7 +184,9 @@ def configure_simulation():
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
     global NEIGHBORHOOD_PAY_DAY_INTERVAL
-   
+    global DEALASSESSOR_WEIGHT_SERVING_PRICE
+    
+    
     with open(CONFIG_PATH) as f:
         config = json.load(f)
             
@@ -201,10 +204,11 @@ def configure_simulation():
     NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
     
     GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
+    GRID_TIME_PER_STORE = config["Grid"]["time_per_store"]
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
     HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
-    
+    HH_OVER_BUDGET_FACTOR = config["Household"]["hh_over_budget_factor"]
     
     ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
     ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"]
@@ -262,3 +266,5 @@ def configure_simulation():
     CHILD_FEMALE_SNACKS_SERVINGS_MAX = config["Child"]["female_snacks_servings_max"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["female_store_prepared_servings_min"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["female_store_prepared_servings_max"]
+    
+    DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]

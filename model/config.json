@@ -7,16 +7,18 @@
     "Neighborhood" : {
         "neighborhood_houses" : 20, 
         "neighborhood_serving_based" : 20,
-        "neighborhood_store_types": "['low-tier']",
-        "neighborhood_store_amounts": "[5]",
+        "neighborhood_store_types": "['low-tier', 'mid-tier']",
+        "neighborhood_store_amounts": "[5,4]",
         "neighborhood_pay_day_interval" : 30
     },
     "Grid": {
-        "travel_time_per_cell" : 2
+        "travel_time_per_cell" : 0.01,
+        "time_per_store": 0.05
     },
     "Household" : {
         "hh_amount_children" : 2, 
-        "hh_amount_adults"  : 2
+        "hh_amount_adults"  : 2,
+        "hh_over_budget_factor" : 1.2
     },
     "Adult" : {
         "adult_plate_waste_min" : 0.03,
@@ -135,6 +137,12 @@
     "Store": {
         "low-tier": {
             "product_range": "parameterization\\store_type_low_tier.csv"
+        },
+        "mid-tier": {
+            "product_range": "parameterization\\store_type_mid_tier.csv"
         }
+    },
+    "DealAssessor": {
+        "weight_serving_price": 0.5
     }
 } 
