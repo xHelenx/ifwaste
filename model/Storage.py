@@ -39,7 +39,6 @@ class Storage:
         
         for fg in fgs: 
             servings_fg = self.current_items[self.current_items["type"] ==fg]["servings"].sum()
-            print(servings_fg)
             if servings_fg != None: 
                 result[fg] = 0
             else:
