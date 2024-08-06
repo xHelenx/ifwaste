@@ -42,7 +42,7 @@ class Neighborhood():
             self.houses.append(house)
         
         #setup datalogger
-        self.data_logger = DataLogger(self.houses, self.stores)
+        self.data_logger = DataLogger()
         
     def run(self, days= 365):
         """Runs the simulation for the amount of days specified
@@ -50,11 +50,20 @@ class Neighborhood():
         Args:
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
+        self.data_logger.log_households_config(houses=self.houses)
         for i in range(days):
             print(i)
+              
+            #for store in self.stores: 
+                #TODO store.do_a_day()
+                
+            #TODO add random order
             for house in self.houses:
                 house.do_a_day(day=i)
-                self.data_logger.log_households_daily(houses=house, day=i)
+                
+            #TODO is order relevant?    
+            self.data_logger.log_households_daily(house=self.houses, day=i)
+            self.data_logger.log_stores_daily(store=self.stores, day=i)
             
         self.data_logger.log_households_left_resources(house=house, day=i)
         

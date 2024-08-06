@@ -2,7 +2,8 @@
     "Simulation" : { 
         "runs" : 1, 
         "total_days" : 3,
-        "name": "rerun_prices_changes"
+        "name": "rerun_prices_changes",
+        "output_folder": "data"
     },
     "Neighborhood" : {
         "neighborhood_houses" : 20, 
@@ -144,5 +145,9 @@
     },
     "DealAssessor": {
         "weight_serving_price": 0.5
+    },
+    "BasketCurator":{
+        "initial_likelihood":0.1,
+        "increment_likelihood":0.03
     }
 } 

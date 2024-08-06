@@ -52,6 +52,7 @@ GRID_TIME_PER_STORE = None
 
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
+SIMULATION_OUTPUTFOLDER = None 
 
 EXPERIMENT_NAME = None 
 ADULT_PLATE_WASTE_MIN = None 
@@ -113,6 +114,9 @@ CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None
 
 DEALASSESSOR_WEIGHT_SERVING_PRICE = None
 
+BASKETCURATOR_INITIAL_LIKELIHOOD = None 
+BASKETCURATOR_INCREMENT_LIKELIHOOD = None 
+
 
 def configure_simulation(): 
     global HH_AMOUNT_CHILDREN
@@ -126,6 +130,7 @@ def configure_simulation():
     global GRID_TIME_PER_STORE
     global SIMULATION_RUNS
     global SIMULATION_DAYS
+    global SIMULATION_OUTPUTFOLDER
     global EXPERIMENT_NAME
     global ADULT_PLATE_WASTE_MIN
     global ADULT_PLATE_WASTE_MAX
@@ -185,6 +190,8 @@ def configure_simulation():
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
     global NEIGHBORHOOD_PAY_DAY_INTERVAL
     global DEALASSESSOR_WEIGHT_SERVING_PRICE
+    global BASKETCURATOR_INITIAL_LIKELIHOOD
+    global BASKETCURATOR_INCREMENT_LIKELIHOOD
     
     
     with open(CONFIG_PATH) as f:
@@ -192,6 +199,7 @@ def configure_simulation():
             
     SIMULATION_RUNS = config["Simulation"]["runs"]
     SIMULATION_DAYS = config["Simulation"]["total_days"]
+    SIMULATION_OUTPUTFOLDER = config["Simulation"]["output_folder"]
     EXPERIMENT_NAME = config["Simulation"]["name"]
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
@@ -268,3 +276,6 @@ def configure_simulation():
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["female_store_prepared_servings_max"]
     
     DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]
+    
+    BASKETCURATOR_INITIAL_LIKELIHOOD = config["BasketCurator"]["initial_likelihood"]
+    BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]

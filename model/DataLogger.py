@@ -7,9 +7,7 @@ from pathlib import Path
 
 class DataLogger: 
 
-    def __init__(self,houses, stores) -> None:
-        self.houses = houses 
-        self.stores = stores
+    def __init__(self) -> None:
         columns = [
             'Household',
             'Day',
@@ -79,7 +77,20 @@ class DataLogger:
             'totalRuns'            
         ])
         
-        for house in self.houses: 
+        self.log_stores = pd.DataFrame(columns=[
+            "Store",
+            "Day",
+            "Type",
+            "Servings",
+            "DaysTillExpiry",
+            "PricePerServing",
+            "SaleType",
+            "Amount"
+        ])
+        
+    
+    def log_households_config(self,houses): 
+        for house in houses: 
             self.log_configuration.loc[house.id] = {
                 "Household" : house.id, 
                 "RequiredKcal" : house.kcal,
@@ -99,7 +110,7 @@ class DataLogger:
                 'AvailTimeSunday' : house.time[6],
                 'ShoppingFrequency': house.shopping_frequency,
                 'totalRuns' : globals.SIMULATION_RUNS,
-        }
+    }
             
     def log_households_daily(self,houses, day):
         """Collects the daily data from each house
@@ -221,17 +232,30 @@ class DataLogger:
                     globals.FGSTOREPREPARED: food.servings_per_type[globals.FGSTOREPREPARED].values[0]
                 }
                 
+    def log_stores_daily(self,stores, day):   
+        for store in stores: 
+            for _,row in store.stock.iterrows(): 
+                self.log_stores.loc[len(self.log_stores)] = {
+                    "Store": str(store),
+                    "Day":day,
+                    "Type": row["type"],
+                    "Servings": row["servings"],
+                    "DaysTillExpiry": row["days_till_expiry"],
+                    "PricePerServing": row["price_per_serving"],
+                    "SaleType": row["sale_type"],
+                    "Amount": row["amount"]
+                }
      
     def data_to_csv(self, experiment_name=None, run=None): 
         """Saves the finished tracked data to csv files
         """        
         path = str(Path(__file__).parents[1])
         dt = datetime.datetime.now()
-        if (not os.path.isdir(path + "//data")): 
-            os.mkdir(path + "//data//")
+        if (not os.path.isdir(path + "//"+ globals.SIMULATION_OUTPUTFOLDER )): 
+            os.mkdir(path + "//"+ globals.SIMULATION_OUTPUTFOLDER + "//")
         
         if experiment_name != None: 
-            path = path + "//data//" + experiment_name + "//"
+            path = path + "//"+ globals.SIMULATION_OUTPUTFOLDER + "//" + experiment_name + "//"
             if (not os.path.isdir(path )): 
                 os.mkdir(path)
         
@@ -246,5 +270,6 @@ class DataLogger:
         self.log_eaten.to_csv( path + foldername+ "/eaten.csv")
         self.log_wasted.to_csv( path + foldername+ "/wasted.csv")
         self.log_still_have.to_csv( path + foldername+ "/still_have.csv")
-        self.log_daily.to_csv( path + foldername+ "/daily.csv")
+        self.log_daily.to_csv( path + foldername+ "/hh_daily.csv")
         self.log_configuration.to_csv( path + foldername+ "/config.csv")
+        self.log_stores.to_csv( path + foldername+ "/stores_daily.csv")
