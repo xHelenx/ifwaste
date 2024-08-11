@@ -1,11 +1,9 @@
-import json
-import logging
 import random
 import globals
 from FoodGroups import FoodGroups
 from Person import Person
 class Adult(Person):
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes an adult person by:
         - age 
         - gender
@@ -42,7 +40,7 @@ class Adult(Person):
         self.req_servings = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + store_prepared_servings
         sum_pref = sum(self.fg_preference.values())
         self.req_servings_per_fg = dict()
-        for item in food_groups.get_all_food_groups(): 
+        for item in food_groups.get_all_food_groups():  # type: ignore
             self.req_servings_per_fg.update({item:(self.req_servings/sum_pref)*self.fg_preference[item]})
         
         self.susceptibility = 0
