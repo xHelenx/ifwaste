@@ -118,8 +118,8 @@ class Store(Location):
 #    def get_available_fg(self): #available in stock
 #        return self.stock["type"].unique()
     
- #   def is_fg_in_stock(self, fg): 
- #       return fg in self.stock["type"].unique()
+    def is_fg_in_stock(self, fg): 
+        return fg in self.stock["type"].unique()
     
     def do_a_day(self) -> None: 
         pass 

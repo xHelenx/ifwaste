@@ -228,7 +228,8 @@ class Household(Location):
         
         ##check if it is time for a big grocery shop
         if self.day % self.shopping_frequency == 0:
-            self.shop(is_quickshop=False)
+            basket = self.shop(is_quickshop=False)
+            self.store_groceries(basket=basket)
             
         
         ##choose meal 
@@ -291,15 +292,26 @@ class Household(Location):
             return self.todays_servings > 0
         else: #kcal based
             return self.todays_kcal > 0 
+        
+    def store_groceries(self, basket:pd.DataFrame) -> None: 
+         
+        #put groceries away
+        for idx in basket.index:
+           self.log_bought.append(basket.loc[idx])
+           if basket.loc[idx, "type"] == globals.FGSTOREPREPARED:
+               self.fridge.add(item=basket.loc[idx].copy())
+           else:
+               self.pantry.add(item=basket.loc[idx].copy())
+        
     
-    def shop(self, is_quickshop=False) -> None:
+    def shop(self, is_quickshop=False) -> pd.DataFrame:
         """Shops for groceries and stores them in the correct location in the house
         """    
         #TODO handle quickshop    
         servings_to_buy_fg = self.get_what_to_buy()
         
         if servings_to_buy_fg.sum() < 0: #we dont need to buy anything
-            return 
+            return pd.DataFrame()
             
         budget = self.get_budget_for_this_purchase()
         selected_stores = []
@@ -311,7 +323,7 @@ class Household(Location):
         if store != None:
             selected_stores.append(store)
         else: 
-            return #there is no store that can be visited with the time at hand
+            return pd.DataFrame() #there is no store that can be visited with the time at hand
             
         #if planner add more stores if necessary because of missing fg
         if is_planner: #planner hh 
@@ -382,27 +394,7 @@ class Household(Location):
             coords = [store.get_coordinates() for store in visited_stores]
             self.todays_time[self.day%7] -= self.grid.get_travel_time_entire_trip(self,coords) 
         
-       # self.store_groceries(basketCurator.basket)
-        
-        #put groceries away
-        #for i in range(len(basket)):
-        #    item_info = basket.iloc[i].to_dict()
-        #    food = Food(item_info)
-        #    logging.debug("Grocery: %f", food.kg)
-        #    self.log_bought.append(copy.deepcopy(food))
-        #    if food.type == globals.FGSTOREPREPARED:
-        #        self.fridge.add(copy.deepcopy(food))
-        #    else:
-        #        self.pantry.add(copy.deepcopy(food))
-    
-
-           
-        #check feasibility
-        #start replacement strategy
-        
-        #checkout -> reduce stock
-        #reduce budget
-        #bring home, but in storage
+        return basketCurator.basket
         
         #if is_quickshop: 
         #    n_servings = self.servings 

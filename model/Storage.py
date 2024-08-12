@@ -15,6 +15,7 @@ class Storage:
     def add(self, item:Food) -> None: 
         new_row = {"type" : item.type, "servings": item.servings, "days_till_expiry":item.days_till_expiry}
         self.current_items.loc[len(self.current_items)] = new_row # type: ignore
+        self.current_items.reset_index()
         
     
     def remove(self,item:Food) -> None:
