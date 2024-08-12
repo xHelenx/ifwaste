@@ -2,6 +2,7 @@
 import collections
 import random
 import logging
+from typing import List
 import numpy as np
 import pandas as pd
 
@@ -13,58 +14,59 @@ from Adult import Adult
 from Grid import Grid
 from DealAssessor import DealAssessor
 from BasketCurator import BasketCurator
-from FoodGroups import FoodGroups
+from Location import Location
+from DataLogger import DataLogger
+from Store import Store
 
-class Household():
-    def __init__(self, id: int, grid:Grid, is_serving_based:bool = True):
+class Household(Location):
+    def __init__(self, id: int, grid:Grid,  datalogger:DataLogger, is_serving_based:bool = True) -> None:
         """Initializes a household
 
         Args:
             id (int): unique id of the household
         """        
-        self.grid = grid  
-        self.pantry = Storage()
-        self.fridge = Storage()
-        self.id = id
-        self.day = 0
+        super().__init__(id, grid)
+        self.pantry: Storage  = Storage()
+        self.fridge: Storage = Storage()
+        self.day: int = 0
+        self.datalogger: DataLogger = datalogger
         
         ###HOUSEHOLD MEMBER
         logging.debug("HOUSE INFO")
-        self.amount_adults = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
-        self.amount_children = globals.HH_AMOUNT_CHILDREN
+        self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
+        self.amount_children: int = globals.HH_AMOUNT_CHILDREN
         logging.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
-        self.adult_influence = 0.75 
-        self.child_influence = 1 - self.adult_influence
-        self.ppl = self.gen_ppl()
-        self.household_concern = self.calculate_household_concern()
+        self.adult_influence: float = 0.75
+        self.child_influence: float = 1 - self.adult_influence
+        self.ppl: list = self.gen_ppl()
+        self.household_concern: float = self.calculate_household_concern()
         
         ### HOUSEHOLD FOOD DEMAND
         self.req_servings_per_fg = collections.Counter()
-        ppl_serving_lists = [ppl.req_servings_per_fg for ppl in self.ppl]
+        ppl_serving_lists = [person.req_servings_per_fg for person in self.ppl]
         for d in ppl_serving_lists:
             self.req_servings_per_fg.update(d)
         self.req_servings = sum(self.req_servings_per_fg.values())
-        self.req_servings_per_fg = self.req_servings_per_fg
         numerator = 0
         for person in self.ppl: 
             individual_waste_serv = person.plate_waste_ratio*person.req_servings
             numerator += individual_waste_serv
-        self.household_plate_waste_ratio = numerator/self.req_servings
-        self.kcal = sum([person.kcal for person in self.ppl])
-        self.is_serving_based = is_serving_based #eat meals either based on servings or on kcal counter
+        self.household_plate_waste_ratio:float = numerator/self.req_servings
+        self.kcal:float = sum([person.kcal for person in self.ppl])
+        self.is_serving_based:bool = is_serving_based #eat meals either based on servings or on kcal counter
 
         
         ### SHOPPING CHARACTERISTICS
-        self.shopping_frequency = random.randint(2, 7)
-        self.budget = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
-        self.pay_day_interval = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL     
-        self.price_sens = random.uniform(0,1)
-        self.brand_sens = random.uniform(0,1)
-        self.brand_pref = {store:random.uniform(0,1) for store in globals.NEIGHBORHOOD_STORE_TYPES}
-        self.quality_sens = random.uniform(0,1)
-        self.availability_sens = random.uniform(0,1)
-        self.deal_sens = random.uniform(0,1)
-        self.planner = random.uniform(0,1)
+        self.shopping_frequency:int = 1 #random.randint(2, 7) TODO
+        self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
+        self.pay_day_interval:int = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL     
+        self.price_sens:float = random.uniform(0,1)
+        self.brand_sens: float = random.uniform(0,1)
+        self.brand_pref: dict[Store,float]  = {store:random.uniform(0,1) for store in globals.NEIGHBORHOOD_STORE_TYPES}
+        self.quality_sens: float  = random.uniform(0,1)
+        self.availability_sens: float  = random.uniform(0,1)
+        self.deal_sens: float  = random.uniform(0,1)
+        self.planner: float = random.uniform(0,1)
         
         sum_sens = self.price_sens + self.brand_sens + self.quality_sens + self.availability_sens + self.deal_sens
         self.price_sens /= sum_sens
@@ -81,27 +83,27 @@ class Household():
         
         ### TRACKING CURRENT STATUS
         
-        self.todays_time = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
+        self.todays_time: list = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping]
-        self.todays_kcal = self.kcal
-        self.todays_servings = self.req_servings
-        self.todays_servings_fg = self.req_servings_per_fg
-        self.todays_budget = 0     
+        self.todays_kcal: float = self.kcal
+        self.todays_servings: float = self.req_servings
+        self.todays_servings_fg: dict[str,float] = dict(self.req_servings_per_fg)
+        self.todays_budget: float = 0     
         logging.debug("req. kcal: %f, req servings: %i lvl of concern: %f", self.kcal, self.todays_servings, self.household_concern)
         
         ### LOGGING 
-        self.log_eaten = []
-        self.log_wasted = []
-        self.log_bought = []
+        self.log_eaten: list = []
+        self.log_wasted: list = []
+        self.log_bought: list = []
               
-        self.log_today_eef = 0
-        self.log_today_cooked = 0
-        self.log_today_leftovers = 0
-        self.log_today_quickcook = 0
+        self.log_today_eef: int = 0
+        self.log_today_cooked: int = 0
+        self.log_today_leftovers: int = 0
+        self.log_today_quickcook: int = 0
         
-    def reset_logging_todays_choices(self): 
+    def reset_logging_todays_choices(self)  -> None: 
         """resets the logging variables tracking the meal preparation
         
         """        
@@ -143,13 +145,13 @@ class Household():
         if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
             if self.todays_budget == 0: #no money to buy anything
                 return 0 
-            req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_servings() + self.pantry.get_servings())
+            req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
             price_per_serving = self.todays_budget/req_servings_till_payday
             return price_per_serving * (self.req_servings * self.shopping_frequency) * globals.HH_OVER_BUDGET_FACTOR
         
         else: #hh will receive new money, so the budget estimate has to consider it
             #TODO check this sceanrio
-            req_servings_to_buy = (self.req_servings * self.shopping_frequency) - (self.fridge.get_servings() + self.pantry.get_servings())
+            req_servings_to_buy = (self.req_servings * self.shopping_frequency) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
             req_servings_daily = req_servings_to_buy/self.shopping_frequency
 
             budget_before_pd = self.todays_budget/(req_servings_daily * days_till_payday)
@@ -159,7 +161,7 @@ class Household():
             return (budget_before_pd + budget_after_pdf) * globals.HH_OVER_BUDGET_FACTOR
             
     
-    def calculate_household_concern(self): 
+    def calculate_household_concern(self) -> float: 
         """Calculates the current average concern of the household 
 
         Returns:
@@ -191,7 +193,8 @@ class Household():
                 person.susceptibility * influencing_concern[i]]
             C_fam += [concern_of_person]
         return sum([sum(x) for x in C_fam])/len(self.ppl[0].concern*(self.amount_adults+self.amount_children))
-           
+    
+    
     def do_a_day(self, day: int):
         """Incapsulates a day of eating in the household. This consists 
         of one or multiple of the following: shopping groceries, preparing a meal 
@@ -199,36 +202,41 @@ class Household():
 
         Args:
             day (int): current day
+            
+        Return:
+            
         """        
         logging.debug("###########################################")
         logging.debug("###########################################")
         logging.debug("Day %i:", day)
-        logging.debug("Pantry: \n" + self.pantry.debug_get_content())
-        logging.debug("Fridge: \n" + self.fridge.debug_get_content())
+        #logging.debug("Pantry: \n" + self.pantry.debug_get_content())
+        #logging.debug("Fridge: \n" + self.fridge.debug_get_content())
         self.day = day
         
         ##setting up the variables for the day
         self.reset_logging_todays_choices()
         self.todays_kcal = self.kcal
-        self.todays_servings = self.servings
-        
+        self.todays_servings = self.req_servings
+
+        #at start of week reset available times per day
         if self.day%7 == 0: 
             self.todays_time = self.time
+            
+         # check if it is payself.day
+        if self.day % self.pay_day_interval == 0: #pay day
+            self.todays_budget += self.budget
         
         ##check if it is time for a big grocery shop
         if self.day % self.shopping_frequency == 0:
             self.shop(is_quickshop=False)
             
-        # check if it is payself.day
-        if self.day % self.pay_day_interval == 0: #pay day
-            self.todays_budget += self.budget
         
         ##choose meal 
         self.log_today_eef = int(random.uniform(0,1) < self.household_concern)
         strategy = "random"
         is_quickcook = False
         has_enough_time = self.todays_time[day%7] < globals.MIN_TIME_TO_COOK
-        has_enough_ingredients = self.pantry.get_total_servings() > self.servings
+        has_enough_ingredients = self.pantry.get_total_servings() > self.todays_servings
         if not self.is_serving_based:
             has_enough_ingredients = self.pantry.get_total_kcal() > self.kcal
 
@@ -263,7 +271,7 @@ class Household():
             else: #has not enough ingredients 
                 self.shop(is_quickshop=True)
                 #eat SPF or QC mit bought ingredients 
-                if self.pantry.get_total_items() > 0:
+                if self.pantry.get_number_of_items() > 0:
                     is_quickcook = True
                     meal = self.cook(is_quickcook=is_quickcook, strategy=strategy)
                     self.eat_meal(meal=meal)
@@ -284,11 +292,12 @@ class Household():
         else: #kcal based
             return self.todays_kcal > 0 
     
-    def shop(self, is_quickshop=False):
+    def shop(self, is_quickshop=False) -> None:
         """Shops for groceries and stores them in the correct location in the house
         """    
         #TODO handle quickshop    
         servings_to_buy_fg = self.get_what_to_buy()
+        
         if servings_to_buy_fg.sum() < 0: #we dont need to buy anything
             return 
             
@@ -298,7 +307,11 @@ class Household():
         is_planner = self.planner > random.uniform(0,1)
         relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
         
-        selected_stores += (self.choose_a_store(is_planner, selected_stores, required_fgs=relevant_fg))
+        store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, required_fgs=relevant_fg)
+        if store != None:
+            selected_stores.append(store)
+        else: 
+            return #there is no store that can be visited with the time at hand
             
         #if planner add more stores if necessary because of missing fg
         if is_planner: #planner hh 
@@ -306,32 +319,30 @@ class Household():
             relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
             left_fg = [i for i in relevant_fg if i not in avail_fgs]
             if len(left_fg) > 0: 
-                store = self.choose_a_store(is_planner, selected_stores, required_fgs=left_fg[0])
+                store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, required_fgs=left_fg[0])
                 if store != None: 
-                    selected_stores += (store)
+                    selected_stores.append(store)
                
         #create initial basket with groceries
-        basketCurator = BasketCurator()
-        (basket, missing_servings_fg) = basketCurator.create_basket(servings_to_buy_fg,selected_stores,budget)
-        
+        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget)
+        basketCurator.create_basket()
+    
         #feasibility test
-        (in_budget, left_budget) = basketCurator.is_basket_in_budget(basket, budget)
-        (has_all_req_fg, missing_fgs) = basketCurator.does_basket_cover_all_fg(missing_servings_fg)
-        
         is_adjustment_needed = False
-        if not in_budget or not has_all_req_fg: 
+        if not basketCurator.is_basket_in_budget() or not basketCurator.does_basket_cover_all_fg(): 
             #NO PLANNER
             if not is_planner: #consider adding another store to route
                 ##BUDGET CHECK
                 if random.uniform(0,1) > 0.5: #either adding stores or adjusting baskets
                     #adding a store from a lower tier (hopefully cheaper)
-                    store = self.choose_a_store(is_planner, selected_stores, needs_lower_tier=True)
+                    store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_tier=True)
                     if store != None: 
                         selected_stores.append(store)
                         #redo entire basket now with a bonus store
-                        (basket, missing_servings_fg) = basketCurator.create_basket(servings_to_buy_fg,selected_stores,budget)
-                        (in_budget, left_budget) = basketCurator.is_basket_in_budget(basket, budget)
-                        if not in_budget:
+                        basketCurator.return_basket_to_store() #we are starting over instead
+                        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget)
+                        basketCurator.create_basket()
+                        if not basketCurator.is_basket_in_budget():
                             is_adjustment_needed = True
                     else:
                         is_adjustment_needed = True
@@ -339,22 +350,20 @@ class Household():
                     is_adjustment_needed = True
                     
                 ## NOPLANNER FG CHECK
-                if not has_all_req_fg:
+                if not basketCurator.does_basket_cover_all_fg():
                     if not is_planner: #consider adding another store to route
                         ##BUDGET CHECK
                         if len(selected_stores) < 2 and random.uniform(0,1) > 0.5: #either adding stores or adjusting baskets
                             #adding a store from a lower tier
-                            required_fg = missing_fgs[missing_fgs > 0].index.tolist()
-                            store = self.choose_a_store(is_planner, selected_stores, required_fgs=required_fg)
+                            store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
                             if store != None: 
                                 selected_stores.append(store)
-                                #buy missing food items + keep old basket
-                                (additional_basket, missing_servings_fg) = basketCurator.create_basket(missing_fgs,selected_stores,budget)
-                                basket = pd.concat([basket, additional_basket], ignore_index=True) #merge baskets
+                                basketCurator.stores.append(store)
+                                #buy missing food items + keep old basket #TODO is this ok?
+                                basketCurator.create_basket()
+                                
                                 #check feasibility
-                                (in_budget, left_budget) = basketCurator.is_basket_in_budget(basket, budget)
-                                (has_all_req_fg, missing_fgs) = basketCurator.does_basket_cover_all_fg(missing_servings_fg)
-                                if not in_budget or not has_all_req_fg:
+                                if not basketCurator.is_basket_in_budget() or basketCurator.does_basket_cover_all_fg():
                                     is_adjustment_needed = True
                             else:
                                 is_adjustment_needed = True
@@ -362,26 +371,18 @@ class Household():
                             is_adjustment_needed = True
             else: #is planner so no store adding, but will need adjustment
                 is_adjustment_needed = True      
-                  
-        if is_adjustment_needed:
-            #setup servings tracker (what is needed, what do we have, which fg covers for another one)
-            rows = []
-            for fg in FoodGroups._instance.get_all_food_groups():
-                row = {'type': fg, 'required': servings_to_buy_fg[fg], 'got':servings_to_buy_fg[fg] - missing_servings_fg , 'is_in_other_fg': 0,
-                        'is_replacing_other_fg': 0}
-                rows += row
         
-            servings_tracker = pd.DataFrame(rows)     
-                
-            basket = basketCurator.adjustBasket(basket, selected_stores, budget, servings_tracker)
-            
+            if is_adjustment_needed:    
+                basketCurator.adjust_basket()
                    
                     
         #calculated required time for shopping tour (final time for planner, current time for not planner)
-        self.todays_time[self.day] -= self.grid.get_travel_time_entire_trip(self,selected_stores) 
+        visited_stores = basketCurator.get_visited_stores()
+        if visited_stores != None:
+            coords = [store.get_coordinates() for store in visited_stores]
+            self.todays_time[self.day%7] -= self.grid.get_travel_time_entire_trip(self,coords) 
         
-        #get groceries
-        #basket = self.get_groceries(is_quickshop)
+       # self.store_groceries(basketCurator.basket)
         
         #put groceries away
         #for i in range(len(basket)):
@@ -418,17 +419,18 @@ class Household():
         
       
     
-    def choose_a_store(self,is_planner,selected_store:list, required_fgs=None, needs_lower_tier=None):
+    def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_tier: bool | None =None) -> None | Store:
         assert not (required_fgs == None and needs_lower_tier == None)
-        store_options = self.grid.get_stores_within_time_constraint(self,self.todays_time[self.day])
+        selection = None 
+        store_options = self.grid.get_stores_within_time_constraint(self,self.todays_time[self.day%7])
         #choose a store from possible options (not is_planner just selects 1 store here)
-        if len(store_options) > 0: #TODO what if no store is within reach
-            store_order = self.get_store_order(is_planner, required_fgs,store_options)
+        if len(store_options) > 0: #TODO what if no store is within reach or handle None return outside
+            store_order = self._get_store_order(is_planner, required_fgs,store_options)
             selection = self._wheel_selection(store_order)
             while selection in selected_store: 
                 if len(store_order) > 0: 
                     selection = self._wheel_selection(store_order)
-                    store_order.remove(selection)
+                    store_order = store_order.drop(selection)
                 else:
                     return None
         return selection
@@ -443,9 +445,9 @@ class Household():
             rand = np.random.random()
             selected_index = cumulative_probabilities[cumulative_probabilities >= rand].index[0]
             indices.append(selected_index)
-        return indices
+        return indices[0]
         
-    def get_store_order(self, is_planner, relevant_fg,stores): 
+    def _get_store_order(self, is_planner, relevant_fg,stores): 
         store_preference = pd.Series({store:0.0 for store in stores})
         
         if not is_planner: 
@@ -459,6 +461,7 @@ class Household():
             best_deals = dealAssessor.assess_best_deals(stores)
             
             for store in stores: 
+                assert not store.stock.empty
                 local_deal = dealAssessor.assess_best_deals([store])
                 #relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
                 deal = dealAssessor.calculate_deal_value(relevant_fg, local_deal, best_deals)
@@ -474,28 +477,23 @@ class Household():
                 store_preference[store] = preference
                 
         return store_preference
-            
-    
-        
-            
-        
     
     def decay_food(self):
-        """Decays the food in the household
+        """Decays food in fridge and pantry by reducing the expiration dates 
         """    
-        for location in [self.fridge.current_items, self.pantry.current_items]:
-            for food in location: 
-                food.decay() 
+        self.fridge.current_items["days_till_expiry"] -= 1
+        self.pantry.current_items["days_till_expiry"] -= 1
+       
                 
     def throw_food_out(self):
         """Throws out all food, that expired
-        """        
+        """    
+        
         for location in [self.fridge.current_items, self.pantry.current_items]:
-            for food in location: 
-                if food.exp <= 0: 
-                    location.remove(food)
-                    food.status = globals.FW_EXPIRED
-                    self.log_wasted.append(food)
+            spoiled_food =  location[location["days_till_expiry"] <= 0] #selected spoiled food to track it
+            location = location[location["days_till_expiry"] > 0] #remove spoiled food 
+            spoiled_food["status"] = globals.FW_SPOILED
+            self.datalogger.append_log(self.datalogger.log_wasted, spoiled_food)
     
     def get_ingredients(self, is_quickcook, strategy): 
         """Chooses the ingredients to use for a meal. Takes into account the way the family is eating (servings based 
@@ -665,4 +663,3 @@ class Household():
             else:
                 left_food.status = globals.FW_PLATE_WASTE
                 self.log_wasted.append(left_food)  
-        #logging.debug("-------------------")

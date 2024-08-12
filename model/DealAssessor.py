@@ -1,3 +1,4 @@
+from sqlite3 import DatabaseError
 from threading import local
 import pandas as pd
 
@@ -8,12 +9,12 @@ class DealAssessor:
     def __init__(self) -> None:
         pass
         
-    def assess_best_deals(self,stores): 
-        #TODO what if a stores does not offer a food group ?!
+    def assess_best_deals(self,stores) -> pd.DataFrame: 
+        #TODO what if a store does not offer a food group ?!
         
         best_deals = []
-             
-        for fg in FoodGroups.get_instance().get_all_food_groups():
+        best_deals_df = pd.DataFrame()   
+        for fg in FoodGroups.get_instance().get_all_food_groups(): # type: ignore
             options = [] 
             for store in stores: 
                 stock_by_fg = store.stock[store.stock["type"] == fg]       
@@ -24,10 +25,10 @@ class DealAssessor:
                 best_deal_by_fg = options.loc[options["deal_value"].idxmin()]
                 best_deals.append(best_deal_by_fg)
         if not len(best_deals) == 0:
-            best_deals = pd.DataFrame(best_deals).reset_index(drop=True)
-        return best_deals
+            best_deals_df = pd.DataFrame(best_deals).reset_index(drop=True)
+        return best_deals_df
     
-    def calculate_deal_value(self,relevant_food_groups, local_deals, best_deals): 
+    def calculate_deal_value(self,relevant_food_groups, local_deals, best_deals) -> float: 
         '''
         relevant_food_groups list of str
         local deals = already multipled value 
