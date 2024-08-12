@@ -15,7 +15,7 @@ FGSTOREPREPARED = "FGSTOREPREPARED"
 ### Waste types 
 FW_PLATE_WASTE = "Plate Waste"
 FW_INEDIBLE = "Inedible Parts"
-FW_EXPIRED = "Spoiled Food"
+FW_SPOILED = "Spoiled Food"
 
 MALE = 0 
 FEMALE = 1
@@ -53,6 +53,15 @@ GRID_TIME_PER_STORE = None
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
 SIMULATION_OUTPUTFOLDER = None 
+SIMULATION_WRITE_TO_FILE_INTERVAL = None
+SIMULATION_DEBUG_LOG_ON = None
+
+
+STORE_LOW_QUALITY = None 
+STORE_LOW_PRICE = None
+
+STORE_MID_QUALITY = None 
+STORE_MID_PRICE = None
 
 EXPERIMENT_NAME = None 
 ADULT_PLATE_WASTE_MIN = None 
@@ -131,6 +140,12 @@ def configure_simulation():
     global SIMULATION_RUNS
     global SIMULATION_DAYS
     global SIMULATION_OUTPUTFOLDER
+    global SIMULATION_WRITE_TO_FILE_INTERVAL
+    global SIMULATION_DEBUG_LOG_ON
+    global STORE_LOW_QUALITY
+    global STORE_LOW_PRICE
+    global STORE_MID_QUALITY
+    global STORE_MID_PRICE
     global EXPERIMENT_NAME
     global ADULT_PLATE_WASTE_MIN
     global ADULT_PLATE_WASTE_MAX
@@ -200,7 +215,14 @@ def configure_simulation():
     SIMULATION_RUNS = config["Simulation"]["runs"]
     SIMULATION_DAYS = config["Simulation"]["total_days"]
     SIMULATION_OUTPUTFOLDER = config["Simulation"]["output_folder"]
+    SIMULATION_WRITE_TO_FILE_INTERVAL = config["Simulation"]["write_to_file_interval"]
+    SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"]
     EXPERIMENT_NAME = config["Simulation"]["name"]
+    
+    STORE_LOW_QUALITY = config["Store"]["low-tier"]["quality"]
+    STORE_LOW_PRICE = config["Store"]["low-tier"]["price"]
+    STORE_MID_QUALITY = config["Store"]["mid-tier"]["quality"]
+    STORE_MID_PRICE = config["Store"]["mid-tier"]["price"]
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     NEIGHBORHOOD_SERVING_BASED = config["Neighborhood"]["neighborhood_serving_based"]
