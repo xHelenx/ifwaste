@@ -17,15 +17,15 @@ class Person():
         - req_serving = requried servings per food type 
         - plate waste ratio 
         """                
-        self.age = None
-        self.gender = random.randint(globals.MALE, globals.FEMALE) #1 is female
-        self.is_adult = None 
-        self.kcal = None 
-        self.susceptibility = None 
-        self.concern = None
-        self.plate_waste_ratio = None 
+        self.age:int 
+        self.gender:int = random.randint(globals.MALE, globals.FEMALE) #1 is female
+        self.is_adult:bool 
+        self.kcal:float
+        self.susceptibility:float
+        self.concern:list[float]
+        self.plate_waste_ratio :float 
         
         food_groups = FoodGroups.get_instance()
-        self.fg_preference = {item:random.uniform(0,1) for item in food_groups.get_all_food_groups()}
-        self.req_servings = None 
-        self.req_servings_per_fg = None 
+        self.fg_preference:dict[str,float] = {item:random.uniform(0,1) for item in food_groups.get_all_food_groups()}
+        self.req_servings: float 
+        self.req_servings_per_fg:dict[str,float] 

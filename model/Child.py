@@ -18,9 +18,9 @@ class Child(Person):
         - plate waste ratio 
         """ 
         super().__init__()
-        self.age = random.randint(2, 18)
-        self.is_adult = False 
-        self.kcal = random.gauss(1200, 200) + self.age*50
+        self.age:int = random.randint(2, 18)
+        self.is_adult:bool = False 
+        self.kcal:float = random.gauss(1200, 200) + self.age*50
 
         if self.gender == globals.MALE: 
             veg_servings = random.uniform(globals.CHILD_MALE_VEG_SERVINGS_MIN, globals.CHILD_FEMALE_VEG_SERVINGS_MAX)
@@ -39,13 +39,13 @@ class Child(Person):
         
         
         food_groups = FoodGroups.get_instance()
-        self.req_servings = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + store_prepared_servings
+        self.req_servings:float = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + store_prepared_servings
         sum_pref = sum(self.fg_preference.values())
-        self.req_servings_per_fg = dict()
+        self.req_servings_per_fg:dict[str,float] = dict()
         for item in food_groups.get_all_food_groups():  # type: ignore
             self.req_servings_per_fg.update({item:(self.req_servings/sum_pref)*self.fg_preference[item]})
         
-        self.susceptibility = 0
-        self.concern = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),1- random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
-        self.plate_waste_ratio = random.uniform(globals.CHILD_PLATE_WASTE_MIN, globals.CHILD_PLATE_WASTE_MAX)
+        self.susceptibility:float = 0
+        self.concern:list[float] = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),1- random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
+        self.plate_waste_ratio:float = random.uniform(globals.CHILD_PLATE_WASTE_MIN, globals.CHILD_PLATE_WASTE_MAX)
         
