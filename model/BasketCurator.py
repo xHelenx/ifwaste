@@ -1,31 +1,35 @@
 from __future__ import annotations
 import logging
-import math
-from os import replace
 import random
 
-from tempfile import tempdir
 from typing import Callable, List, Optional
-from numpy import add, take
 import pandas as pd
 from EnumSales import EnumSales
 import globals
 from FoodGroups import FoodGroups
 from Store import Store 
+
 class BasketCurator(): 
     
-    def __init__(self,stores:list[Store],servings_to_buy_fg,budget:float) -> None:
+    def __init__(self,stores:list[Store],servings_to_buy_fg:pd.Series | None=None,budget:float | None = None) -> None:
         self.basket:pd.DataFrame = pd.DataFrame()
         self.stores:list[Store] = stores
-        self.budget:float = budget
+        self.budget:float | None = budget
         self.likelihood_to_stop:float = float(globals.BASKETCURATOR_INITIAL_LIKELIHOOD)
         
         rows = []
-        for fg in FoodGroups._instance.get_all_food_groups(): # type: ignore
-                row = {'type': fg, 'required': servings_to_buy_fg[fg], 'got':0, 'is_in_other_fg': 0,
-                        'is_replacing_other_fg': 0}
-                rows.append(row)
-        
+        if servings_to_buy_fg is None:
+            servings_to_buy_fg = pd.Series()
+            for fg in FoodGroups._instance.get_all_food_groups(): # type: ignore 
+                servings_to_buy_fg[fg] = 0 
+            
+        for fg in FoodGroups._instance.get_all_food_groups(): # type: ignore 
+
+
+            row = {'type': fg, 'required': servings_to_buy_fg[fg], 'got':0, 'is_in_other_fg': 0,
+                    'is_replacing_other_fg': 0}
+            rows.append(row)
+    
         self.serv_track:pd.DataFrame = pd.DataFrame(rows)    
         self.serv_track = self.serv_track.astype(dtype={
             'type': 'str',
@@ -44,7 +48,7 @@ class BasketCurator():
         else:
             return False
         
-    def create_basket(self) -> None:
+    def create_basket(self, is_quickshop:bool=False) -> None:
         '''
         servings_to_buy_fg = series FG:float
         '''
@@ -53,31 +57,14 @@ class BasketCurator():
         for store in self.stores: 
                 logging.debug("--- STORES STOCK: ---")
                 logging.debug(store.stock)
-        #merge available stocks
         
-        for fg in self.serv_track[self.serv_track["got"] < self.serv_track["required"]]["type"].tolist():
-            options = self._get_product_options(self.stores, fgs=[fg], focus_on_sales=True)   
-            if not options.empty: 
-                options = options[options["amount"] > 0]                 
-                row =  self.serv_track[self.serv_track["type"] == fg].iloc[0]
-                needed_servings = row["required"]-row["got"]
-                
-                while needed_servings > 0: 
-                    #TODO is ok that chooses fg from different stores?
-                    if len(options) > 0:
-                        plan_to_purchase = options.sample(1,replace=True).iloc[0]
-                        self._buy(plan_to_purchase, 1)
-                        options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current
-                        options = options[options["amount"] > 0]
-                        self._add_item(plan_to_purchase, 1)
-                        needed_servings -= plan_to_purchase["servings"]
-                    else:
-                        break
-            if len(self.basket) > 0: 
-                self._organize_basket()
-            #only if items have been bought we need to clean stock
-            for store in self.stores: 
-                store.clean_stock()    
+        if not is_quickshop:
+            self._create_shop_basket()
+        else:
+            self._create_quickshop_basket()
+                       
+        if len(self.basket) > 0: 
+            self._organize_basket()  
         for store in self.stores: 
             logging.debug("--- STORES STOCK: ---")
             logging.debug(store.stock)
@@ -86,7 +73,53 @@ class BasketCurator():
         else:
             logging.debug("basket: #items: 0")
         logging.debug(self.basket)    
+        
+    def _sample_and_buy(self,options:pd.DataFrame) -> pd.Series: 
+        # buy 1 
+        plan_to_purchase = options.sample(1,replace=True).iloc[0]
+        self._buy(plan_to_purchase, 1)
+        options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current
+        options = options[options["amount"] > 0]
+        self._add_item(plan_to_purchase, 1)
+        
+        return plan_to_purchase    
+    def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
+        return self.serv_track["got"] + self.serv_track["is_in_other_fg"] - self.serv_track["is_replacing_other_fg"]
+    
+    def _create_shop_basket(self) -> None: 
+        #merge available stocks
+        for fg in self.serv_track[self._get_purchased_servings_from_serv_track()  < self.serv_track["required"]]["type"].tolist():
+            options = self._get_product_options(fgs=[fg], focus_on_sales=True)   
+            if not options.empty: 
+                options = options[options["amount"] > 0]                 
+                idx =  self.serv_track[self.serv_track["type"] == fg].index[0]
+                needed_servings = self.serv_track.loc[idx,"required"]- self._get_purchased_servings_from_serv_track().loc[idx]
                 
+                while needed_servings > 0: 
+                    if len(options) > 0:
+                        purchased = self._sample_and_buy(options)
+                        needed_servings -= purchased["servings"]
+                    else:
+                        break
+                    
+    def _create_quickshop_basket(self) -> None: 
+        #only allow 1 store to be visited! 
+        
+        options = self._get_product_options(fgs=[globals.FGSTOREPREPARED], focus_on_sales=True) 
+        purchased = None
+        if not options.empty:
+            purchased = self._sample_and_buy(options)
+        
+        options = self._get_product_options()
+        if not purchased is None:
+            options = options[options["store"] == purchased["store"]]
+        n = random.randint(1,3)
+        
+        for i in range(n): 
+            if options.empty: 
+                break
+            purchased = self._sample_and_buy(options)
+        
     def is_basket_in_budget(self)-> bool: 
         '''
             returns True/False + budget
@@ -98,7 +131,7 @@ class BasketCurator():
         return cost < self.budget 
     
     def does_basket_cover_all_fg(self):
-        return len(self.serv_track[self.serv_track["got"] < self.serv_track["required"]]) == 0 
+        return len(self.serv_track[self.serv_track["got"] + self.serv_track["is_in_other_fg"] < self.serv_track["required"]]) == 0 
     
     
     def adjust_basket(self) -> None:   
@@ -177,26 +210,22 @@ class BasketCurator():
             in_budget = self.is_basket_in_budget()
             rand = random.uniform(0,1)
             self.likelihood_to_stop += globals.BASKETCURATOR_INCREMENT_LIKELIHOOD
-            
-                
+        self._organize_basket()    
+             
     
     def _add_items_from_another_fg(self) -> None: 
-        options = self._get_product_options(stores=self.stores, fgs=None, focus_on_sales=False)
+        options = self._get_product_options(fgs=None, focus_on_sales=False)
     
         #sales and no sales here
         #buy items (can be larger serving size then needed)
-        for _, row in self.serv_track.iterrows(): 
+        for idx in self.serv_track.index: 
             
-            while row["required"] > row["got"]:
+            while self.serv_track.loc[idx, "required"] > self._get_purchased_servings_from_serv_track().loc[idx]:
                 if not options.empty:
-                    plan_to_purchase = options.sample(1,replace=True).iloc[0]
-                    self._buy(plan_to_purchase, 1)
-                    options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current
-                    options = options[options["amount"] > 0]
-                    self._add_item(plan_to_purchase, 1)
+                    self._sample_and_buy(options)
                 else:
                     break
-
+        self._organize_basket()
         
     def _update_serv_track(self, item:pd.Series, add_to_basket:bool) -> None: 
         
@@ -210,22 +239,22 @@ class BasketCurator():
         
         self.serv_track.loc[self.serv_track["type"] == item["type"],"is_replacing_other_fg"] += diff # type: ignore
         assigned_servings = 0
-        fgs_missing_servings = self.serv_track[self.serv_track['required'] > self.serv_track['got']]["type"].tolist()
+        fgs_missing_servings = self.serv_track[self.serv_track['required'] > self._get_purchased_servings_from_serv_track()]["type"].tolist()
         
         servings = diff
         while assigned_servings < diff and len(fgs_missing_servings) > 0:
             selected_fg = random.choice(fgs_missing_servings)
             
             max_servings = self.serv_track[self.serv_track["type"] == selected_fg]["required"].values[0] -\
-                self.serv_track[self.serv_track["type"] == selected_fg]["got"].values[0]
+                self._get_purchased_servings_from_serv_track().loc[self.serv_track["type"] == selected_fg].values[0]
             if servings > max_servings:
                 servings = max_servings
             
             self.serv_track.loc[self.serv_track["type"] == selected_fg, "is_in_other_fg"] += servings # type: ignore
-            self.serv_track.loc[self.serv_track["type"] == selected_fg, "got"] += servings # type: ignore
+           # self.serv_track.loc[self.serv_track["type"] == selected_fg, "got"] += servings # type: ignore
             
             assigned_servings += servings
-            fgs_missing_servings = self.serv_track[self.serv_track['required'] > self.serv_track['got']]["type"].tolist()
+            fgs_missing_servings = self.serv_track[self.serv_track['required'] > self._get_purchased_servings_from_serv_track()]["type"].tolist()
             servings = diff - assigned_servings 
         return servings
         
@@ -238,18 +267,15 @@ class BasketCurator():
     def _add_to_serv_track(self,item:pd.Series) -> None: 
         #a) we are matching the food group we still need 
         fg_item = item["type"]
-        servings = item["servings"]
         row = self.serv_track.loc[self.serv_track["type"] == fg_item]
         #update got value of item
         self.serv_track.loc[row.index[0],"got"] += item["servings"]
         
         #b) we are not matching, but we buy to meet serving requirements
         required = row["required"].values[0]
-        got = self.serv_track.loc[row.index[0],"got"]
-        is_replacing_other_fg = self.serv_track.loc[row.index[0],"is_replacing_other_fg"]
-        
-        if required < got:
-            diff = got - (required + is_replacing_other_fg)
+        got = self._get_purchased_servings_from_serv_track()
+        if row["required"].values[0] < got.loc[row.index[0]] :
+            diff = got.loc[row.index[0]] - required
             #update servings in got + is_replacing_other_fg -> this is the replacing fg 
             remaining_servings = self._handle_is_replacing_other_fg(item, diff)
             
@@ -270,9 +296,9 @@ class BasketCurator():
         
         servings_to_remove = serv
         
-        if is_replacing_other_fg + is_in_other_fg > got: # type: ignore 
+        if is_replacing_other_fg > got: # type: ignore 
             #first start with replacing_other_fg (easier)
-            servings_to_remove = is_replacing_other_fg + is_in_other_fg - got 
+            servings_to_remove = is_replacing_other_fg - got 
             replace_amount = servings_to_remove
             if is_replacing_other_fg > 0: 
                 if is_replacing_other_fg < replace_amount:
@@ -291,7 +317,7 @@ class BasketCurator():
                     if replace_amount > item["is_replacing_other_fg"]:
                         replace_amount = item["is_replacing_other_fg"]
                     
-                    self.serv_track.loc[self.serv_track["type"] == item["type"], "got"] -= replace_amount # type: ignore
+                    #self.serv_track.loc[self.serv_track["type"] == item["type"], "got"] -= replace_amount # type: ignore
                     self.serv_track.loc[self.serv_track["type"] == item["type"], "is_replacing_other_fg"] -= replace_amount # type: ignore
                     servings_to_remove -= replace_amount # type: ignore
                 
@@ -299,7 +325,7 @@ class BasketCurator():
     def _replace_item_with_cheaper_option(self, is_same_fg:bool=False) -> bool:
         
         found_replaceable_item = False #might have to try every item in self.basket
-        options = self._get_product_options(self.stores,None,focus_on_sales=False)
+        options = self._get_product_options(None,focus_on_sales=False)
         options["adjustment"] = "None" 
         
         #adjustment options:         
@@ -397,7 +423,6 @@ class BasketCurator():
         item["amount"] = amount
         self._update_serv_track(item=item,add_to_basket=True)    
         self.basket = pd.concat([self.basket, pd.DataFrame([item])], ignore_index=True)
-        self._organize_basket()
        
     def _organize_basket(self) -> None: 
         equal_columns = self.basket.columns.tolist()
@@ -454,6 +479,7 @@ class BasketCurator():
         """        
         store = item["store"] #take replacement from store
         store.buy(item, amount)
+        store.clean_stock() 
         
     def _give_back(self,item:pd.Series,amount:int) -> None:
         """Return item in amount from store
@@ -469,7 +495,7 @@ class BasketCurator():
         store.give_back(item, amount)
         
     
-    def _get_product_options(self, stores, fgs=None, focus_on_sales=False) -> pd.DataFrame: 
+    def _get_product_options(self, fgs:List[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
         """_summary_
 
         Args:
@@ -485,14 +511,14 @@ class BasketCurator():
         options = pd.DataFrame()
         #go over required food groups
         if fgs == None: 
-            for store in stores: 
+            for store in self.stores: 
                 if len(options) == 0:
                     options = store.stock
                 else: 
                     options = pd.concat([options,store.stock], ignore_index=True)    
         else: 
             for fg in fgs:
-                for store in stores: 
+                for store in self.stores: 
                     if store.is_fg_in_stock(fg): 
                         if len(options) == 0: 
                             options = store.get_stock_of_fg(fg)
@@ -510,6 +536,7 @@ class BasketCurator():
     def return_basket_to_store(self) -> None: 
         for _,row in self.basket.iterrows(): 
             self._remove_item(item=row, amount=row["amount"])
+            self._give_back(item=row,amount=row["amount"])
             
     
     def get_missing_fgs(self) -> list[str]:
