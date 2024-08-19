@@ -61,6 +61,8 @@ SIMULATION_OUTPUTFOLDER = None
 SIMULATION_WRITE_TO_FILE_INTERVAL = None
 SIMULATION_DEBUG_LOG_ON = None
 
+STORE_CONVENIENT_QUALITY = None
+STORE_CONVENIENT_PRICE = None
 
 STORE_LOW_QUALITY = None 
 STORE_LOW_PRICE = None
@@ -145,6 +147,8 @@ def configure_simulation():
     global SIMULATION_OUTPUTFOLDER
     global SIMULATION_WRITE_TO_FILE_INTERVAL
     global SIMULATION_DEBUG_LOG_ON
+    global STORE_CONVENIENT_QUALITY
+    global STORE_CONVENIENT_PRICE
     global STORE_LOW_QUALITY
     global STORE_LOW_PRICE
     global STORE_MID_QUALITY
@@ -208,7 +212,6 @@ def configure_simulation():
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
     global NEIGHBORHOOD_PAY_DAY_INTERVAL
     global DEALASSESSOR_WEIGHT_SERVING_PRICE
-    global BASKETCURATOR_INITIAL_LIKELIHOOD
     global BASKETCURATOR_INCREMENT_LIKELIHOOD
     
     
@@ -221,6 +224,10 @@ def configure_simulation():
     SIMULATION_WRITE_TO_FILE_INTERVAL = config["Simulation"]["write_to_file_interval"]
     SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"]
     EXPERIMENT_NAME = config["Simulation"]["name"]
+    
+    
+    STORE_CONVENIENT_QUALITY = config["Store"]["convenient-store"]["quality"]
+    STORE_CONVENIENT_PRICE = config["Store"]["convenient-store"]["price"]
     
     STORE_LOW_QUALITY = config["Store"]["low-tier"]["quality"]
     STORE_LOW_PRICE = config["Store"]["low-tier"]["price"]

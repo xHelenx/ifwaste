@@ -5,7 +5,6 @@ import random
 import globals
 from Location import Location
 
-
 class Grid: 
     def __init__(self) -> None:
         gridsize = globals.NEIGHBORHOOD_HOUSES + sum(globals.NEIGHBORHOOD_STORE_AMOUNTS)
@@ -19,17 +18,23 @@ class Grid:
         from Household import Household
         from StoreLowTier import StoreLowTier
         from StoreMidTier import StoreMidTier
+        from StoreConvenientStore import StoreConvenientStore
         grid_str = ""
         for i in range(len(self.grid))   :
             for j in range(len(self.grid[0])):
-                if self.grid[i][j] == None:
+                if self.grid[i][j] is None:
                     grid_str += " -"
-                if isinstance(self.grid[i][j], Household):
+                elif isinstance(self.grid[i][j], Household):
                     grid_str += " h "
                 elif isinstance(self.grid[i][j], StoreLowTier):
                     grid_str += " sl"
                 elif isinstance(self.grid[i][j], StoreMidTier):
                     grid_str += " sm"
+                elif isinstance(self.grid[i][j], StoreConvenientStore):
+                    grid_str += " sc"
+                else: 
+                    print(type(self.grid[i][j]))
+                    grid_str += " ??"
             grid_str += "\n"
         return grid_str
 

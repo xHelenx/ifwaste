@@ -1,9 +1,6 @@
-import json 
 import logging
 from Neighborhood import Neighborhood
-from Household import Household
 import globals
-from FoodGroups import FoodGroups
 
 
 #read configuration file 

@@ -9,8 +9,8 @@
     },
     "Neighborhood" : {
         "neighborhood_houses" : 2, 
-        "neighborhood_store_types": "['low-tier', 'mid-tier']",
-        "neighborhood_store_amounts": "[1,1]",
+        "neighborhood_store_types": "['convenient-store','low-tier', 'mid-tier']",
+        "neighborhood_store_amounts": "[1,1,1]",
         "neighborhood_pay_day_interval" : 10
     },
     "Grid": {
@@ -145,14 +145,19 @@
         }
     },
     "Store": {
+        "convenient-store": {
+            "product_range": "parameterization\\store_type_convenient_store.csv",
+            "quality":0.2, 
+            "price":0.2
+        },
         "low-tier": {
             "product_range": "parameterization\\store_type_low_tier.csv",
             "quality":0.5, 
-            "price":0.2
+            "price":0.35
         },
         "mid-tier": {
             "product_range": "parameterization\\store_type_mid_tier.csv",
-            "quality":0.5, 
+            "quality":0.7, 
             "price":0.6
         }
     },

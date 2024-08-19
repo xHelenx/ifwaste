@@ -4,7 +4,7 @@ from Grid import Grid
 from EnumStoreTier import EnumStoreTier
 
 
-class StoreLowTier(Store):
+class StoreConvenientStore(Store): 
     def __init__(self, store_type:EnumStoreTier, grid:Grid, id) -> None:
         super().__init__(store_type, grid,id)
         

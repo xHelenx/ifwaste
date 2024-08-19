@@ -5,8 +5,9 @@ import globals
 from Grid import Grid
 from StoreLowTier import StoreLowTier 
 from StoreMidTier import StoreMidTier
+from StoreConvenientStore import StoreConvenientStore 
 from Store import Store
-from EnumStoreTier import EnumStoreTier 
+from EnumStoreTier import EnumStoreTier
 
 class Neighborhood():
     def __init__(self) -> None:
@@ -28,6 +29,8 @@ class Neighborhood():
                     store = StoreLowTier(store_type=EnumStoreTier.LOWTIER, grid=self.grid,id=i*j+j)
                 elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.MIDTIER.name:
                     store = StoreMidTier(store_type=EnumStoreTier.MIDTIER, grid=self.grid,id=i*j+j)
+                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.CONVENIENTTIER.name:
+                    store = StoreConvenientStore(store_type=EnumStoreTier.CONVENIENTTIER, grid=self.grid,id=i*j+j)
                 else: 
                     raise ValueError("store type does not exist")
                 self.grid.assign_location(object=store)

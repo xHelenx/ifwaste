@@ -1,9 +1,10 @@
 from enum import Enum
 
 class EnumStoreTier(Enum):
-    LOWTIER = "low-tier", 0
-    MIDTIER = "mid-tier", 1
-    HIGHTIER = "high-tier", 2
+    CONVENIENTTIER = "convenient-store", 0
+    LOWTIER = "low-tier", 1
+    MIDTIER = "mid-tier", 2
+    
 
     def __new__(cls, name, tier):
         obj = object.__new__(cls)
