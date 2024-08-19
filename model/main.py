@@ -22,5 +22,5 @@ for run in range(0,globals.SIMULATION_RUNS):
     print(neighborhood.grid)
     
     #run simulation
-    neighborhood.run(days=globals.SIMULATION_DAYS, run_id=run)
+    neighborhood.run(run_id=run)
    

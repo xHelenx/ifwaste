@@ -46,7 +46,7 @@ class Neighborhood():
             self.houses.append(house)
         
         
-    def run(self, days= 365, run_id=None) -> None:
+    def run(self, run_id=None) -> None:
         """Runs the simulation for the amount of days specified
 
         Args:
@@ -54,19 +54,18 @@ class Neighborhood():
         """        
         self.data_logger.log_households_config(houses=self.houses)
         self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, write_only_config=True)
-        for i in range(days):
+        for i in range(globals.SIMULATION_DAYS):
             print(i)
-              
+            globals.DAY += 1
             #for store in self.stores: 
                 #TODO store.do_a_day()
                 
             #TODO add random order
             for house in self.houses:
-                house.do_a_day(day=i)
-                
-            #TODO is order relevant?    
-            self.data_logger.log_households_daily(houses=self.houses, day=i)
-            self.data_logger.log_stores_daily(stores=self.stores, day=i)
+                house.do_a_day()
+                  
+            self.data_logger.log_households_daily(houses=self.houses)
+            self.data_logger.log_stores_daily(stores=self.stores)
             if i%globals.SIMULATION_WRITE_TO_FILE_INTERVAL == 0: 
                 self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, write_only_config=False)
     

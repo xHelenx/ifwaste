@@ -1,6 +1,8 @@
 import random
 import json
 
+DAY = 0
+
 ## Constants - DONT CHANGE
 CONFIG_PATH = 'model/config.json'
 ### Food types
@@ -8,8 +10,14 @@ FGMEAT = "FGMEAT"
 FGDAIRY = "FGDAIRY"
 FGVEGETABLE = "FGVEGETABLE"
 FGDRYFOOD = "FGDRYFOOD"
+FGBAKED = "FGBAKED"
 FGSNACKS = "FGSNACKS"
 FGSTOREPREPARED = "FGSTOREPREPARED"
+
+
+STATUS_PREPARED = "Prepared"
+STATUS_UNPREPARED = "Unprepared"
+STATUS_PREPREPARED = "Preprepared"
 
 
 ### Waste types 
@@ -22,14 +30,12 @@ FEMALE = 1
 
 ##----------------------------------------------------
 ## General 
-TOTAL_FOOD_TYPES = 6
 EXPIRATION_THRESHOLD = 4
 MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients 
 SERVINGS_PER_GRAB = 8
 KCAL_PER_GRAB = 100 
-INGREDIENTS_PER_QUICKCOOK = 2
+INGREDIENTS_PER_QUICKCOOK = 3
 MAX_SCALER_COOKING_AMOUNT = 2
-SERVING_SIZES = [6,12,20]
 ##----------------------------------------------------
 ## Person 
 ADULT_AGE_MIN = 18 

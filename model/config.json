@@ -104,6 +104,14 @@
             "exp_min":7,
             "exp_max":28
         },
+        "FGBAKED" : {
+            "type" : "FGBAKED",
+            "kg_per_serving" : 0.085,
+            "kcal_per_kg": 3000,
+            "inedible_percentage": 0,
+            "exp_min":3,
+            "exp_max":14
+        },
         "FGVEGETABLE" : {
             "type" : "FGVEGETABLE",
             "kg_per_serving" : 0.116,
