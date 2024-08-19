@@ -48,7 +48,6 @@ HH_AMOUNT_ADULTS = None
 HH_OVER_BUDGET_FACTOR = None
 
 NEIGHBORHOOD_HOUSES = None
-NEIGHBORHOOD_SERVING_BASED = None
 NEIGHBORHOOD_STORE_TYPES = None 
 NEIGHBORHOOD_STORE_AMOUNTS = None 
 NEIGHBORHOOD_PAY_DAY_INTERVAL = None
@@ -129,7 +128,6 @@ CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None
 
 DEALASSESSOR_WEIGHT_SERVING_PRICE = None
 
-BASKETCURATOR_INITIAL_LIKELIHOOD = None 
 BASKETCURATOR_INCREMENT_LIKELIHOOD = None 
 
 
@@ -138,7 +136,6 @@ def configure_simulation():
     global HH_AMOUNT_ADULTS
     global HH_OVER_BUDGET_FACTOR
     global NEIGHBORHOOD_HOUSES
-    global NEIGHBORHOOD_SERVING_BASED
     global NEIGHBORHOOD_STORE_TYPES
     global NEIGHBORHOOD_STORE_AMOUNTS    
     global GRID_TRAVEL_TIME_PER_CELL
@@ -231,7 +228,6 @@ def configure_simulation():
     STORE_MID_PRICE = config["Store"]["mid-tier"]["price"]
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
-    NEIGHBORHOOD_SERVING_BASED = config["Neighborhood"]["neighborhood_serving_based"]
     
     store_types = config["Neighborhood"]["neighborhood_store_types"]
     parts = store_types.strip('[]').split(',')
@@ -305,5 +301,4 @@ def configure_simulation():
     
     DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]
     
-    BASKETCURATOR_INITIAL_LIKELIHOOD = config["BasketCurator"]["initial_likelihood"]
     BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]

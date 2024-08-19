@@ -15,7 +15,7 @@ from HouseholdCookingManager import HouseholdCookingManager
 from HouseholdShoppingManager import HouseholdShoppingManager
 
 class Household(Location):
-    def __init__(self, id: int, grid:Grid,  datalogger:DataLogger, is_serving_based:bool = True) -> None:
+    def __init__(self, id: int, grid:Grid,  datalogger:DataLogger) -> None:
         """Initializes a household
 
         Args:
@@ -53,8 +53,7 @@ class Household(Location):
         todays_time: list = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
-                     random.random()*self.maxTimeForCookingAndShopping]
-        self.todays_servings: float = self.req_servings      
+                     random.random()*self.maxTimeForCookingAndShopping]  
         
         self.shopping_frequency:int = random.randint(2, 7) 
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
@@ -93,7 +92,8 @@ class Household(Location):
             preference_vector = self.hh_preference,
             household_plate_waste_ratio = household_plate_waste_ratio,
             time = todays_time, 
-            id = self.id
+            id = self.id,
+            req_servings=self.req_servings
             
         )
     def gen_ppl(self) -> list[Person]:
@@ -166,7 +166,7 @@ class Household(Location):
         if globals.DAY % self.shopping_frequency == 0:
             shopping_time = self.shoppingManager.shop(is_quickshop=False)
         #cook and eat
-        self.cookingManager.cook_and_eat(used_time=shopping_time,servings=self.req_servings)
+        self.cookingManager.cook_and_eat(used_time=shopping_time)
         #decay food and throw spoiled food out
         self.decay_food()
         self.throw_food_out()    
@@ -185,7 +185,7 @@ class Household(Location):
         for location in [self.fridge.current_items, self.pantry.current_items]:
             spoiled_food =  location[location["days_till_expiry"] <= 0] #selected spoiled food to track it
             if len(spoiled_food) > 0:
+                location.loc[location["days_till_expiry"] <= 0, "reason"] = globals.FW_SPOILED             
+                self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
                 location = location[location["days_till_expiry"] > 0] #remove spoiled food 
-                spoiled_food.loc[:,"reason"] = globals.FW_SPOILED
-                self.datalogger.append_log(self.id, "log_wasted", spoiled_food)
-    
+                

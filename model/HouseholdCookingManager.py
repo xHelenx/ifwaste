@@ -13,7 +13,7 @@ class HouseholdCookingManager:
     
     def __init__(self, pantry:Storage, fridge:Storage, shoppingManager:HouseholdShoppingManager,
                  datalogger:DataLogger, household_concern:float,  preference_vector:dict[str,float],
-                 household_plate_waste_ratio:float, time:list[float], id:int) -> None:
+                 household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float) -> None:
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
         self.shoppingManager: HouseholdShoppingManager = shoppingManager
@@ -24,9 +24,10 @@ class HouseholdCookingManager:
         self.id = id 
         
         self.time:list[float] = time
+        self.req_servings = req_servings
         
         self.todays_time: float = 0
-        self.todays_servings: float = 0
+        self.todays_servings: float = req_servings
         self.today:int = 0
         
         self.log_today_eef: bool 
@@ -135,10 +136,10 @@ class HouseholdCookingManager:
         
         return planned
     
-    def cook_and_eat(self, servings:float, used_time:float) -> None: 
+    def cook_and_eat(self, used_time:float) -> None: 
         self._reset_logs()
         self.todays_time = self.time[globals.DAY%7] - used_time
-        self.todays_servings = servings
+        self.todays_servings = self.req_servings
         
         strategy = self._determine_strategy()
         
@@ -231,7 +232,7 @@ class HouseholdCookingManager:
             waste["price"] = (waste["servings"]/meal["servings"]) * meal["price"]
             consumed["price"] = (consumed["servings"]/meal["servings"]) * meal["price"]
         
-        if waste["servings"] == meal["servings"]:
+        if waste["servings"] == 0:
             waste = None 
             
         

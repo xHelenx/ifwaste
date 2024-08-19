@@ -35,13 +35,8 @@ class Neighborhood():
 
         
         #setup all households
-        assert globals.NEIGHBORHOOD_HOUSES >= globals.NEIGHBORHOOD_SERVING_BASED 
-        for i in range(0,globals.NEIGHBORHOOD_SERVING_BASED): 
-            house = Household(id=i,grid=self.grid,datalogger=self.data_logger,is_serving_based=True)
-            self.grid.assign_location(object=house)
-            self.houses.append(house)
-        for i in range(globals.NEIGHBORHOOD_SERVING_BASED,globals.NEIGHBORHOOD_HOUSES): 
-            house = Household(id=i,grid=self.grid,datalogger=self.data_logger,is_serving_based=False)
+        for i in range(0,globals.NEIGHBORHOOD_HOUSES): 
+            house = Household(id=i,grid=self.grid,datalogger=self.data_logger)
             self.grid.assign_location(object=house)
             self.houses.append(house)
         
@@ -53,10 +48,9 @@ class Neighborhood():
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
         self.data_logger.log_households_config(houses=self.houses)
-        self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, write_only_config=True)
+        self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, logs_to_write=["log_config"])
         for i in range(globals.SIMULATION_DAYS):
             print(i)
-            globals.DAY += 1
             #for store in self.stores: 
                 #TODO store.do_a_day()
                 
@@ -67,9 +61,13 @@ class Neighborhood():
             self.data_logger.log_households_daily(houses=self.houses)
             self.data_logger.log_stores_daily(stores=self.stores)
             if i%globals.SIMULATION_WRITE_TO_FILE_INTERVAL == 0: 
-                self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, write_only_config=False)
-    
+                self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id)
+
+            
+            globals.DAY += 1
+            
         self.data_logger.log_households_left_resources(houses=self.houses)
+        self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, logs_to_write=["log_still_have"])
         
         
 

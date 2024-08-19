@@ -63,28 +63,29 @@ class HouseholdShoppingManager:
         return required_servings - (fridge_content + pantry_content)
    
     def _get_budget_for_this_purchase(self) -> float: #estimate budget for current shopping tour
-        days_till_payday = globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL     
-        if days_till_payday == 0: 
-            days_till_payday = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL     
-
+        days_till_payday = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL - (globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL)   
         if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
-            if self.todays_budget == 0: #no money to buy anything
+            if self.todays_budget <= 0: #no money to buy anything
                 return 0 
             req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
+            req_daily_servings = req_servings_till_payday/days_till_payday
             price_per_serving = self.todays_budget/req_servings_till_payday
-            return price_per_serving * (self.req_servings * self.shopping_frequency) * globals.HH_OVER_BUDGET_FACTOR
+            return price_per_serving * (req_daily_servings * self.shopping_frequency) * globals.HH_OVER_BUDGET_FACTOR
 
         else: #hh will receive new money, so the budget estimate has to consider it
-            #TODO check this sceanrio
-            req_servings_to_buy = (self.req_servings * self.shopping_frequency) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
-            req_servings_daily = req_servings_to_buy/self.shopping_frequency
-
-            budget_before_pd = self.todays_budget/(req_servings_daily * days_till_payday)
-            left_days = self.shopping_frequency-days_till_payday
-            budget_after_pdf = (self.todays_budget - budget_before_pd + self.budget)/\
-                (req_servings_daily * left_days + self.req_servings * (globals.NEIGHBORHOOD_PAY_DAY_INTERVAL -left_days))
-
-            return (budget_before_pd + budget_after_pdf) * globals.HH_OVER_BUDGET_FACTOR
+            #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
+            still_have_servings = self.fridge.get_total_servings() + self.pantry.get_total_servings()
+            days = days_till_payday + globals.NEIGHBORHOOD_PAY_DAY_INTERVAL
+            req_daily_servings = (self.req_servings*days - still_have_servings)/(days)
+            
+            budget_before_pd = self.todays_budget
+            if self.todays_budget <= 0:
+                budget_before_pd = 0
+            total_budget = budget_before_pd + self.budget 
+            
+            price_per_serving = total_budget/(req_daily_servings*days)
+            
+            return price_per_serving * req_daily_servings * days_till_payday
           
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> None:
         price = 0

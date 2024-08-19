@@ -8,11 +8,10 @@
         "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 1, 
-        "neighborhood_serving_based" : 1,
+        "neighborhood_houses" : 2, 
         "neighborhood_store_types": "['low-tier', 'mid-tier']",
         "neighborhood_store_amounts": "[1,1]",
-        "neighborhood_pay_day_interval" : 30
+        "neighborhood_pay_day_interval" : 10
     },
     "Grid": {
         "travel_time_per_cell" : 0.01,
@@ -161,7 +160,6 @@
         "weight_serving_price": 0.5
     },
     "BasketCurator":{
-        "initial_likelihood":0.1,
-        "increment_likelihood":0.03
+        "increment_likelihood":0.01
     }
 } 

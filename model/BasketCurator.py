@@ -15,7 +15,7 @@ class BasketCurator():
         self.basket:pd.DataFrame = pd.DataFrame()
         self.stores:list[Store] = stores
         self.budget:float | None = budget
-        self.likelihood_to_stop:float = float(globals.BASKETCURATOR_INITIAL_LIKELIHOOD)
+        self.likelihood_to_stop:float = 0
         
         rows = []
         if servings_to_buy_fg is None:
@@ -52,12 +52,13 @@ class BasketCurator():
         '''
         servings_to_buy_fg = series FG:float
         '''
+        #new day so reset: self.likelihood_to_stop
+        self.likelihood_to_stop = 0
+        
+        
         logging.debug("###########################################")
         logging.debug("#####CREATE BASKET######")
-        for store in self.stores: 
-                logging.debug("--- STORES STOCK: ---")
-                logging.debug(store.stock)
-        
+       
         if not is_quickshop:
             self._create_shop_basket()
         else:
@@ -65,9 +66,6 @@ class BasketCurator():
                        
         if len(self.basket) > 0: 
             self._organize_basket()  
-        for store in self.stores: 
-            logging.debug("--- STORES STOCK: ---")
-            logging.debug(store.stock)
         if len(self.basket) > 0: 
             logging.debug("basket: #items:%i", self.basket["amount"].sum())
         else:
@@ -135,6 +133,7 @@ class BasketCurator():
     
     
     def adjust_basket(self) -> None:   
+        self._organize_basket()
         if not self.does_basket_cover_all_fg():
             logging.debug("BASKET DOES NOT COVER ALL FG")
             self._add_items_from_another_fg()
