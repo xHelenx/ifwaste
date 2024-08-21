@@ -1,4 +1,5 @@
 
+import random
 from DataLogger import DataLogger
 from Household import Household
 import globals 
@@ -54,12 +55,17 @@ class Neighborhood():
         self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, logs_to_write=["log_config"])
         for i in range(globals.SIMULATION_DAYS):
             print(i)
-            #for store in self.stores: 
-                #TODO store.do_a_day()
+            #store restock / sales 
+            for store in self.stores: 
+                store.do_before_day()
                 
-            #TODO add random order
+            random.shuffle(self.houses) #increase fairness, that not always the same household goes shopping last (might be out of stock)
             for house in self.houses:
                 house.do_a_day()
+                
+            #stock decays / throw out items 
+            for store in self.stores: 
+                store.do_after_day()
                   
             self.data_logger.log_households_daily(houses=self.houses)
             self.data_logger.log_stores_daily(stores=self.stores)
