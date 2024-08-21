@@ -54,7 +54,8 @@ class BasketCurator():
         '''
         #new day so reset: self.likelihood_to_stop
         self.likelihood_to_stop = 0
-        
+        for store in self.stores:
+            store.organize_stock()        
         
         logging.debug("###########################################")
         logging.debug("#####CREATE BASKET######")
@@ -87,7 +88,7 @@ class BasketCurator():
     def _create_shop_basket(self) -> None: 
         #merge available stocks
         for fg in self.serv_track[self._get_purchased_servings_from_serv_track()  < self.serv_track["required"]]["type"].tolist():
-            options = self._get_product_options(fgs=[fg], focus_on_sales=True)   
+            options = self._get_stock_options(fgs=[fg], focus_on_sales=True)   
             if not options.empty: 
                 options = options[options["amount"] > 0]                 
                 idx =  self.serv_track[self.serv_track["type"] == fg].index[0]
@@ -103,14 +104,12 @@ class BasketCurator():
     def _create_quickshop_basket(self) -> None: 
         #only allow 1 store to be visited! 
         
-        options = self._get_product_options(fgs=[globals.FGSTOREPREPARED], focus_on_sales=True) 
+        options = self._get_stock_options(fgs=[globals.FGSTOREPREPARED]) 
         purchased = None
         if not options.empty:
             purchased = self._sample_and_buy(options)
         
-        options = self._get_product_options()
-        if not purchased is None:
-            options = options[options["store"] == purchased["store"]]
+        options = self._get_stock_options()
         n = random.randint(1,3)
         
         for i in range(n): 
@@ -128,12 +127,17 @@ class BasketCurator():
         cost = (self.basket["price_per_serving"] * self.basket["servings"]).sum()
         return cost < self.budget 
     
-    def does_basket_cover_all_fg(self):
+    def does_basket_cover_all_fg(self) -> bool:
         return len(self.serv_track[self.serv_track["got"] + self.serv_track["is_in_other_fg"] < self.serv_track["required"]]) == 0 
     
     
     def adjust_basket(self) -> None:   
+        
+        for store in self.stores:
+            store.organize_stock()      
         self._organize_basket()
+        
+        
         if not self.does_basket_cover_all_fg():
             logging.debug("BASKET DOES NOT COVER ALL FG")
             self._add_items_from_another_fg()
@@ -213,7 +217,7 @@ class BasketCurator():
              
     
     def _add_items_from_another_fg(self) -> None: 
-        options = self._get_product_options(fgs=None, focus_on_sales=False)
+        options = self._get_stock_options(fgs=None, focus_on_sales=False)
     
         #sales and no sales here
         #buy items (can be larger serving size then needed)
@@ -324,7 +328,7 @@ class BasketCurator():
     def _replace_item_with_cheaper_option(self, is_same_fg:bool=False) -> bool:
         
         found_replaceable_item = False #might have to try every item in self.basket
-        options = self._get_product_options(None,focus_on_sales=False)
+        options = self._get_stock_options(None,focus_on_sales=False)
         options["adjustment"] = "None" 
         
         #adjustment options:         
@@ -425,7 +429,7 @@ class BasketCurator():
        
     def _organize_basket(self) -> None: 
         equal_columns = self.basket.columns.tolist()
-        equal_columns.remove("amount") 
+        equal_columns.remove("amount") if "amount" in equal_columns else None 
         self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum()         # type: ignore
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
@@ -478,7 +482,7 @@ class BasketCurator():
         """        
         store = item["store"] #take replacement from store
         store.buy(item, amount)
-        store.clean_stock() 
+        store.organize_stock() 
         
     def _give_back(self,item:pd.Series,amount:int) -> None:
         """Return item in amount from store
@@ -494,7 +498,7 @@ class BasketCurator():
         store.give_back(item, amount)
         
     
-    def _get_product_options(self, fgs:List[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
+    def _get_stock_options(self, fgs:List[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
         """_summary_
 
         Args:
@@ -527,9 +531,7 @@ class BasketCurator():
             items_on_sale = options[options["sale_type"] != EnumSales.NONE] 
             if len(items_on_sale) > 0: 
                 #if items are on sale buy from those (even tho might not be best deal)
-                options = items_on_sale     
-                
-        
+                options = items_on_sale
         return options 
     
     def return_basket_to_store(self) -> None: 

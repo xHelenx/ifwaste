@@ -185,7 +185,10 @@ class Household(Location):
         for location in [self.fridge.current_items, self.pantry.current_items]:
             spoiled_food =  location[location["days_till_expiry"] <= 0] #selected spoiled food to track it
             if len(spoiled_food) > 0:
-                location.loc[location["days_till_expiry"] <= 0, "reason"] = globals.FW_SPOILED             
-                self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
+                for i in spoiled_food.index: 
+                    (edible,inedible) = self.cookingManager._split_waste_from_food(meal=spoiled_food.loc[i],waste_type=globals.FW_INEDIBLE)
+                    edible["reason"] = globals.FW_SPOILED
+                    self.datalogger.append_log(self.id, "log_wasted", edible)   
+                    self.datalogger.append_log(self.id, "log_wasted", inedible)   
                 location = location[location["days_till_expiry"] > 0] #remove spoiled food 
                 

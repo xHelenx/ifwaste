@@ -65,6 +65,7 @@ class HouseholdCookingManager:
             if not inedible is None:
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
         prepped = pd.DataFrame(prepped)
+        
         meal = self._combine_to_meal(prepped)
         
         if not is_quickcook: 
@@ -75,8 +76,6 @@ class HouseholdCookingManager:
     
     def _combine_to_meal(self,items:pd.DataFrame) -> pd.Series: 
         meal = pd.Series()
-        total_servings = 0
-        price = 0
         fgs = FoodGroups.get_instance()
         for fg in fgs.get_all_food_groups():
             meal[fg] = items[fg].sum()
@@ -96,7 +95,7 @@ class HouseholdCookingManager:
         if not is_quickcook:
             while planned_servings > 0 and not self.pantry.is_empty(): 
                 to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
-                planned_servings -= to_eat["servings"] #TODO its ok that we might cook a bit more
+                planned_servings -= to_eat["servings"] 
                 ingredients.append(to_eat)
         else: #quickcook
             used_ingredients = 0
