@@ -61,6 +61,7 @@ SIMULATION_OUTPUTFOLDER = None
 SIMULATION_WRITE_TO_FILE_INTERVAL = None
 SIMULATION_DEBUG_LOG_ON = None
 
+STORE_MEMORY_LENGTH = None 
 STORE_CONVENIENT_QUALITY = None
 STORE_CONVENIENT_PRICE = None
 
@@ -153,6 +154,7 @@ def configure_simulation():
     global STORE_LOW_PRICE
     global STORE_MID_QUALITY
     global STORE_MID_PRICE
+    global STORE_MEMORY_LENGTH
     global EXPERIMENT_NAME
     global ADULT_PLATE_WASTE_MIN
     global ADULT_PLATE_WASTE_MAX
@@ -233,11 +235,13 @@ def configure_simulation():
     STORE_LOW_PRICE = config["Store"]["low-tier"]["price"]
     STORE_MID_QUALITY = config["Store"]["mid-tier"]["quality"]
     STORE_MID_PRICE = config["Store"]["mid-tier"]["price"]
+    STORE_MEMORY_LENGTH = config["Store"]["memory_length"]
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     
     store_types = config["Neighborhood"]["neighborhood_store_types"]
     parts = store_types.strip('[]').split(',')
+    
     NEIGHBORHOOD_STORE_TYPES = [part.strip().strip("'") for part in parts]
     NEIGHBORHOOD_STORE_AMOUNTS = [int(item) for item in json.loads(config["Neighborhood"]["neighborhood_store_amounts"])]
     NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
