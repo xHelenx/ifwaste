@@ -48,7 +48,7 @@ class HouseholdCookingManager:
         self.log_today_leftovers = False
         self.log_today_quickcook = False
     
-    def _cook(self,strategy:Literal["random"] | Literal["EEF"],is_quickcook:bool) -> pd.Series:         
+    def _cook(self,strategy:Literal["random"] | Literal["EEF"],is_quickcook:bool) -> pd.Series | None:         
         if not self._has_enough_ingredients(): 
             shopping_time = self.shoppingManager.shop(is_quickshop=True) #shopping time ignored cause its short and we quickcook
             self.todays_time -= shopping_time 
@@ -66,7 +66,9 @@ class HouseholdCookingManager:
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
         prepped = pd.DataFrame(prepped)
         
-        meal = self._combine_to_meal(prepped)
+        meal = None 
+        if not prepped.empty: #TODO undo    
+            meal = self._combine_to_meal(prepped)
         
         if not is_quickcook: 
             self.log_today_cooked = True 
@@ -149,7 +151,8 @@ class HouseholdCookingManager:
         if self.todays_servings > 0: 
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
                 meal = self._cook("EEF", is_quickcook = True)
-                self._eat_meal(meal)
+                if meal is not None: 
+                    self._eat_meal(meal)
             else: #we already cooked or quick cooked -> so eat left overs now
                 if strategy == "EEFpantry": 
                     strategy = "EEF"
@@ -275,4 +278,5 @@ class HouseholdCookingManager:
                 strategy = "EEF"
             is_quickcook = not self._has_enough_time()
             meal = self._cook(strategy=strategy,is_quickcook=is_quickcook)
-            self._eat_meal(meal)       
+            if meal is not None:
+                self._eat_meal(meal)       

@@ -132,6 +132,7 @@ CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None
 DEALASSESSOR_WEIGHT_SERVING_PRICE = None
 
 BASKETCURATOR_INCREMENT_LIKELIHOOD = None 
+BASKETCURATOR_MAX_ITEMS_QUICKSHOP = None
 
 
 def configure_simulation(): 
@@ -215,6 +216,7 @@ def configure_simulation():
     global NEIGHBORHOOD_PAY_DAY_INTERVAL
     global DEALASSESSOR_WEIGHT_SERVING_PRICE
     global BASKETCURATOR_INCREMENT_LIKELIHOOD
+    global BASKETCURATOR_MAX_ITEMS_QUICKSHOP
     
     
     with open(CONFIG_PATH) as f:
@@ -313,3 +315,4 @@ def configure_simulation():
     DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]
     
     BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]
+    BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]

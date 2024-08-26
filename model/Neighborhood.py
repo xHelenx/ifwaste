@@ -45,14 +45,14 @@ class Neighborhood():
             self.houses.append(house)
         
         
-    def run(self, run_id=None) -> None:
+    def run(self, run_id:int) -> None:
         """Runs the simulation for the amount of days specified
 
         Args:
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
-        self.data_logger.log_households_config(houses=self.houses)
-        self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, logs_to_write=["log_config"])
+        self.data_logger.log_configs(houses=self.houses)
+        self.data_logger.data_to_csv(run=run_id, logs_to_write=["log_hh_config", "log_sim_config"])
         for i in range(globals.SIMULATION_DAYS):
             print(i)
             #store restock / sales 
@@ -70,13 +70,13 @@ class Neighborhood():
             self.data_logger.log_households_daily(houses=self.houses)
             self.data_logger.log_stores_daily(stores=self.stores)
             if i%globals.SIMULATION_WRITE_TO_FILE_INTERVAL == 0: 
-                self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id)
+                self.data_logger.data_to_csv(run=run_id)
 
             
             globals.DAY += 1
             
         self.data_logger.log_households_left_resources(houses=self.houses)
-        self.data_logger.data_to_csv(experiment_name=globals.EXPERIMENT_NAME, run=run_id, logs_to_write=["log_still_have"])
+        self.data_logger.data_to_csv(run=run_id, logs_to_write=["log_still_have"])
         
         
 

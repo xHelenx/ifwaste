@@ -224,6 +224,7 @@ class HouseholdShoppingManager:
     def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_tier: bool | None =None) -> None | Store:
         assert not (required_fgs == None and needs_lower_tier == None)
         selection = None 
+        #TODO if this is the second store the time for the first part of the route has to be considered! 
         store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time)
         #choose a store from possible options (not is_planner just selects 1 store here)
         if len(store_options) > 0:

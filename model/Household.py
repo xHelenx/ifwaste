@@ -55,7 +55,7 @@ class Household(Location):
                      random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
                      random.random()*self.maxTimeForCookingAndShopping]  
         
-        self.shopping_frequency:int = random.randint(2, 7) 
+        self.shopping_frequency:int = random.randint(2, 4) 
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
         
         

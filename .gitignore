@@ -1,5 +1,9 @@
 #ignore pycache files
 model/__pycache__/*
+.mypy_cache/*
+
+#ignore virtual environment
+.venv/*
 
 #ignore vscode settings 
 .vscode/*
@@ -10,6 +14,4 @@ debug.log
 analysis/*.html 
 analysis/plots/*
 
-#ignore archive files
-archive/*
 
