@@ -1,3 +1,10 @@
+
+```{r}
+source("analysis/util.R")
+
+test()
+
+```
 ```{r}
 #0. you might have to install missing packages, comment in the following 2 lines to do so
 #install.packages("RColorBrewer")
@@ -15,11 +22,13 @@ library(tidyverse)
 #in the datafolder
 #1. add the path to the data folder in PATH
 #2. add the name of the folder you want to analyse e.g.  "2024-04-10at09-45/"
-PATH = "E:/UF/ifwaste/data/testing_new_shopping/"
-INPUT_FOLDER = "run_0/"
+PATH = "E:/UF/ifwaste/archive/01_paper/data/2_kids/"
+
+
+#INPUT_FOLDER = "run_0/"
 
 #3. if you want to save all generated plots, set save_plots to TRUE, otherwise set it to FALSE
-save_plots = TRUE
+save_plots = FALSE
 
 #4. optional: change the design settings: 
 PALETTE = "Spectral"
@@ -195,6 +204,19 @@ if (save_plots) {
 
 ```
 
+```{r}
+wasted_kg <- aggregate(Kg ~ Day.Wasted+House, data = hh_foodwasted, FUN = sum)
+sum_kg_by_house <- wasted_kg %>%
+  group_by(House) %>%
+  summarise(Total_Kg = sum(Kg)/(40*6))
+sum_kg_by_house
+
+#sum(sum_kg_by_house$Total_Kg)
+
+#sum(sum_kg_by_house$Total_Kg[0:5])
+#sum(sum_kg_by_house$Total_Kg[5:9])
+```
+
 ### 4. Food waste by household divided by food type in USD
 ```{r}
 # Plotting
@@ -238,9 +260,64 @@ sum_by_status <- aggregate(Kg ~ Status, data=hh_foodwasted, FUN = sum)
 print(sum_by_status)
 ```
 
+## Still have
+```{r}
+
+# Plotting
+purchased_by_household <- ggplot(data = hh_foodremaining) +
+  geom_bar(mapping = aes(x = Day, fill = Type, weight = Servings), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
+  ylab("in servings") + 
+  scale_fill_brewer(palette = PALETTE) 
+
+# Display the plot
+purchased_by_household
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "bought_hh_servings.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(purchased_by_household)
+   dev.off()
+}
+
+
+```
+
 ## Nutrients and Behavior
 
 ### 1. Missing servings and kcals per household 
+
+
+## eaten servings
+```{r}
+eaten <- aggregate(Servings ~ Day.Eaten+House, data = hh_foodeaten, FUN = sum)
+eaten
+
+```
+## eaten kcal
+```{r}
+eaten <- aggregate(Kcal ~ Day.Eaten+House, data = hh_foodeaten, FUN = sum)
+eaten
+
+```
+
+# food eaten by type in kg
+```{r}
+# Plotting
+wasted_by_household_fw_type <- ggplot(data = hh_foodeaten) +
+  geom_bar(mapping = aes(x = Day.Eaten, fill = Type, weight = Kg), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, hh_config$House)))) +
+  ylab("in Kg") + 
+  scale_fill_brewer(palette = PALETTE) 
+
+# Display the plot
+wasted_by_household_fw_type
+
+if (save_plots) {
+   png(file = paste0(OUTPUT_FOLDER, "waste_hh_fwtype_kg.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
+   print(wasted_by_household_fw_type)
+   dev.off()
+}
+```
 
 ```{r}
 scaleFactor <- max(hh_daily$Serving)/ max(hh_daily$Kcal)
@@ -389,6 +466,66 @@ if (save_plots) {
 
 ```
 
+### 1 Household: waste in kg, usd, kcal
+
+```{r}
+
+subset_hh_foodwasted <- subset(hh_foodwasted, House == 4)
+
+```
+```{r}
+library(gridExtra)
+library(cowplot)
+
+# Plot for Price
+plot_price <- ggplot(subset_hh_foodwasted, aes(x = Day.Wasted, fill=Type, y = Price)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "House with 2 adults, 2 children", x = "Day", y = "USD") + 
+  scale_fill_brewer(palette = PALETTE) +
+  xlim(75,90)
+
+# Plot for Kg
+plot_kg <- ggplot(subset_hh_foodwasted, aes(x = Day.Wasted, fill=Type, y = Kg)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "", x = "Day", y = "Kg") + 
+  scale_fill_brewer(palette = PALETTE) +
+  guides(fill = FALSE) + # Hide legend for this plot
+  xlim(75,90)
+
+# Plot for Kcal
+plot_kcal <- ggplot(subset_hh_foodwasted, aes(x = Day.Wasted, fill=Type, y = Kcal)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "", x = "Day", y = "Kcal") + 
+  scale_fill_brewer(palette = PALETTE) +
+  guides(fill = FALSE) + # Hide legend for this plot
+  xlim(75,90)
+
+# Combine plots and legend
+subplot <- plot_grid(plot_price, plot_kg, plot_kcal, align = "v", ncol = 1, rel_heights = c(1, 1, 1),
+                      hjust = -1, # Adjust legend position
+                      label_size = 10) + 
+  theme(legend.position = "bottom")  # Position legend at the bottom
+
+subplot
+
+
+
+```
+
+```{r}
+# Create a new plotting window with three subplots arranged vertically
+par(mfrow=c(3,1))
+
+# Plot Price
+barplot(hh_foodwasted$Day.Wasted, hh_foodwasted$Price, xlab="Day.Wasted", ylab="Price")
+
+# Plot Kg
+barplot(hh_foodwasted$Day.Wasted, hh_foodwasted$Kg, xlab="Day.Wasted", ylab="Kg")
+
+# Plot Kcal
+barplot(hh_foodwasted$Day.Wasted, hh_foodwasted$Kcal, xlab="Day.Wasted", ylab="Kcal")
+
+```
 
 ```{r}
 
@@ -474,8 +611,7 @@ setup_dataset<- function(PATH,foldername) {
   #group by house an run 
   df[["wasted"]]$Group <- paste(df[["wasted"]]$Run,df[["wasted"]]$House,sep="_")
   #wasted <- df[["wasted"]] #for now only the wasted subfolder is relevant
-   head(df[["config"]])
-
+  
   return(df)
 }
 
@@ -496,42 +632,45 @@ df_config_4 <- df_4[["config"]]
 df_2 <- setup_dataset(PATH,"2_kids/")
 df_waste_2 <- df_2[["wasted"]]
 df_config_2 <- df_2[["config"]]
-df_1 <- setup_dataset(PATH,"1_kids/")
-df_waste_1 <- df_1[["wasted"]]
-df_config_1 <- df_1[["config"]]
+df_0 <- setup_dataset(PATH,"0_kids/")
+df_waste_0 <- df_0[["wasted"]]
+df_config_0 <- df_0[["config"]]
 ```
 
 ```{r}
 
-df_waste_1 <- subset(df_waste_1, Run == 1 & House == 1)
-df_config_1 <- subset(df_config_1, Run == 1 & House == 1)
+df_waste_0 <- subset(df_waste_0, Run == 1 & (House == 1 | House == 2))
+df_config_0 <- subset(df_config_0, Run == 1 & (House == 1 | House == 2))
+
+df_waste_2 <- subset(df_waste_2, Run == 1 & (House == 3 | House == 4))
+df_config_2 <- subset(df_config_2, Run == 1 & (House == 3 | House == 4))
 
 
-df_waste_2 <- subset(df_waste_2, Run == 1 & House == 2)
-df_config_2 <- subset(df_config_2, Run == 1 & House == 2)
+df_waste_4 <- subset(df_waste_4, Run == 1 & (House == 5 | House == 6))
+df_config_4 <- subset(df_config_4, Run == 1 & (House == 5 | House == 6))
 
 
-df_waste_4 <- subset(df_waste_4, Run == 1 & House == 3)
-df_config_4 <- subset(df_config_4, Run == 1 & House == 3)
+df_waste_6 <- subset(df_waste_6, Run == 1 & (House == 7 | House == 8))
+df_config_6 <- subset(df_config_6, Run == 1 & (House == 7 | House == 8))
 
 
-df_waste_6 <- subset(df_waste_6, Run == 1 & House == 4)
-df_config_6 <- subset(df_config_6, Run == 1 & House == 4)
-
-df_waste <- rbind(df_waste_1,df_waste_2,df_waste_4, df_waste_6)
-df_config <- rbind(df_config_1,df_config_2,df_config_4, df_config_6)
+df_waste <- rbind(df_waste_0,df_waste_2,df_waste_4, df_waste_6)
+df_config <- rbind(df_config_0,df_config_2,df_config_4, df_config_6)
 
 ```
 ```{r}
+df_config
 ```
 
+
 ```{r}
+
 PALETTE = "Spectral"
  #Create named vector with labels for each house
 label_house_num_people <- as.vector(
   with(
     df_config,
-    sprintf("House: %s, Adults: %i, Children: %i Concern: %.2f", House, Adults, Children, LvlOfConcern)
+    sprintf("Adults: %i, Children: %i Concern: %.2f", Adults, Children, LvlOfConcern)
   )
 )
 
@@ -539,11 +678,39 @@ label_house_num_people <- as.vector(
 
 # Plotting
 wasted_by_household_fw_type <- ggplot(data = df_waste) +
-  geom_bar(mapping = aes(x = Day.Wasted, fill = Status, weight = Kg), position = "stack") +
+  geom_bar(mapping = aes(x = Day.Wasted, fill = Type, weight = Kg), position = "stack") +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config$House)))) +
-  ylab("Kg") + 
-  xlab("Day") + 
-  scale_fill_brewer(palette = PALETTE) 
+  ylab("Food wasted (kg)") + 
+  xlab("Simulated Days (day)") + 
+  #guides(fill=guide_legend(title="Food group"))+
+  scale_fill_brewer(palette = PALETTE) +
+  theme_minimal() + 
+  theme(text = element_text(size = 14), legend.position = "none")
+
+# Display the plot
+wasted_by_household_fw_type
+
+```
+
+```{r}
+
+WIDTH = 14
+HEIGHT = 7
+ggsave(plot=wasted_by_household_fw_type, width=WIDTH,height=HEIGHT,filename = "household_food_waste.png",path = "img", dpi=1200)
+```
+
+```{r}
+
+library(ggplot2)
+
+# Plotting without legend
+wasted_by_household_fw_type <- ggplot(data = df_waste) +
+  geom_bar(mapping = aes(x = Day.Wasted, fill = Type, weight = Kg), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config$House)))) +
+  ylab("Food wasted (kg)") + 
+  xlab("Simulated Days (day)") + 
+  scale_fill_brewer(palette = PALETTE) +
+  theme_minimal()
 
 # Display the plot
 wasted_by_household_fw_type
@@ -557,6 +724,7 @@ wasted_by_household_kg <- ggplot(data = df_waste) +
   facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config$House)))) +
   ylab("Kg") + 
   xlab("Day") + 
+  theme_minimal() + 
   scale_fill_brewer(palette = PALETTE) 
 
 # Display the plot

@@ -10,9 +10,14 @@ library(tidyverse)
 
 library(dplyr)
 library(purrr)
-save_plots = TRUE
+source("analysis/util.R")
+
+
+
+PATH <- "E:/UF/archive/paper_01/data/"
 
 #4. optional: change the design settings: 
+save_plots = TRUE
 PALETTE = "Spectral"
 WIDTH = 1200
 HEIGHT = 900
@@ -20,11 +25,147 @@ OUTPUT_FOLDER = "plots/"
 ```
 
 ```{r}
-  # Set the parent folder path
+#setup dataset, adding std, mean, lower, upper bounds
+filterIsServingBased = TRUE 
+df_waste_6 <- setup_dataset(PATH,"6_kids/",filterIsServingBased)
+df_waste_4 <- setup_dataset(PATH,"4_kids/",filterIsServingBased)
+df_waste_2 <- setup_dataset(PATH,"2_kids/",filterIsServingBased)
+df_waste_0 <- setup_dataset(PATH,"0_kids/",filterIsServingBased)
 
-PATH <- "E:/UF/ifwaste/data/"
+```
 
-setup_dataset<- function(PATH,foldername) {
+```{r}
+#plot absolute min_max and average
+plot = NULL
+start = 10
+plot <- plot_min_max(df_waste_6,"6 kids",plot,start)
+plot <- plot_min_max(df_waste_4,"4 kids",plot,start)
+plot <- plot_min_max(df_waste_2,"2 kids",plot,start)
+plot <- plot_min_max(df_waste_0,"no kids",plot,start)
+
+plot
+```
+
+
+
+```{r}
+#colors <- brewer.pal(11, PALETTE)[1:4]  # Select the first 4 colors from the Spectral palette
+
+
+```
+
+```{r}
+#TODO color settings
+source("analysis/util.R")
+#calc confidence interval, plot 
+df_waste_0_ci <- calculate_confidence_interval(df_waste_0)
+df_waste_2_ci <- calculate_confidence_interval(df_waste_2)
+df_waste_4_ci <- calculate_confidence_interval(df_waste_4)
+df_waste_6_ci <- calculate_confidence_interval(df_waste_6)
+
+plot2 = NULL
+
+plot2 <- plot_min_max(df_waste_6_ci,"6 children",plot2)
+plot2 <- plot_min_max(df_waste_4_ci,"4 children",plot2)
+plot2 <- plot_min_max(df_waste_2_ci,"2 children",plot2)
+plot2 <- plot_min_max(df_waste_0_ci,"no children",plot2)
+
+plot2
+
+```
+
+```{r}
+
+WIDTH = 10  
+HEIGHT = 5
+ggsave(plot=plot2, width=WIDTH,height=HEIGHT,filename = "kids_hypo_confidence_interval.png",path = "img", dpi=1200)
+
+```
+
+## Average Food waste per day / per household
+
+```{r}
+# Calculate the mean of the 'Mean' column for rows 10 to 100
+mean_value_0 <- mean(df_waste_0$Mean[10:100])#/2
+mean_value_2 <- mean(df_waste_2$Mean[10:100])#/4
+mean_value_4 <- mean(df_waste_4$Mean[10:100])#/6
+mean_value_6 <- mean(df_waste_6$Mean[10:100])#/8
+
+mean_vals <- (c(mean_value_0, mean_value_2, mean_value_4, mean_value_6))
+mean_vals
+
+```
+
+## Average Food waste per day / per person
+
+```{r}
+# Calculate the mean of the 'Mean' column for rows 10 to 100
+mean_value_0 <- mean(df_waste_0$Mean[10:100])/2
+mean_value_2 <- mean(df_waste_2$Mean[10:100])/4
+mean_value_4 <- mean(df_waste_4$Mean[10:100])/6
+mean_value_6 <- mean(df_waste_6$Mean[10:100])/8
+
+mean_vals <- (c(mean_value_0, mean_value_2, mean_value_4, mean_value_6))
+mean_vals
+```
+
+```{r}
+
+columns_to_remove <- c("Day.Wasted", "Mean", "Lower","Upper","Std")
+data <- df_waste_6
+data <- data[, !names(data) %in% columns_to_remove]
+sums <- colSums(data[10:100])/(90*8) #we are averaging over the 90 days and then calc value pp
+
+
+print(sd(sums))
+```
+
+```{r}
+length(sums)
+```
+
+## Std for food waste per day/per person
+```{r}
+# Calculate the mean of the 'Mean' column for rows 10 to 100
+std_value_0 <- sd(df_waste_0$Mean[10:100])/2
+std_value_0
+
+std_value_2 <- sd(df_waste_2$Mean[10:100])/4
+std_value_2
+
+std_value_4 <- sd(df_waste_4$Mean[10:100])/6
+std_value_4
+
+std_value_6 <- sd(df_waste_6$Mean[10:100])/8
+std_value_6
+
+```
+
+## Std for food waste per day/per person
+```{r}
+# Calculate the mean of the 'Mean' column for rows 10 to 100
+std_value_0 <- mean(df_waste_0$Std[10:100])/2
+std_value_0
+
+std_value_2 <- mean(df_waste_2$Std[10:100])/4
+std_value_2
+
+std_value_4 <- mean(df_waste_4$Std[10:100])/6
+std_value_4
+
+std_value_6 <- mean(df_waste_6$Std[10:100])/8
+std_value_6
+
+```
+
+# PLOTS FOR PAPER 
+
+
+
+```{r}
+
+
+setup_dataset_all_files<- function(PATH,foldername) {
   # Get the list of subfolder paths
   subfolder_paths <- list.files(paste0(PATH,foldername), full.names = TRUE)
   # Get the list of unique file names across all subfolders
@@ -51,170 +192,206 @@ setup_dataset<- function(PATH,foldername) {
 
   #group by house an run 
   df[["wasted"]]$Group <- paste(df[["wasted"]]$Run,df[["wasted"]]$House,sep="_")
-  wasted <- df[["wasted"]] #for now only the wasted subfolder is relevant
-  wasted_edited <- data.frame(Day.Wasted=0:max(wasted$Day.Wasted))
-
-  waste_hh_day <- summarise(group_by(wasted, Group,Day.Wasted), Kg=sum(Kg))
-
-  # Pivot original_df to wide format based on group
-  pivoted_df <- pivot_wider(waste_hh_day, names_from = Group, values_from = Kg)
-
-  # Merge pivoted_df with wasted_edited
-  wasted_edited <- merge(wasted_edited, pivoted_df, by = "Day.Wasted", all.x = TRUE)
-
-  #ensure NA => 0
-  wasted_edited <- replace(wasted_edited, is.na(wasted_edited), 0)
-
-  Mean <- rowMeans(wasted_edited[, -1])
-  Lower <- apply(wasted_edited[,-1], 1,min)
-  Upper <- apply(wasted_edited[,-1],1, max)
-  Std <- apply(wasted_edited[,-1], 1, sd)
-
-  wasted_edited$Mean <- Mean
-  wasted_edited$Lower <- Lower
-  wasted_edited$Upper<- Upper
-  wasted_edited$Std<- Std
-  return(wasted_edited)
+  
+  return(df)
 }
 
 
 
-plot_lower_upper <- function(df, label, plot = NULL) {
-  START = 10
-    if (is.null(plot)){
-        plot <- ggplot(df, aes(x = Day.Wasted, y = Mean)) +
-            geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = label), alpha = 0.25, show.legend=FALSE) +
-            geom_line(aes(color = label)) + #thicker lines: size=1.5
-            labs(x = "Day", y = "Kg", color = "Household with...") +  # Specify legend titles
-            xlim(START, max(df$Day.Wasted))   # Specify the range of x-axis +
-           # scale_fill_discrete()
-    }
-    else {
-        plot <- plot + 
-            geom_ribbon(data = df, aes(ymin = Lower, ymax = Upper, fill = label), alpha = 0.25, show.legend=FALSE) +
-            geom_line(data = df, aes(x = Day.Wasted, y = Mean, color = label)) +
-            labs(x = "Day", y = "Kg", color =  "Household with...") +  # Specify legend titles
-            xlim(START, max(df$Day.Wasted))   # Specify the range of x-axis
-           # scale_fill_discrete()
-    }
-
-    
-    return(plot)
-}
-
 ```
 
-
-
+## Plot food waste for specific groups
 ```{r}
-colors <- brewer.pal(11, PALETTE)[1:4]  # Select the first 4 colors from the Spectral palette
-
-df_waste_6 <- setup_dataset(PATH,"6_kids/")
-df_waste_4 <- setup_dataset(PATH,"4_kids/")
-df_waste_2 <- setup_dataset(PATH,"2_kids/")
-df_waste_0 <- setup_dataset(PATH,"0_kids/")
-
-```
-
-```{r}
-plot = NULL
-
-plot <- plot_lower_upper(df_waste_6,"6 kids",plot)
-plot <- plot_lower_upper(df_waste_4,"4 kids",plot)
-plot <- plot_lower_upper(df_waste_2,"2 kids",plot)
-plot <- plot_lower_upper(df_waste_0,"no kids",plot)
-
-plot
-
-
-
-```
-```{r}
-
-#lower_bound <- NULL
-#upper_bound <- NULL
-## Calculate confidence interval for each Day.Wasted category
-#conf_intervals <- sapply(1:(max(df_waste_0$Day.Wasted)+1), function(i) {
-#  z <- qnorm(0.975)  # Z-score for 95% confidence interval (two-tailed)
-  #count sample number
-#  exp <- grep("_", names(df_waste_0), value = TRUE)
-#  n <- ncol(df_waste_0[, exp])
-#  sample_size <- rep(n,max(df_waste_0$Day.Wasted)+1)
-##  margin_of_error <- z * ( df_waste_0$Std[i] / sqrt(sample_size))
-#  lower_bound <-  df_waste_0$Mean[i] - margin_of_error
-#  upper_bound <-  df_waste_0$Mean[i] + margin_of_error
-#  print(lower_bound)
-#})
-
+df_6_no_analysis <- setup_dataset_all_files(PATH,"6_kids/")
+df_waste_6_no_analysis <- df_6_no_analysis[["wasted"]]
+df_config_6_no_analysis <- df_6_no_analysis[["config"]]
+df_4_no_analysis <- setup_dataset_all_files(PATH,"4_kids/")
+df_waste_4_no_analysis <- df_4_no_analysis[["wasted"]]
+df_config_4_no_analysis <- df_4_no_analysis[["config"]]
+df_2_no_analysis <- setup_dataset_all_files(PATH,"2_kids/")
+df_waste_2_no_analysis <- df_2_no_analysis[["wasted"]]
+df_config_2_no_analysis <- df_2_no_analysis[["config"]]
+df_0_no_analysis <- setup_dataset_all_files(PATH,"0_kids/")
+df_waste_0_no_analysis <- df_0_no_analysis[["wasted"]]
+df_config_0_no_analysis <- df_0_no_analysis[["config"]]
 ```
 
 ```{r}
 
-  calculate_confidence_interval <- function(df) {
+df_waste_all <- rbind(df_waste_0_no_analysis,df_waste_2_no_analysis,df_waste_4_no_analysis, df_waste_6_no_analysis)
+df_config_all <- rbind(df_config_0_no_analysis,df_config_2_no_analysis,df_config_4_no_analysis, df_config_6_no_analysis)
 
-    new_df <- data.frame(Day.Wasted = 0:max(df$Day.Wasted))
 
-    # Create empty columns for Lower and Upper
-    new_df$Lower <- NA
-    new_df$Upper <- NA
+# Extract the subset of "Run" and "House" where "IsServingBased" is true in config
+serving_runs_houses <- df_config_all$Run[df_config_all$IsServingBased == "True"]
+serving_runs_houses <- unique(serving_runs_houses) # Ensure uniqueness
+serving_houses <- df_config_all$House[df_config_all$IsServingBased == "True"]
+serving_houses <- unique(serving_houses) # Ensure uniquenes
+# Filter the wasted dataframe based on serving runs and houses
+df_waste_all <- df_waste_all[df_waste_all$Run %in% serving_runs_houses & df_waste_all$House %in% serving_houses, ]
+```
 
-    # Calculate confidence interval for each Day.Wasted category
-    for (i in 1:(max(df$Day.Wasted) + 1)) {
-      z <- qnorm(0.975)  # Z-score for 95% confidence interval (two-tailed)
-      
-      # Filter data for the current day
-      day_data <- subset(df, Day.Wasted == (i - 1))
-      
-      # Calculate sample size for the current day
-      exp <- grep("_", names(day_data), value = TRUE)
-      n <- ncol(day_data[, exp])
-      
-      # Calculate sample size for the current day
-      sample_size <- n
-      
-      # Calculate mean and standard deviation for the current day
-      mean_val <- mean(day_data$Mean)
-      std_val <- mean(day_data$Std)
-      
-      # Calculate margin of error and confidence interval
-      margin_of_error <- z * (std_val / sqrt(sample_size))
-      lower_bound <- mean_val - margin_of_error
-      upper_bound <- mean_val + margin_of_error
-      
-      # Assign confidence interval values to new_df
-      new_df[i, "Lower"] <- lower_bound
-      new_df[i, "Upper"] <- upper_bound
-    }
 
-    new_df$Mean <- df$Mean
-    return(new_df)
+```{r}
+```
 
-  }
+  
+```{r}
+  #calc food types portions
+  #sum_by_type <- aggregate(Kg ~ Type + House, data = df_waste, FUN = sum)
+  sum_by_type <- aggregate(Kg ~ Type , data = df_waste_all, FUN = sum)
+  sum_by_type$Percentage <- sum_by_type$Kg / sum(sum_by_type$Kg)
+  sum_by_type
 
+  sum(sum_by_type$Kg)
 ```
 
 ```{r}
-df_waste_0_ci <- calculate_confidence_interval(df_waste_0)
-df_waste_2_ci <- calculate_confidence_interval(df_waste_2)
-df_waste_4_ci <- calculate_confidence_interval(df_waste_4)
-df_waste_6_ci <- calculate_confidence_interval(df_waste_6)
 
 
-plot2 = NULL
+df_waste_all <- rbind(df_waste_0_no_analysis,df_waste_2_no_analysis,df_waste_4_no_analysis, df_waste_6_no_analysis)
+df_config_all <- rbind(df_config_0_no_analysis,df_config_2_no_analysis,df_config_4_no_analysis, df_config_6_no_analysis)
 
-##TODO this code is completely ignoring my selected colors
 
-plot2 <- plot_lower_upper(df_waste_6_ci,"6 kids",plot2)
-plot2 <- plot_lower_upper(df_waste_4_ci,"4 kids",plot2)
-plot2 <- plot_lower_upper(df_waste_2_ci,"2 kids",plot2)
-plot2 <- plot_lower_upper(df_waste_0_ci,"no kids",plot2)
 
-plot2
+filterIsServingBased = TRUE
+
+number_of_people = 2
+current_waste_data <- df_waste_all
+current_config_data <- df_config_all
+
+
+if(filterIsServingBased)
+{
+  # Extract the subset of "Run" and "House" where "IsServingBased" is true in config
+  serving_runs_houses <- current_config_data$Run[current_config_data$IsServingBased == "True"]
+  serving_runs_houses <- unique(serving_runs_houses) # Ensure uniqueness
+  serving_houses <- current_config_data$House[current_config_data$IsServingBased == "True"]
+  serving_houses <- unique(serving_houses) # Ensure uniquenes
+  # Filter the wasted dataframe based on serving runs and houses
+
+  current_waste_data <- current_waste_data[current_waste_data$Run %in% serving_runs_houses & current_waste_data$House %in% serving_houses, ]
+} 
+#number of households 
+number_of_households <- length(unique(current_waste_data$Group)) 
+number_of_households
+
+df_waste_all <- current_waste_data
+# Create an empty dataframe
+wasted_weight <- data.frame(
+  Meat =  sum(df_waste_all$Meat...Fish) * 0.09,
+  Veggie =  sum(df_waste_all$Fruits...Vegetables) * 0.116,
+  Store =  sum(df_waste_all$Store.Prepared.Items) * 0.095,
+  Dry =  sum(df_waste_all$Dry.Foods...Baked.Goods) * 0.065,
+  Dairy =  sum(df_waste_all$Dairy...Eggs) * 0.109,
+  Snacks =  sum(df_waste_all$Snacks..Condiments..Liquids..Oils..Grease....Other) * 0.095
+)
+
+wasted_weight$Total <- wasted_weight$Meat + wasted_weight$Veggie + wasted_weight$Store + wasted_weight$Dry + wasted_weight$Dairy + wasted_weight$Snacks
+
+
+wasted_weight$Meat_Percentage <- (wasted_weight$Meat  / wasted_weight$Total) 
+wasted_weight$Veggie_Percentage <- (wasted_weight$Veggie  / wasted_weight$Total) 
+wasted_weight$Store_Percentage <- (wasted_weight$Store  / wasted_weight$Total) 
+wasted_weight$Dry_Percentage <- (wasted_weight$Dry  / wasted_weight$Total) 
+wasted_weight$Dairy_Percentage <- (wasted_weight$Dairy  / wasted_weight$Total) 
+wasted_weight$Snacks_Percentage <- (wasted_weight$Snacks  / wasted_weight$Total) 
+
+
+wasted_weight$Meat_HH <- (wasted_weight$Meat  / (number_of_households*100)) 
+wasted_weight$Veggie_HH <- (wasted_weight$Veggie  / (number_of_households*100)) 
+wasted_weight$Store_HH <- (wasted_weight$Store  / (number_of_households*100)) 
+wasted_weight$Dry_HH <- (wasted_weight$Dry  / (number_of_households*100)) 
+wasted_weight$Dairy_HH <- (wasted_weight$Dairy  / (number_of_households*100)) 
+wasted_weight$Snacks_HH <- (wasted_weight$Snacks  / (number_of_households*100)) 
+wasted_weight$Total_HH <- wasted_weight$Meat_HH + wasted_weight$Veggie_HH + wasted_weight$Store_HH + wasted_weight$Dry_HH + wasted_weight$Dairy_HH + wasted_weight$Snacks_HH
+
+
+wasted_weight$Meat_PP <- (wasted_weight$Meat  / (number_of_households*100*number_of_people)) 
+wasted_weight$Veggie_PP <- (wasted_weight$Veggie  / (number_of_households*100*number_of_people)) 
+wasted_weight$Store_PP <- (wasted_weight$Store  / (number_of_households*100*number_of_people)) 
+wasted_weight$Dry_PP <- (wasted_weight$Dry  / (number_of_households*100*number_of_people)) 
+wasted_weight$Dairy_PP <- (wasted_weight$Dairy  / (number_of_households*100*number_of_people)) 
+wasted_weight$Snacks_PP <- (wasted_weight$Snacks  / (number_of_households*100*number_of_people)) 
+wasted_weight$Total_PP <- wasted_weight$Meat_PP + wasted_weight$Veggie_PP + wasted_weight$Store_PP + wasted_weight$Dry_PP + wasted_weight$Dairy_PP + wasted_weight$Snacks_PP
+
+
+wasted_weight
+
 
 ```
 
+## Waste per kids amount group / only servingbased
+
+```{r}
+```
+
+```{r}
+
+```
+
+## Sum by Waste type
+```{r}
+  #calc food types portions
+  #sum_by_type <- aggregate(Kg ~ Type + House, data = df_waste, FUN = sum)
+  sum_by_status <- aggregate(Kg ~ Status , data = df_waste_all, FUN = sum)
+  sum_by_status$Percentage <- sum_by_status$Kg / sum(sum_by_status$Kg)
+  sum_by_status
+
+  sum(sum_by_status$Kg)
+```
 
 
+```{r}
+### ensure you selected serving based ones
+
+df_waste_0_no_analysis <- subset(df_waste_0_no_analysis, Run == 1 & House == 1)
+df_config_0_no_analysis <- subset(df_config_0_no_analysis, Run == 1 & House == 1)
+
+
+df_waste_2_no_analysis <- subset(df_waste_2_no_analysis, Run == 1 & House == 2)
+df_config_2_no_analysis <- subset(df_config_2_no_analysis, Run == 1 & House == 2)
+
+
+df_waste_4_no_analysis <- subset(df_waste_4_no_analysis, Run == 1 & House == 3)
+df_config_4_no_analysis <- subset(df_config_4_no_analysis, Run == 1 & House == 3)
+
+
+df_waste_6_no_analysis <- subset(df_waste_6_no_analysis, Run == 1 & House == 4)
+df_config_6_no_analysis <- subset(df_config_6_no_analysis, Run == 1 & House == 4)
+
+df_waste_no_analysis <- rbind(df_waste_0_no_analysis,df_waste_2_no_analysis,df_waste_4_no_analysis, df_waste_6_no_analysis)
+df_config_no_analysis <- rbind(df_config_0_no_analysis,df_config_2_no_analysis,df_config_4_no_analysis, df_config_6_no_analysis)
+
+```
+```{r}
+```
+
+```{r}
+PALETTE = "Spectral"
+ #Create named vector with labels for each house
+label_house_num_people <- as.vector(
+  with(
+    df_config_no_analysis,
+    sprintf("House: %s, Adults: %i, Children: %i Concern: %.2f", House, Adults, Children, LvlOfConcern)
+  )
+)
+
+
+
+# Plotting
+wasted_by_household_fw_type <- ggplot(data = df_waste_no_analysis) +
+  geom_bar(mapping = aes(x = Day.Wasted, fill = Status, weight = Kg), position = "stack") +
+  facet_wrap(~House, labeller = labeller(House = as_labeller(setNames(label_house_num_people, df_config_no_analysis$House)))) +
+  ylab("Kg") + 
+  xlab("Day") + 
+  scale_fill_brewer(palette = PALETTE) +
+  theme_minimal()
+
+# Display the plot
+wasted_by_household_fw_type
+
+```
 
 
 
@@ -249,3 +426,4 @@ mean(Mean3)/mean(Mean2)
 
 
 ```
+
