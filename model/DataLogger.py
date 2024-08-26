@@ -16,11 +16,20 @@ from Store import Store
 class DataLogger: 
 
     def __init__(self) -> None:             
+        """
+        initalizes DataLogger.
+        
+        Class variables:
+        
+        self.logs (dict): dictionary logname:str -> data:pd.Dataframe
+        self.foldername (str): folder to write results to
+        
+        """         
         self.logs = dict()
         self.reset_logs()   
         self.foldername:str = ""
         
-        self.logs["log_config"] = pd.DataFrame(columns=[
+        self.logs["log_hh_config"] = pd.DataFrame(columns=[
             "household",
             "required_servings",
             "budget",
@@ -39,10 +48,23 @@ class DataLogger:
             "total_runs"            
         ])
         
+        self.logs["log_sim_config"] = pd.DataFrame(columns=
+                                                   ["total_days"])
+        
     
-    def log_households_config(self,houses:list[Household]) -> None:  # type: ignore
+    def log_configs(self,houses:list[Household]) -> None:  # type: ignore
+        """Log the household configuration and simulation configurations.
+
+        Args:
+            houses (list[Household]): houses to log the information for
+        """        
+        
+        
+        
+        self.logs["log_sim_config"].loc[0, "total_days"] = globals.SIMULATION_DAYS
+
         for house in houses: 
-            self.logs["log_config"].loc[house.id] = { # type: ignore
+            self.logs["log_hh_config"].loc[house.id] = { # type: ignore
                 "household" :  house.id, 
                 "required_servings" :  house.req_servings,
                 "budget" :  house.budget, 
@@ -65,7 +87,7 @@ class DataLogger:
         """Collects the daily data from each house
 
         Args:
-            house (household): current household
+            houses (list[Household]): houses to log the information for
         """     
         for house in houses: 
             self.logs["log_hh_daily"].loc[len(self.logs["log_hh_daily"])] = { # type: ignore
@@ -84,7 +106,7 @@ class DataLogger:
         """Tracks the final content of the storage, used after simulation is finished
 
         Args:
-            house (House): house to track the storage off
+            houses (list[Household]): houses to log the information for
         """   
         for house in houses: 
             for storage in [house.fridge, house.pantry]:
@@ -105,6 +127,11 @@ class DataLogger:
                     } 
     
     def log_stores_daily(self,stores:list[Store]) -> None:   
+        """Collects the daily data from each store
+
+        Args:
+            stores (list[Stores]): stores to log the information for
+        """
         for store in stores: 
             for index in store.stock.index: 
                 item = store.stock.loc[index]
@@ -119,10 +146,14 @@ class DataLogger:
                     "amount": item["amount"]
                 }
     
-    def data_to_csv(self, experiment_name:str|None=None, run:int|None=None, logs_to_write: list[str]|None=None) -> None: 
+    def data_to_csv(self, run:int, logs_to_write: list[str]|None=None) -> None: 
         """Saves the finished tracked data to csv files
-        """        
-        path = self._create_folder(experiment_name, run)
+
+        Args:
+            run (int): Number of simulation run, used to write folder_name
+            logs_to_write (list[str] | None, optional): logs_to_write, None defaults to all logs in self.logs. Defaults to None.
+        """                
+        path = self._create_folder(run)
         
         
         if not logs_to_write is None: 
@@ -134,7 +165,7 @@ class DataLogger:
                 self.logs[item].to_csv(config_path, header=config_header, mode="a")
         else:
             for log_name, log_file in self.logs.items():
-                if not log_name == "log_config":
+                if not log_name == "log_hh_config" and not log_name == "log_sim_config":
                     file_path = path + self.foldername + "//" + log_name + ".csv"
                     log_header = True
                     if os.path.exists(file_path):
@@ -143,14 +174,23 @@ class DataLogger:
                     self.reset_logs()
        
     
-    def _create_folder(self,experiment_name:str|None, run:int | None)  -> str:
+    def _create_folder(self, run:int)  -> str:
+        """creates the folder name and returns it. Will be used for 
+        all log files of that run. 
+
+        Args:
+            run (int): simulation run id, for folder creation
+
+        Returns:
+            str: foldername
+        """        
         path = str(Path(__file__).parents[1])
         dt = datetime.datetime.now()
         if (not os.path.isdir(path + "//"+ globals.SIMULATION_OUTPUTFOLDER )): 
             os.mkdir(path + "//"+ globals.SIMULATION_OUTPUTFOLDER + "//")
         
-        if experiment_name != None: 
-            path = path + "//"+ globals.SIMULATION_OUTPUTFOLDER + "//" + experiment_name + "//"
+        if globals.EXPERIMENT_NAME != None: 
+            path = path + "//"+ globals.SIMULATION_OUTPUTFOLDER + "//" + globals.EXPERIMENT_NAME + "//"
             if (not os.path.isdir(path )): 
                 os.mkdir(path)
         
@@ -168,6 +208,8 @@ class DataLogger:
         return path
                     
     def reset_logs(self) -> None: 
+        """Empties the daily logs for the next day.
+        """        
         self.logs = {    
         "log_bought" : pd.DataFrame(
             columns=["household","day","type","servings","sale_type",
@@ -193,6 +235,17 @@ class DataLogger:
                
         
     def append_log(self, id:int, log_key:str, data:pd.DataFrame | pd.Series  | None ) -> None:
+        """Adds new data to the log in self.log, defined by log_key
+
+        Args:
+            id (int): household id 
+            log_key (str): string specifying which log to append the data to ["log_wasted", "log_eaten",
+            "log_bought"]
+            data (pd.DataFrame | pd.Series | None): data to be added
+
+        Raises:
+            ValueError: _description_
+        """        
         if not data is None: 
             data_copy = data.copy()
             if isinstance(data_copy, pd.DataFrame):
@@ -217,6 +270,11 @@ class DataLogger:
                 
     
     def _log_waste(self,data:pd.DataFrame) -> None: 
+        """adds data to the waste log
+
+        Args:
+            data (pd.DataFrame): data to be added
+        """        
         for _, item in data.iterrows():
             self.logs["log_wasted"].loc[len(self.logs["log_wasted"])] = { # type: ignore
             "household": item["household"],
@@ -234,24 +292,34 @@ class DataLogger:
             globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
         }
     def _log_eaten(self,data:pd.DataFrame) -> None:
-            for _, item in data.iterrows():
-                self.logs["log_eaten"].loc[len(self.logs["log_eaten"])] = { # type: ignore
-                "household": item["household"],
-                "day": globals.DAY,
-                "price": item["price"],
-                "servings": item["servings"],
-                "days_till_expiry": item.days_till_expiry,
-                "status": item["status"],
-                globals.FGMEAT: item[globals.FGMEAT],
-                globals.FGDAIRY: item[globals.FGDAIRY],
-                globals.FGVEGETABLE: item[globals.FGVEGETABLE],
-                globals.FGDRYFOOD: item[globals.FGDRYFOOD],
-                globals.FGSNACKS: item[globals.FGSNACKS],
-                globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
-                
-            }
+        """adds data to the eaten log
+
+        Args:
+            data (pd.DataFrame): data to be added
+        """  
+        for _, item in data.iterrows():
+            self.logs["log_eaten"].loc[len(self.logs["log_eaten"])] = { # type: ignore
+            "household": item["household"],
+            "day": globals.DAY,
+            "price": item["price"],
+            "servings": item["servings"],
+            "days_till_expiry": item.days_till_expiry,
+            "status": item["status"],
+            globals.FGMEAT: item[globals.FGMEAT],
+            globals.FGDAIRY: item[globals.FGDAIRY],
+            globals.FGVEGETABLE: item[globals.FGVEGETABLE],
+            globals.FGDRYFOOD: item[globals.FGDRYFOOD],
+            globals.FGSNACKS: item[globals.FGSNACKS],
+            globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
+            
+        }
                 
     def _log_bought(self,data:pd.DataFrame) -> None:
+        """adds data to the bought log
+
+        Args:
+            data (pd.DataFrame): data to be added
+        """  
         for _, item in data.iterrows():
             self.logs["log_bought"].loc[len(self.logs["log_bought"])] = { # type: ignore
                 "household": item["household"],

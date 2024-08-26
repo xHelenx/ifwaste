@@ -7,6 +7,3 @@ class EnumSales(Enum):
     EXPIRING = "expiring soon"
     HIGHSTOCK = "high stock"
     
-#class SalesType(Enum): 
-#    BOGO = "BOGO"
-#    SALES = "SALES"

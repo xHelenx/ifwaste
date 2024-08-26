@@ -12,6 +12,11 @@ class FoodGroups():
         return cls._instance
 
     def __init__(self) -> None:
+        """Initializes FoodGroup class
+
+        Attributes: 
+            self.foodgroups (pd.Dataframe): holds all static information about each food group
+        """        
         if not hasattr(self, 'initialized'):  # Ensure initialization happens only once
             try:
                 with open(globals.CONFIG_PATH) as f: 
@@ -38,12 +43,30 @@ class FoodGroups():
     
     @staticmethod   
     def get_instance() -> FoodGroups:  
+        """Returns FoodGroup instance
+
+        Returns:
+            fg (FoodGroup): FoodGroups instance
+        """        
         if not FoodGroups._instance:
             FoodGroups()
         return FoodGroups._instance  # type: ignore
     
     def get_food_group(self, name:str) -> pd.DataFrame:
+        """Returns a Dataframe with information about one fg
+
+        Args:
+            name (str): fg to retrieve information about
+
+        Returns:
+            pd.DataFrame: information about fg
+        """        
         return self.food_groups[self.food_groups['type'] == name]
         
     def get_all_food_groups(self) -> list[str]:
+        """Returns a list of all food groups as a str
+
+        Returns:
+            list[str]: List of food groups
+        """        
         return self.food_groups["type"].tolist()

@@ -7,15 +7,16 @@ from FoodGroups import FoodGroups
 
 class Child(Person):
     def __init__(self) -> None:
-        """Initializes a child by:
-        - age 
-        - gender
-        - kcal = kcal required per day
-        - susceptibility = susceptibility to other opinions about economical, environmental and health concern
-        within the household
-        - concern = list of concern [env,eco,health], value between 0-1, 1 indicating a high concern
-        - req_serving = requried servings per food type 
-        - plate waste ratio 
+        """
+        initalizes Child.
+        
+        Class variables:
+        
+        self.req_servings (float):  recommended servings per day
+        self.req_servings_per_fg (float):  recommended servings per day per fg
+        self.concern:list[float]:  level of concern 
+        self.plate_waste_ratio:float:  % of plate waste
+        
         """ 
         super().__init__()
         self.age:int = random.randint(2, 18)
