@@ -2,20 +2,22 @@
 #0. you might have to install missing packages, comment in the following 2 lines to do so
 #install.packages("RColorBrewer")
 #install.packages("tidyverse")
-library(RColorBrewer)
-library(tidyverse)
+#install.packages("clipr")
+
 
 ```
 
 ## Importing the current dataset + setup 
 
 ```{r}
+library(RColorBrewer)
+library(tidyverse)
 ##if you want to run the code, you have to change the path to your folder
 #you can run main.py with you configuration, which will create a new folder with a timestamp
 #in the datafolder
 #1. add the path to the data folder in PATH
 #2. add the name of the folder you want to analyse e.g.  "2024-04-10at09-45/"
-PATH = "E:/UF/ifwaste/data/testing_new_shopping/"
+PATH = "E:/UF/ifwaste/data/after_LOC_01/"
 INPUT_FOLDER = "run_0/"
 
 #3. if you want to save all generated plots, set save_plots to TRUE, otherwise set it to FALSE
@@ -35,13 +37,9 @@ hh_foodremaining <- read.csv(paste0(PATH, INPUT_FOLDER, "/still_have.csv"))
 hh_foodbought <- read.csv(paste0(PATH, INPUT_FOLDER, "/bought.csv"))
 hh_daily <- read.csv(paste0(PATH, INPUT_FOLDER, "/daily.csv"))
 hh_config <- read.csv(paste0(PATH, INPUT_FOLDER, "/config.csv"))
-
-```
-
-Label generator for plots
-```{r}
-
 # Create named vector with labels for each house
+
+
 label_house_num_people <- as.vector(
   with(
     hh_config,
@@ -51,9 +49,40 @@ label_house_num_people <- as.vector(
 
 house_labels <- function(x) paste0("House ", x)
 ```
+```
+
+
 
 ## Biomass check: 
-### 1. in kg
+### 1. in kg/ d 10-190 daily avg
+
+
+```{r}
+
+remaining <- aggregate(Kg ~ Day, data = hh_foodremaining, FUN = sum)
+remaining <- tail(remaining, n = 1)$Kg
+tail(hh_foodremaining, n = 1)
+print("bought:")
+bought <- sum(hh_foodbought$Kg[hh_foodbought$Day.Bought >= 10 & hh_foodbought$Day.Bought <= 100])/(90*4)
+
+bought 
+print("wasted:")
+wasted <- sum(hh_foodwasted$Kg[hh_foodwasted$Day.Wasted >= 10 & hh_foodwasted$Day.Wasted <= 100])/(90*4)
+wasted
+print("eaten:")
+eaten <- sum(hh_foodeaten$Kg[hh_foodeaten$Day.Eaten >= 10 & hh_foodeaten$Day.Eaten <= 100])/(90*4)
+eaten
+
+print("remained:")
+remaining
+
+print("total:")
+```
+
+
+## Biomass check: 
+### 1. in kg/total time
+
 ```{r}
 
 remaining <- aggregate(Kg ~ Day, data = hh_foodremaining, FUN = sum)
@@ -62,11 +91,15 @@ tail(hh_foodremaining, n = 1)
 print("bought:")
 sum(hh_foodbought$Kg)
 print("wasted:")
-sum(hh_foodwasted$Kg)
+sum(hh_foodwasted$Kg)s
 print("eaten:")
 sum(hh_foodeaten$Kg)
+
+
 print("remained:")
 remaining
+
+
 
 print("total:")
 
@@ -126,7 +159,127 @@ if (save_plots) {
 
 ```
 
+# Analysis of remaining food items over time by Category
+```{r}
+# Precompute the sum of 'Kg' for each day for both datasets
+hh_foodremaining_summary <- hh_foodremaining %>%
+  group_by(Day) %>%
+  summarize(Kg = sum(Kg))
 
+hh_foodwasted_summary <- hh_foodwasted %>%
+  group_by(Day.Wasted) %>%
+  summarize(Kg = sum(Kg))
+
+hh_eaten_summary <- hh_foodeaten %>%
+  group_by(Day.Eaten) %>%
+  summarize(Kg = sum(Kg))
+
+  
+hh_bought_summary <- hh_foodbought %>%
+  group_by(Day.Bought) %>%
+  summarize(Kg = sum(Kg))
+
+# Plot the precomputed data
+wasted_by_household <- ggplot() +
+  #geom_point(data =hh_daily, aes(x = Day, y = QuickShop*10, color = "QS")) +
+
+  geom_point(data = hh_foodremaining_summary, aes(x = Day, y = Kg, color = "Left")) +
+  geom_line(data = hh_foodremaining_summary, aes(x = Day, y = Kg, color = "Left")) +
+  
+  geom_point(data = hh_foodwasted_summary, aes(x = Day.Wasted, y = Kg, color = "Waste")) +
+  geom_line(data = hh_foodwasted_summary, aes(x = Day.Wasted, y = Kg, color = "Waste")) +
+  
+
+  geom_point(data = hh_eaten_summary, aes(x = Day.Eaten, y = Kg, color = "Eaten")) +
+  geom_line(data = hh_eaten_summary, aes(x = Day.Eaten, y = Kg, color = "Eaten")) +
+
+  
+  geom_point(data = hh_bought_summary, aes(x = Day.Bought, y = Kg, color = "Bought")) +
+  geom_line(data = hh_bought_summary, aes(x = Day.Bought, y = Kg, color = "Bought")) +
+
+  ylab("in Kg") + 
+  labs(color = "Data Type")
+
+wasted_by_household
+
+
+```
+
+```{r}
+
+test <- ggplot() +
+  geom_point(data =hh_daily, aes(x = Day, y = QuickShop*4, color = "QS")) +
+  geom_point(data =hh_daily, aes(x = Day, y = QuickCook*3, color = "QC")) +
+  geom_point(data =hh_daily, aes(x = Day, y = Cooked*2, color = "LO")) +
+  geom_point(data =hh_daily, aes(x = Day, y = AteLeftOvers*5, color = "CO")) 
+
+test
+```
+
+```{r}
+
+
+# Precompute the cumulative sum of 'Kg' for each category
+
+# Food Remaining
+hh_foodremaining_summary <- hh_foodremaining %>%
+  group_by(Day) %>%
+  summarize(Kg = sum(Kg))
+# Food Wasted
+hh_foodwasted_summary <- hh_foodwasted %>%
+  group_by(Day.Wasted) %>%
+  summarize(Kg = sum(Kg)) %>%
+  arrange(Day.Wasted) %>%
+  mutate(Cumulative_Kg = cumsum(Kg)) %>%
+  mutate(Type = "Food Wasted") %>%
+  rename(Day = Day.Wasted)
+
+# Food Eaten (Assuming data is in `hh_foodeaten`)
+hh_foodeaten_summary <- hh_foodeaten %>%
+  group_by(Day.Eaten) %>%
+  summarize(Kg = sum(Kg)) %>%
+  arrange(Day.Eaten) %>%
+  mutate(Cumulative_Kg = cumsum(Kg)) %>%
+  mutate(Type = "Food Eaten") %>%
+  rename(Day = Day.Eaten)
+
+# Food Bought (Assuming data is in `hh_foodbought`)
+hh_foodbought_summary <- hh_foodbought %>%
+  group_by(Day.Bought) %>%
+  summarize(Kg = sum(Kg)) %>%
+  arrange(Day.Bought) %>%
+  mutate(Cumulative_Kg = cumsum(Kg)) %>%
+  mutate(Type = "Food Bought") %>%
+  rename(Day = Day.Bought)
+
+# Combine all datasets
+combined_data <- bind_rows(
+                           hh_foodwasted_summary,
+                           hh_foodeaten_summary, 
+                           hh_foodbought_summary)
+
+# Convert 'Type' to a factor (optional but recommended)
+combined_data$Type <- factor(combined_data$Type)
+
+# Plot the accumulated values over time for all four categories
+wasted_by_household <- ggplot(combined_data, aes(x = Day, y = Cumulative_Kg, color = Type)) +
+  geom_point(aes(shape = Type), size = 3) +  # Different shapes for distinction
+  geom_line(aes(linetype = Type), size = 1) +  # Different line types for distinction
+
+  
+  geom_point(data = hh_foodremaining_summary, aes(x = Day, y = Kg, color = "Left")) +
+  geom_line(data = hh_foodremaining_summary, aes(x = Day, y = Kg, color = "Left")) +
+  
+  ylab("Accumulated Kg") +
+  xlab("Day") +
+  labs(color = "Data Type", shape = "Data Type", linetype = "Data Type") +
+  theme_minimal()  # Optional: clean theme
+
+wasted_by_household
+
+
+
+```
 ---------------------------------------------------------
 ## Analysis of food waste 
 ### 1. Food waste by household by kg
@@ -280,12 +433,6 @@ consumed_by_household = ggplot(data=NULL) +
 consumed_by_household
 
 
-if (save_plots) {
-   png(file = paste0(OUTPUT_FOLDER, "eaten_serv_reqserv.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
-   print(consumed_by_household)
-   dev.off()
-}
-
 ``` 
 
 ### 3. Eating kcal in relation to what is required
@@ -333,7 +480,7 @@ plot <- ggplot(data = hh_daily_long, aes(x = Day, y = Value, fill = Action)) +
   scale_fill_brewer(palette = PALETTE) 
 
 plot
-
+ought
 if (save_plots) {
    png(file = paste0(OUTPUT_FOLDER, "meal_prep_behavior.png"), width = WIDTH, height = HEIGHT)  # Adjust width and height as needed
    print(plot)
