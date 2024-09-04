@@ -94,7 +94,10 @@ class Neighborhood():
             "EEF", 
             "Cooked", 
             "AteLeftOvers",
-            "QuickCook"
+            "QuickCook",
+            "QuickShop",
+            "Enough_time",
+            "Enough_ing"
         ])
         self.log_configuration = pd.DataFrame(columns=[
             "House",
@@ -222,7 +225,10 @@ class Neighborhood():
             "EEF": house.log_today_eef, 
             "Cooked": house.log_today_cooked, 
             "AteLeftOvers": house.log_today_leftovers,
-            "QuickCook":house.log_today_quickcook
+            "QuickCook":house.log_today_quickcook,
+            "QuickShop":house.log_today_quickshop,
+            "Enough_time": house.log_today_enough_time,
+            "Enough_ing": house.log_today_enough_ing
         }
     def get_storage(self, house: House, day):
         """Tracks the final content of the storage, used aglobals.fter simulation is finished

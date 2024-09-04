@@ -18,6 +18,7 @@ class Food():
         self.servings_per_type = food_data["ServingsPerType"].copy()
         self.frozen = False
         self.serving_size = self.kg/self.servings
+        assert self.serving_size > 0
         self.kcal_kg = food_data['kcal_kg']
         self.status = 'Un-prepped' if self.type != globals.FTSTOREPREPARED else 'Store-prepped'
     def __str__(self) -> str:
@@ -55,23 +56,23 @@ class Food():
             #calc how much of each servings is now in portioned food 
             scaler = servings/self.servings_per_type.values.sum()
             servings_per_type = self.servings_per_type.apply(lambda x: scaler * x).copy()
-            portioned_food = Food({
-                'Type': self.type,
-                'kg': servings*self.serving_size,
-                'Expiration Min.': self.exp,
-                'Expiration Max.': self.exp,
-                'Price': self.price_kg*servings*self.serving_size,
-                'Servings': servings,
-                'kcal_kg': self.kcal_kg,
-                'Inedible Parts': self.inedible_parts,
-                'ServingsPerType': servings_per_type,   
-            })            
-            
-            self.kg -= portioned_food.kg
-            self.servings -= portioned_food.servings
-            self.servings_per_type -= servings_per_type
-            #assert self.servings_per_type.values.sum() == self.servings
-            #assert portioned_food.servings_per_type.values.sum() == portioned_food.servings
+            portioned_food = None 
+            if servings > 0.001: #float balance
+                portioned_food = Food({
+                        'Type': self.type,
+                        'kg': servings*self.serving_size,
+                        'Expiration Min.': self.exp,
+                        'Expiration Max.': self.exp,
+                        'Price': self.price_kg*servings*self.serving_size,
+                        'Servings': servings,
+                        'kcal_kg': self.kcal_kg,
+                        'Inedible Parts': self.inedible_parts,
+                        'ServingsPerType': servings_per_type,   
+                    })            
+            if portioned_food is not None: 
+                self.kg -= portioned_food.kg
+                self.servings -= portioned_food.servings
+                self.servings_per_type -= servings_per_type
             
         elif kcal != None: ##Kcal based
             if kcal > self.kcal_kg*self.kg:
@@ -141,25 +142,27 @@ class Food():
                 waste_kg = self.kg * plate_waste_ratio
                 waste_servings = self.servings * plate_waste_ratio
                 waste_servings_per_type = self.servings_per_type.apply(lambda x: (waste_servings/self.servings_per_type.values.sum()) * x) 
-                waste = Food({
-                'Type': self.type,
-                'kg': waste_kg,
-                'Expiration Min.': self.exp,
-                'Expiration Max.': self.exp,
-                'Price': self.price_kg*waste_kg/self.kcal_kg,
-                'Servings': waste_servings,
-                'kcal_kg': self.kcal_kg,
-                'Inedible Parts': self.inedible_parts,
-                'ServingsPerType': waste_servings_per_type 
-                })
+                waste = None 
+                if waste_servings > 0 and waste_kg > 0:
+                    waste = Food({
+                    'Type': self.type,
+                    'kg': waste_kg,
+                    'Expiration Min.': self.exp,
+                    'Expiration Max.': self.exp,
+                    'Price': self.price_kg*waste_kg/self.kcal_kg,
+                    'Servings': waste_servings,
+                    'kcal_kg': self.kcal_kg,
+                    'Inedible Parts': self.inedible_parts,
+                    'ServingsPerType': waste_servings_per_type 
+                    })
         else: 
             raise Exception("Used non existent waste_type in split()")
         
-        
-        waste.status = waste_type   
-        self.kg -= waste.kg
-        self.servings -= waste.servings
-        self.servings_per_type -= waste_servings_per_type   
+        if not waste is None:
+            waste.status = waste_type   
+            self.kg -= waste.kg
+            self.servings -= waste.servings
+            self.servings_per_type -= waste_servings_per_type   
         return (self,waste)
             
     def get_kcal(self): 

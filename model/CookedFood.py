@@ -66,7 +66,7 @@ class CookedFood(Food):
             self.servings_per_type =  cooked_food.servings_per_type.copy()
         
         
-    def split(self, servings: int = None, kcal: float = None):
+    def split(self, servings: float = None, kcal: float = None):
         """Splits the current meal into the portion as defined through the 
         amount of calories or servings
 
@@ -95,7 +95,7 @@ class CookedFood(Food):
             self.servings -= portioned_food.servings
             self.servings_per_type -= self.servings_per_type.apply(lambda x: (servings/self.servings_per_type.values.sum()) * x) 
     
-        if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
-            self = None 
+        #if self.servings_per_type.values.sum() < 1: #todo might be removed when added plate waste
+        #    self = None 
         
         return (portioned_food, self)
