@@ -58,7 +58,7 @@ SIMULATION_RUNS = None
 SIMULATION_DAYS = None
 
 EXPERIMENT_NAME = None 
-def configure_simulation(): 
+def configure_simulation(file): 
     global CHILD_PLATE_WASTE_MIN
     global CHILD_PLATE_WASTE_MAX
     global HH_AMOUNT_CHILDREN
@@ -70,7 +70,7 @@ def configure_simulation():
     global SIMULATION_RUNS
     global SIMULATION_DAYS
     global EXPERIMENT_NAME
-    with open('model/config.json') as f:
+    with open(file) as f:
         config = json.load(f)
 
     CHILD_PLATE_WASTE_MIN = config["Child"]["child_plate_waste_min"]

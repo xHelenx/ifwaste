@@ -27,7 +27,7 @@ class House():
         self.adult_influence = 0.75 
         self.child_influence = 0.25         
         self.ppl = self.gen_ppl()   
-        self.household_concern =  0.9 #self.calculate_household_concern()# random.uniform(0,1)
+        self.household_concern =  random.uniform(0,1) #0.9 #self.calculate_household_concern()# random.uniform(0,1)
         
         self.household_req_servings = collections.Counter()
         ppl_serving_lists = [ppl.req_servings for ppl in self.ppl]
@@ -76,6 +76,9 @@ class House():
         self.log_today_quickshop = 0
         self.log_today_enough_time = 0 
         self.log_today_enough_ing = 0
+        self.log_EEF = 0
+        self.log_random = 0
+        self.log_found_old_food = 0
         
         
     def add_store(self,store:Store): 
@@ -97,7 +100,8 @@ class House():
         self.log_today_quickcook = 0    
         self.log_today_quickshop = 0   
         self.log_today_enough_time = 0 
-        self.log_today_enough_ing = 0
+        self.log_today_enough_ing = 0      
+        self.log_found_old_food = 0
     def gen_ppl(self):
         """Generates the people living together in a household.
 
@@ -183,6 +187,7 @@ class House():
         has_enough_ingredients = self.pantry.get_total_servings() > self.todays_servings
         
          
+         
         self.log_today_enough_time = int(has_enough_time)
         self.log_today_enough_ing = int(has_enough_ingredients)
         
@@ -200,6 +205,7 @@ class House():
             
             #sth from fridge expires first
             if (earliest_fridge <= globals.EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry): 
+                self.log_found_old_food = 1
                 isDone = True
                 logging.debug("PlanEat: EEF fridge")
                 self.eat_meal(strategy="EEF") #TODO maybe not enough intake?
@@ -217,7 +223,8 @@ class House():
             elif (earliest_pantry <= globals.EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge):
                 #now we do RANDOM but with EXPIRY PRIO 
                 logging.debug("PlanEat: Pantry EEF")
-                strategy = "EEF" #TODO never used?
+                self.log_found_old_food = 1
+                strategy = "EEF" 
             else: 
                 logging.debug("PlanEat: Not EEF found")
                 

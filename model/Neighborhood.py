@@ -97,7 +97,8 @@ class Neighborhood():
             "QuickCook",
             "QuickShop",
             "Enough_time",
-            "Enough_ing"
+            "Enough_ing",
+            "FoundExpiring"
         ])
         self.log_configuration = pd.DataFrame(columns=[
             "House",
@@ -148,7 +149,8 @@ class Neighborhood():
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
         for i in range(days):
-            print(i)
+            if i % 10 == 0:
+                print(i)
             for house in self.houses:
                 house.do_a_day(day=i)
                 self.collect_data(house=house, day=i)
@@ -228,7 +230,8 @@ class Neighborhood():
             "QuickCook":house.log_today_quickcook,
             "QuickShop":house.log_today_quickshop,
             "Enough_time": house.log_today_enough_time,
-            "Enough_ing": house.log_today_enough_ing
+            "Enough_ing": house.log_today_enough_ing,
+            "FoundExpiring": house.log_found_old_food
         }
     def get_storage(self, house: House, day):
         """Tracks the final content of the storage, used aglobals.fter simulation is finished
