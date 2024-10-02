@@ -1,0 +1,23 @@
+{
+    "Simulation" : { 
+        "runs" : 50, 
+        "total_days" : 100,
+        "name": "2a_4k"
+    },
+    "Neighborhood" : {
+        "neighborhood_houses" : 100, 
+        "neighborhood_serving_based" : 100
+    },
+    "House" : {
+        "hh_amount_children" : 4, 
+        "hh_amount_adults"  : 2
+    },
+    "Adult" : {
+        "adult_plate_waste_min" : 0.03,
+        "adult_plate_waste_max" : 0.12
+    },
+    "Child": {
+        "child_plate_waste_min" : 0.06,
+        "child_plate_waste_max" : 0.15
+    }
+}
