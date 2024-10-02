@@ -1,5 +1,7 @@
 #ignore pycache files
 model/__pycache__/*
+__pycache__
+.mypy_cache
 
 #ignore vscode settings 
 .vscode/*
