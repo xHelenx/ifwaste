@@ -12,6 +12,13 @@ debug.log
 analysis/*.html 
 analysis/plots/*
 
+#ignore large data files 
+hpg_run_01/* 
+hpg_run_02/* 
+hpg_run_01.zip
+
+
 #ignore archive files
 archive/*
+analysis/analysis_archive/*
 
