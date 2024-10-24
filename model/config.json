@@ -1,12 +1,12 @@
 {
     "Simulation" : { 
-        "runs" : 5, 
-        "total_days" : 40,
-        "name": "2_kids_50hh"
+        "runs" : 1, 
+        "total_days" : 3,
+        "name": "test"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 50, 
-        "neighborhood_serving_based" : 5
+        "neighborhood_houses" : 1, 
+        "neighborhood_serving_based" : 1
     },
     "House" : {
         "hh_amount_children" : 2, 

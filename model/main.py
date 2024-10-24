@@ -15,6 +15,9 @@ def main(name:str) -> None:
 
     #setup logging -> logging file is generated as "debug.log" in ifwaste folder
     logging.getLogger(__name__)
+    if not os.path.isdir(s= "../data/"): 
+        os.mkdir("../data/")
+
     if not os.path.isdir(s= "../data/" + globals.EXPERIMENT_NAME): 
         os.mkdir("../data/" + globals.EXPERIMENT_NAME)
         
@@ -39,17 +42,12 @@ def main(name:str) -> None:
 
 
 if __name__ == "__main__":
-    # Create the parser
-    parser = argparse.ArgumentParser(description="Description of your script.")
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument('--config_path', type=str, 
+                        default='config.json',  # Set your default config path here
+                        help="Relative path to the configuration file used (default: config.json)")
     
-    # Add arguments
-    parser.add_argument('--config_path', type=str, required=True, help="Relative path to the configuration file used")
-    
-    # Parse the arguments
     args = parser.parse_args()
-    print(args)
-    
-    # Call the main function with the parsed argument
     main(args.config_path)
 
 

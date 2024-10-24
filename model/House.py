@@ -27,7 +27,7 @@ class House():
         self.adult_influence = 0.75 
         self.child_influence = 0.25         
         self.ppl = self.gen_ppl()   
-        self.household_concern =  random.uniform(0,1) #0.9 #self.calculate_household_concern()# random.uniform(0,1)
+        self.household_concern =  self.calculate_household_concern() # random.uniform(0,1) #0.9 
         
         self.household_req_servings = collections.Counter()
         ppl_serving_lists = [ppl.req_servings for ppl in self.ppl]

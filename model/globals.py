@@ -15,14 +15,14 @@ FW_PLATE_WASTE = "Plate Waste"
 FW_INEDIBLE = "Inedible Parts"
 FW_EXPIRED = "Spoiled Food"
 
-MALE = 0 
-FEMALE = 1
+MALE = 0 #DONT CHANGE
+FEMALE = 1#DONT CHANGE
+TOTAL_FOOD_TYPES = 6 #DONT CHANGE
 
 ##----------------------------------------------------
 ## General 
-TOTAL_FOOD_TYPES = 6
 EXPIRATION_THRESHOLD = 4
-MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients 
+MIN_TIME_TO_COOK = 0.8 #at least 48min to make a meal with 5 ingredients 
 SERVINGS_PER_GRAB = 8
 KCAL_PER_GRAB = 100 
 INGREDIENTS_PER_QUICKCOOK = 2
