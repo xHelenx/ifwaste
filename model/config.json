@@ -1,16 +1,16 @@
 {
     "Simulation" : { 
         "runs" : 1, 
-        "total_days" : 15,
-        "name": "testing_shopping",
+        "total_days" : 10,
+        "name": "stocking",
         "output_folder": "data",
         "write_to_file_interval": 2,
         "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 2, 
-        "neighborhood_store_types": "['convenient-store', 'low-tier', 'mid-tier']",
-        "neighborhood_store_amounts": "[1,1,1]",
+        "neighborhood_houses" : 1, 
+        "neighborhood_store_types": "['low-tier']",
+        "neighborhood_store_amounts": "[1]",
         "neighborhood_pay_day_interval" : 10
     },
     "Grid": {
@@ -145,7 +145,7 @@
         }
     },
     "Store": {
-        "memory_length" : 5, 
+        "restock_interval" : 3,
 
         "convenient-store": {
             "product_range": "parameterization\\store_type_convenient_store.csv",

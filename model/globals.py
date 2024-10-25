@@ -1,11 +1,15 @@
+import logging
 import random
 import json
 
 DAY = 0
 
 ## Constants - DONT CHANGE
-CONFIG_PATH = 'model/config.json'
+CONFIG_PATH = 'model\\config.json'
 ### Food types
+logger_hh = None 
+logger_store = None 
+
 FGMEAT = "FGMEAT"
 FGDAIRY = "FGDAIRY"
 FGVEGETABLE = "FGVEGETABLE"
@@ -61,7 +65,7 @@ SIMULATION_OUTPUTFOLDER = None
 SIMULATION_WRITE_TO_FILE_INTERVAL = None
 SIMULATION_DEBUG_LOG_ON = None
 
-STORE_MEMORY_LENGTH = None 
+STORE_RESTOCK_INTERVAL = None 
 STORE_CONVENIENT_QUALITY = None
 STORE_CONVENIENT_PRICE = None
 
@@ -135,7 +139,7 @@ BASKETCURATOR_INCREMENT_LIKELIHOOD = None
 BASKETCURATOR_MAX_ITEMS_QUICKSHOP = None
 
 
-def configure_simulation(): 
+def configure_simulation(file) -> None: 
     global HH_AMOUNT_CHILDREN
     global HH_AMOUNT_ADULTS
     global HH_OVER_BUDGET_FACTOR
@@ -155,7 +159,7 @@ def configure_simulation():
     global STORE_LOW_PRICE
     global STORE_MID_QUALITY
     global STORE_MID_PRICE
-    global STORE_MEMORY_LENGTH
+    global STORE_RESTOCK_INTERVAL
     global EXPERIMENT_NAME
     global ADULT_PLATE_WASTE_MIN
     global ADULT_PLATE_WASTE_MAX
@@ -218,8 +222,8 @@ def configure_simulation():
     global BASKETCURATOR_INCREMENT_LIKELIHOOD
     global BASKETCURATOR_MAX_ITEMS_QUICKSHOP
     
-    
-    with open(CONFIG_PATH) as f:
+    print(file)
+    with open(file) as f:
         config = json.load(f)
             
     SIMULATION_RUNS = config["Simulation"]["runs"]
@@ -237,7 +241,7 @@ def configure_simulation():
     STORE_LOW_PRICE = config["Store"]["low-tier"]["price"]
     STORE_MID_QUALITY = config["Store"]["mid-tier"]["quality"]
     STORE_MID_PRICE = config["Store"]["mid-tier"]["price"]
-    STORE_MEMORY_LENGTH = config["Store"]["memory_length"]
+    STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
         
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     
@@ -316,3 +320,17 @@ def configure_simulation():
     
     BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]
     BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]
+    
+def setup_logger() -> None:
+    global logger_hh 
+    global logger_store
+    if SIMULATION_DEBUG_LOG_ON:
+            
+            logging.basicConfig(encoding="utf-8",level=logging.DEBUG, filemode="w")
+            logger_hh = logging.getLogger("household")
+            logger_store = logging.getLogger("store")
+            handler_hh = logging.FileHandler('log_hh.log')
+            handler_store = logging.FileHandler('log_store.log')
+
+            logger_hh.addHandler(handler_hh)
+            logger_store.addHandler(handler_store)
