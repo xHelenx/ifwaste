@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import pandas as pd
 import globals 
+import os
 
 class FoodGroups(): 
     _instance = None
@@ -17,6 +18,7 @@ class FoodGroups():
         Attributes: 
             self.foodgroups (pd.Dataframe): holds all static information about each food group
         """        
+        print(os.getcwd())
         if not hasattr(self, 'initialized'):  # Ensure initialization happens only once
             try:
                 with open(globals.CONFIG_PATH) as f: 

@@ -27,10 +27,10 @@ class Household(Location):
         self.datalogger: DataLogger = datalogger
         
         ###HOUSEHOLD MEMBER
-        logging.debug("HOUSE INFO")
+        globals.logger_hh.debug("HOUSE INFO")
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children: int = globals.HH_AMOUNT_CHILDREN
-        logging.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
+        globals.logger_hh.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
         self.adult_influence: float = 0.75
         self.child_influence: float = 1 - self.adult_influence
         self.ppl: list = self.gen_ppl()
@@ -152,9 +152,9 @@ class Household(Location):
         Return:
             
         """        
-        logging.debug("###########################################")
-        logging.debug("Day %i:", globals.DAY)
-        logging.debug("###########################################")
+        globals.logger_hh.debug("###########################################")
+        globals.logger_hh.debug("Day %i:", globals.DAY)
+        globals.logger_hh.debug("###########################################")
             
         
         # check if it is payday

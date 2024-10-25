@@ -79,8 +79,8 @@ class BasketCurator():
         for store in self.stores:
             store.organize_stock()        
         
-        logging.debug("###########################################")
-        logging.debug("#####CREATE BASKET######")
+        globals.logger_hh.debug("###########################################")
+        globals.logger_hh.debug("#####CREATE BASKET######")
        
         if not is_quickshop:
             self._create_shop_basket()
@@ -90,10 +90,10 @@ class BasketCurator():
         if len(self.basket) > 0: 
             self._organize_basket()  
         if len(self.basket) > 0: 
-            logging.debug("basket: #items:%i", self.basket["amount"].sum())
+            globals.logger_hh.debug("basket: #items:%i", self.basket["amount"].sum())
         else:
-            logging.debug("basket: #items: 0")
-        logging.debug(self.basket)    
+            globals.logger_hh.debug("basket: #items: 0")
+        globals.logger_hh.debug(self.basket)    
         
     def _sample_and_buy(self,options:pd.DataFrame) -> pd.Series: 
         """Samples a single item to buy from the options and manages
@@ -206,7 +206,7 @@ class BasketCurator():
         
         
         if not self.does_basket_cover_all_fg():
-            logging.debug("BASKET DOES NOT COVER ALL FG")
+            globals.logger_hh.debug("BASKET DOES NOT COVER ALL FG")
             self._add_items_from_another_fg()
             #now has_all_req_fg is still false, but we replaced it with other fgs
             
@@ -214,28 +214,28 @@ class BasketCurator():
         self.basket["adjustment"] = "None"   
        
         if not self.is_basket_in_budget(): 
-            logging.debug("BASKET IS NOT IN BUDGET")
-            logging.debug("#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
+            globals.logger_hh.debug("BASKET IS NOT IN BUDGET")
+            globals.logger_hh.debug("#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
             self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
             (done,next_phase) = self._check_phase_status()
             while not done and not next_phase: 
-                logging.debug("#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
+                globals.logger_hh.debug("#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
                 self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
                 (done,next_phase) = self._check_phase_status()
             if not done and next_phase: 
-                logging.debug("#####REPLACING: FIND CHEAPER OPTION; ANY######")
+                globals.logger_hh.debug("#####REPLACING: FIND CHEAPER OPTION; ANY######")
                 self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,True)
                 (done,next_phase) = self._check_phase_status()
                 while not done and not next_phase: 
-                    logging.debug("#####REPLACING: FIND CHEAPER OPTION; ANY######")
+                    globals.logger_hh.debug("#####REPLACING: FIND CHEAPER OPTION; ANY######")
                     self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,True)
                     (done,next_phase) = self._check_phase_status()
             if not done and next_phase: 
-                logging.debug("#####REPLACING:DROP ITEMS ######")
+                globals.logger_hh.debug("#####REPLACING:DROP ITEMS ######")
                 self._apply_adjusting_strategy(self._remove_item_without_replacement)
                 (done,next_phase) = self._check_phase_status()
                 while not done and not next_phase: 
-                    logging.debug("#####REPLACING:DROP ITEMS ######")
+                    globals.logger_hh.debug("#####REPLACING:DROP ITEMS ######")
                     self._apply_adjusting_strategy(self._remove_item_without_replacement)
                     (done,next_phase) = self._check_phase_status()       
     
@@ -490,11 +490,11 @@ class BasketCurator():
                                 amount_take_instead=[rep_amount])
                         is_replaced = True 
                         found_replaceable_item = True
-                        logging.debug("ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
-                        logging.debug(item_to_replace.tolist())
+                        globals.logger_hh.debug("ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
+                        globals.logger_hh.debug(item_to_replace.tolist())
                     
-                        logging.debug("REPLACEMENT, Q:%i", rep_amount)
-                        logging.debug(replacement.tolist())
+                        globals.logger_hh.debug("REPLACEMENT, Q:%i", rep_amount)
+                        globals.logger_hh.debug(replacement.tolist())
                     elif cost < max_price and not has_sufficient_serv: #insufficient servings but cheaper -> find 1 more item type to fill gap
                         if len(replace_with) > 1: #at least 2 items 
                             idx = self.get_idx_of_identical_item_df(replacement, replace_with)
@@ -509,12 +509,12 @@ class BasketCurator():
                                     amount_take_instead=[rep_amount, rep_amount2])
                                 is_replaced = True 
                                 found_replaceable_item = True
-                                logging.debug("ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
-                                logging.debug(item_to_replace.tolist())
+                                globals.logger_hh.debug("ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
+                                globals.logger_hh.debug(item_to_replace.tolist())
                             
-                                logging.debug("REPLACEMENT, Q1:%i, Q2:%i", rep_amount, rep_amount2)
-                                logging.debug(replacement.tolist())
-                                logging.debug(replacement2.tolist())
+                                globals.logger_hh.debug("REPLACEMENT, Q1:%i, Q2:%i", rep_amount, rep_amount2)
+                                globals.logger_hh.debug(replacement.tolist())
+                                globals.logger_hh.debug(replacement2.tolist())
                             else: #could repress optimal solution, but we dont want optimal solution
                                 self._set_replacement_status(replacement, replace_with, "replacement_failed")
                                 self._set_replacement_status(replacement2, replace_with, "replacement_failed")
@@ -528,8 +528,8 @@ class BasketCurator():
             else: 
                 self._set_replacement_status(item_to_replace, self.basket, "not_replaceable") # type: ignore
             
-        logging.debug("BASKET AFTER REPLACEMENT")
-        logging.debug(self.basket)
+        globals.logger_hh.debug("BASKET AFTER REPLACEMENT")
+        globals.logger_hh.debug(self.basket)
         return found_replaceable_item
     def _set_replacement_status(self, item:pd.Series, df:pd.DataFrame, status:str) -> None: 
         """Helper function that updates whether 

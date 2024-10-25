@@ -2,6 +2,7 @@ import random
 import globals
 from FoodGroups import FoodGroups
 from Person import Person
+
 class Adult(Person):
     def __init__(self) -> None:
         """
@@ -20,7 +21,7 @@ class Adult(Person):
         self.is_adult:bool = True
         self.kcal:float = random.gauss(2000, 500) - 500*self.gender
         
-        #logging.debug("Person needs %i per day", self.kcal)
+        globals.logger_hh.debug("Person needs %i per day", self.kcal)
         
         if self.gender == globals.MALE: 
             veg_servings = random.uniform(globals.ADULT_MALE_VEG_SERVINGS_MIN, globals.ADULT_FEMALE_VEG_SERVINGS_MAX)

@@ -48,7 +48,7 @@ class HouseholdCookingManager:
         self.log_today_leftovers = False
         self.log_today_quickcook = False
     
-    def _cook(self,strategy:Literal["random"] | Literal["EEF"],is_quickcook:bool) -> pd.Series | None:         
+    def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) -> pd.Series | None:         
         if not self._has_enough_ingredients(): 
             shopping_time = self.shoppingManager.shop(is_quickshop=True) #shopping time ignored cause its short and we quickcook
             self.todays_time -= shopping_time 
@@ -192,7 +192,8 @@ class HouseholdCookingManager:
         
         
     def _eat_meal(self,meal:pd.Series) :
-        (to_eat, to_fridge) = self._split(meal=meal, servings=self.todays_servings)
+        needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
+        (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
         self.todays_servings -= to_eat["servings"]
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
         if not to_fridge is None: 
