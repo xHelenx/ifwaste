@@ -14,4 +14,8 @@ debug.log
 analysis/*.html 
 analysis/plots/*
 
+#ignore log files
+log_hh.log
+log_store.log
+
 
