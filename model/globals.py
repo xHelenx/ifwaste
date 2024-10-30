@@ -66,14 +66,56 @@ SIMULATION_WRITE_TO_FILE_INTERVAL = None
 SIMULATION_DEBUG_LOG_ON = None
 
 STORE_RESTOCK_INTERVAL = None 
-STORE_CONVENIENT_QUALITY = None
-STORE_CONVENIENT_PRICE = None
+STORE_BASELINE_STOCK = None
 
-STORE_LOW_QUALITY = None 
-STORE_LOW_PRICE = None
 
-STORE_MID_QUALITY = None 
-STORE_MID_PRICE = None
+STORE_CON_QUALITY = None
+STORE_CON_PRICE = None
+STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = None
+STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = None
+STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
+STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = None 
+STORE_CON_SAL_SEASONAL_LIKELIHOOD = None
+STORE_CON_SAL_SEASONAL_DISCOUNT = None
+STORE_CON_SAL_CLEARANCE_INTERVAL_1 = None
+STORE_CON_SAL_CLEARANCE_INTERVAL_2 = None
+STORE_CON_SAL_CLEARANCE_INTERVAL_3 = None
+STORE_CON_SAL_CLEARANCE_DISCOUNT_1 = None
+STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = None
+STORE_CON_SAL_CLEARANCE_DISCOUNT_3  = None
+
+STORE_DIS_QUALITY = None 
+STORE_DIS_PRICE = None
+STORE_DIS_QUALITY = None
+STORE_DIS_PRICE = None
+STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = None
+STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = None
+STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
+STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = None 
+STORE_DIS_SAL_CLEARANCE_INTERVAL_1 = None
+STORE_DIS_SAL_CLEARANCE_INTERVAL_2 = None
+STORE_DIS_SAL_CLEARANCE_INTERVAL_3 = None
+STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 = None
+STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = None
+STORE_DIS_SAL_CLEARANCE_DISCOUNT_3  = None
+
+STORE_PRE_QUALITY = None
+STORE_PRE_PRICE = None
+STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = None
+STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = None
+STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None
+STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = None
+STORE_PRE_SAL_SEASONAL_LIKELIHOOD = None
+STORE_PRE_SAL_SEASONAL_DISCOUNT = None
+STORE_PRE_SAL_CLEARANCE_INTERVAL_1 = None
+STORE_PRE_SAL_CLEARANCE_INTERVAL_2 = None
+STORE_PRE_SAL_CLEARANCE_INTERVAL_3 = None
+STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 = None
+STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = None
+STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = None
+
+STORE_PREMIUM_QUALITY = None 
+STORE_PREMIUM_PRICE = None
 
 EXPERIMENT_NAME = None 
 ADULT_PLATE_WASTE_MIN = None 
@@ -153,14 +195,52 @@ def configure_simulation(file) -> None:
     global SIMULATION_OUTPUTFOLDER
     global SIMULATION_WRITE_TO_FILE_INTERVAL
     global SIMULATION_DEBUG_LOG_ON
-    global STORE_CONVENIENT_QUALITY
-    global STORE_CONVENIENT_PRICE
-    global STORE_LOW_QUALITY
-    global STORE_LOW_PRICE
-    global STORE_MID_QUALITY
-    global STORE_MID_PRICE
-    global STORE_RESTOCK_INTERVAL
     global EXPERIMENT_NAME
+    
+    global STORE_RESTOCK_INTERVAL
+    global STORE_BASELINE_STOCK
+    global STORE_CON_QUALITY
+    global STORE_CON_PRICE
+    global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
+    global STORE_CON_SAL_HIGH_STOCK_INTERVAL_2
+    global STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
+    global STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 
+    global STORE_CON_SAL_SEASONAL_LIKELIHOOD
+    global STORE_CON_SAL_SEASONAL_DISCOUNT
+    global STORE_CON_SAL_CLEARANCE_INTERVAL_1
+    global STORE_CON_SAL_CLEARANCE_INTERVAL_2
+    global STORE_CON_SAL_CLEARANCE_INTERVAL_3
+    global STORE_CON_SAL_CLEARANCE_DISCOUNT_1
+    global STORE_CON_SAL_CLEARANCE_DISCOUNT_2
+    global STORE_CON_SAL_CLEARANCE_DISCOUNT_3
+    global STORE_DIS_QUALITY
+    global STORE_DIS_PRICE
+    global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1
+    global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2
+    global STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
+    global STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 
+    global STORE_DIS_SAL_SEASONAL_LIKELIHOOD
+    global STORE_DIS_SAL_SEASONAL_DISCOUNT
+    global STORE_DIS_SAL_CLEARANCE_INTERVAL_1
+    global STORE_DIS_SAL_CLEARANCE_INTERVAL_2
+    global STORE_DIS_SAL_CLEARANCE_INTERVAL_3
+    global STORE_DIS_SAL_CLEARANCE_DISCOUNT_1
+    global STORE_DIS_SAL_CLEARANCE_DISCOUNT_2
+    global STORE_DIS_SAL_CLEARANCE_DISCOUNT_3
+    global STORE_PRE_QUALITY
+    global STORE_PRE_PRICE
+    global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1
+    global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2
+    global STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1
+    global STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
+    global STORE_PRE_SAL_SEASONAL_LIKELIHOOD
+    global STORE_PRE_SAL_SEASONAL_DISCOUNT
+    global STORE_PRE_SAL_CLEARANCE_INTERVAL_1
+    global STORE_PRE_SAL_CLEARANCE_INTERVAL_2
+    global STORE_PRE_SAL_CLEARANCE_INTERVAL_3
+    global STORE_PRE_SAL_CLEARANCE_DISCOUNT_1
+    global STORE_PRE_SAL_CLEARANCE_DISCOUNT_2
+    global STORE_PRE_SAL_CLEARANCE_DISCOUNT_3   
     global ADULT_PLATE_WASTE_MIN
     global ADULT_PLATE_WASTE_MAX
     global ADULT_CONCERN_MIN
@@ -233,16 +313,54 @@ def configure_simulation(file) -> None:
     SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"]
     EXPERIMENT_NAME = config["Simulation"]["name"]
     
-    
-    STORE_CONVENIENT_QUALITY = config["Store"]["convenient-store"]["quality"]
-    STORE_CONVENIENT_PRICE = config["Store"]["convenient-store"]["price"]
-    
-    STORE_LOW_QUALITY = config["Store"]["low-tier"]["quality"]
-    STORE_LOW_PRICE = config["Store"]["low-tier"]["price"]
-    STORE_MID_QUALITY = config["Store"]["mid-tier"]["quality"]
-    STORE_MID_PRICE = config["Store"]["mid-tier"]["price"]
     STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
-        
+    STORE_BASELINE_STOCK = config["Store"]["baseline_stock"]
+    
+    STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
+    STORE_CON_PRICE = config["Store"]["Convenience_store"]["price"]
+    STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_1"]
+    STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_2"]
+    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_1"]
+    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_2"]
+    STORE_CON_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Convenience_store"]["Sales"]["seasonal_likelihood"]
+    STORE_CON_SAL_SEASONAL_DISCOUNT = config["Store"]["Convenience_store"]["Sales"]["seasonal_discount"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_1 =  config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_discount"]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_discount"]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_3 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_discount"]
+    
+    STORE_DIS_QUALITY = config["Store"]["Discount_retailer"]["quality"]
+    STORE_DIS_PRICE = config["Store"]["Discount_retailer"]["price"]
+    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_1"]
+    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_2"]
+    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"]
+    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_2"]
+    STORE_DIS_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Discount_retailer"]["Sales"]["seasonal_likelihood"]
+    STORE_DIS_SAL_SEASONAL_DISCOUNT = config["Store"]["Discount_retailer"]["Sales"]["seasonal_discount"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 =  config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_discount"]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_discount"]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_3 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_discount"]
+    
+    STORE_PRE_QUALITY = config["Store"]["Premium_retailer"]["quality"]
+    STORE_PRE_PRICE = config["Store"]["Premium_retailer"]["price"]
+    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_1"]
+    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_2"]
+    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"]
+    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_2"]
+    STORE_PRE_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Premium_retailer"]["Sales"]["seasonal_likelihood"]
+    STORE_PRE_SAL_SEASONAL_DISCOUNT = config["Store"]["Premium_retailer"]["Sales"]["seasonal_discount"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 =  config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_discount"]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_discount"]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_discount"]
+    
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     
     store_types = config["Neighborhood"]["neighborhood_store_types"]

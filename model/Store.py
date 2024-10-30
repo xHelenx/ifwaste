@@ -2,6 +2,8 @@ from __future__ import annotations  # Delay import for type hints
 
 import math
 import random
+from typing import List, Tuple
+from numpy import row_stack
 import pandas as pd
 import globals
 import json
@@ -11,13 +13,30 @@ from FoodGroups import FoodGroups
 from EnumSales import EnumSales
 from EnumStoreTier import EnumStoreTier
 from Location import Location
+from DiscountEffect import DiscountEffect
 
 class Store(Location):
     def __init__(self, store_type:EnumStoreTier, grid:Grid, id:int) -> None: # type: ignore
         from Grid import Grid 
         super().__init__(id,grid)
+        #init through subclass
         self.quality:float|None = None 
         self.price:float|None = None 
+        self.high_stock_interval_1:float|None = None
+        self.high_stock_interval_2:float|None = None
+        self.high_stock_discount_interval_1:float|None = None
+        self.high_stock_discount_interval_2:float|None = None
+        self.seasonal_likelihood:float|None = None
+        self.seasonal_discount:float|None = None
+        self.clearance_interval_1:float|None = None
+        self.clearance_interval_2:float|None = None
+        self.clearance_interval_3:float|None = None
+        self.clearance_discount_1:float|None = None
+        self.clearance_discount_2:float|None = None
+        self.clearance_discount_3:float|None = None
+        
+        
+        
         self.grid:Grid = grid 
         self.food_groups:FoodGroups = FoodGroups.get_instance()
         self.store_type:EnumStoreTier = store_type
@@ -42,6 +61,8 @@ class Store(Location):
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
         
+        
+        
         globals.logger_store.debug("All products:")
         globals.logger_store.debug(self.product_range)
     def __str__(self) -> str:
@@ -59,9 +80,9 @@ class Store(Location):
         return hash(self.id)
     
     def __lt__(self, other) -> bool | None:
-        from StoreLowTier import StoreLowTier 
-        from StoreMidTier import StoreMidTier
-        if isinstance(other, StoreMidTier) or isinstance(other, StoreLowTier):
+        from StoreDiscounterRetailer import StoreDiscounterRetailer 
+        from StorePremimumRetailer import StorePremimumRetailer
+        if isinstance(other, StorePremimumRetailer) or isinstance(other, StoreDiscounterRetailer):
             return self.store_type.tier < other.store_type.tier       
     
     def buy_stock(self, amount_per_item:int, product:pd.Series | None=None)  -> None: 
@@ -137,11 +158,17 @@ class Store(Location):
     def do_before_day(self) -> None: 
         globals.logger_store.debug("---- DAY %i ----",  globals.DAY )
         globals.logger_store.debug(self.stock)
+
         
-        self.tracker["today"] = 0 #reset amount tracker for today
-        self._plan_and_buy_stock()
+        if globals.DAY == 0:  #on first day stock store with baseline amount
+            self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
+        else: #from them on restock based on demand
+            self.tracker["today"] = 0 #reset amount tracker for today
+            self._plan_and_buy_stock()
+            self._update_sales()
         
-        #TODO put on sales -> update best_deals_per_fg
+            #TODO put on sales -> update best_deals_per_fg
+            
         
         
     def do_after_day(self) -> None: 
@@ -170,7 +197,6 @@ class Store(Location):
         '''
         generally available in product range, hh doesnt know if it is not in stock
         '''
-        
         return self.product_range["type"].unique().tolist()
     
     def is_fg_in_productrange(self, fg) -> bool: 
@@ -223,10 +249,8 @@ class Store(Location):
         self.tracker.loc[mask, "today"] += amount
         
     def _update_tracker(self) -> None: 
-        
         self.tracker["purchased"] = self.tracker.apply(lambda row: row["purchased"][1:] + [row["today"]], axis=1)
 
-    
     def _plan_and_buy_stock(self) -> None:
         globals.logger_store.debug("Tracker:")
         globals.logger_store.debug(self.tracker)
@@ -236,9 +260,58 @@ class Store(Location):
         for index, row in self.tracker.iterrows():
             self.buy_stock(restock_plan[index], row)
         
-       # for fg in self.food_groups.get_all_food_groups(): 
-       #     if restock_plan[fg] > 0:
-       #         self.buy_stock(restock_plan[fg], fg)
+    def _update_sales(self,): 
+        #self._remove_ended_sales() 
+        self._start_sales()
+        
+    def _remove_ended_sales(self): 
+        #remove seasonal sales, that timed out
+        mask = (self.stock["sale_timer"] == 0) & (self.stock["sale_type"] == EnumSales.SEASONAL)
+        
+        #iterate over all discount effects
+        for discount_effect in DiscountEffect: 
+            self.stock.loc[mask & (self.stock["discount_effect"] == discount_effect),"servings"] = (self.stock["servings"] / discount_effect.scaler)
+        
+        self.stock.loc[mask,"sale_type"] = EnumSales.NONE
+        self.stock.loc[(self.stock["sale_timer"] == 0) & (self.stock["sale_type"] == EnumSales.NONE),"discount_effect"] =  DiscountEffect.NONE
+        
+    def _start_sales(self):
+        self.stock["sale_option"] = [] * len(self.stock)
+        for _,row in self.product_range.iterrows(): 
+            #select all items of this product type
+            mask = (self.stock["type"] == row["type"]) & (self.stock["servings"] == row["servings"])
+            current_product = self.stock[mask]
+            ## high stock sales ##
+            if current_product["amount"][0] >= globals.STORE_BASELINE_STOCK * self.high_stock_interval_2:
+                self._add_sales_options([(EnumSales.HIGHSTOCK, [self.high_stock_discount_interval_2])])                
+            elif current_product["amount"]  >= globals.STORE_BASELINE_STOCK * self.high_stock_interval_1:
+                self._add_sales_options( [(EnumSales.HIGHSTOCK, [self.high_stock_discount_interval_1])])
+            ## clearance sales ## 
+            for _,row_by_exp in self.stock[mask].iterrows():
+                #select all item of 1 expiry date
+                if row_by_exp["days_till_expiry"] <= self.clearance_interval_3: 
+                    self._add_sales_options([EnumSales.EXPIRING,self.clearance_discount_3])
+                elif row_by_exp["days_till_expiry"] <= self.clearance_interval_2: 
+                    self._add_sales_options([EnumSales.EXPIRING,self.clearance_discount_2])
+                elif row_by_exp["days_till_expiry"] <= self.clearance_interval_1: 
+                    self._add_sales_options([EnumSales.EXPIRING,self.clearance_discount_1])  
+                              
+            ## seasonal sales (random sales)
+            if random.uniform(0,1) < self.likelihood_seasonal:  # type: ignore
+                self._add_sales_options([EnumSales.SEASONAL,self.seasonal_discount])  
+                
+            globals.logger_store.debug("Sales options have been added:")
+            globals.logger_store.debug(self.stock)
             
+            
+            
+                
+        #what if it is on sale already - skip
         
-        
+     #   if item["sale_type"] == EnumSales.NONE: 
+                #TODO update sale
+     #   else: 
+            
+    def _add_sales_options(self,item:List[Tuple(EnumSales,List)]): 
+        #add item to the temporary list of possible sales to apply to the item 
+        self.stock['sale_option'] = self.stock['sale_option'].apply(lambda x: x + item)

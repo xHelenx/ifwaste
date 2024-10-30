@@ -29,9 +29,9 @@ class Grid:
             str: string representation of the grid
         """        
         from Household import Household
-        from StoreLowTier import StoreLowTier
-        from StoreMidTier import StoreMidTier
-        from StoreConvenientStore import StoreConvenientStore
+        from StoreDiscounterRetailer import StoreDiscounterRetailer
+        from StorePremimumRetailer import StorePremimumRetailer
+        from StoreConvenienceStore import StoreConvenienceStore
         grid_str = ""
         for i in range(len(self.grid))   :
             for j in range(len(self.grid[0])):
@@ -39,11 +39,11 @@ class Grid:
                     grid_str += " -"
                 elif isinstance(self.grid[i][j], Household):
                     grid_str += " h "
-                elif isinstance(self.grid[i][j], StoreLowTier):
+                elif isinstance(self.grid[i][j], StoreDiscounterRetailer):
                     grid_str += " sl"
-                elif isinstance(self.grid[i][j], StoreMidTier):
+                elif isinstance(self.grid[i][j], StorePremimumRetailer):
                     grid_str += " sm"
-                elif isinstance(self.grid[i][j], StoreConvenientStore):
+                elif isinstance(self.grid[i][j], StoreConvenienceStore):
                     grid_str += " sc"
                 else: 
                     print(type(self.grid[i][j]))

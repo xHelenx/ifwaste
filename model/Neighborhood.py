@@ -4,9 +4,9 @@ from DataLogger import DataLogger
 from Household import Household
 import globals 
 from Grid import Grid
-from StoreLowTier import StoreLowTier 
-from StoreMidTier import StoreMidTier
-from StoreConvenientStore import StoreConvenientStore 
+from StoreDiscounterRetailer import StoreDiscounterRetailer 
+from StorePremimumRetailer import StorePremimumRetailer
+from StoreConvenienceStore import StoreConvenienceStore 
 from Store import Store
 from EnumStoreTier import EnumStoreTier
 
@@ -26,12 +26,12 @@ class Neighborhood():
         #setup all stores
         for i in range(len(globals.NEIGHBORHOOD_STORE_TYPES)):
             for j in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
-                if globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.LOWTIER.name:
-                    store = StoreLowTier(store_type=EnumStoreTier.LOWTIER, grid=self.grid,id=i*j+j)
-                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.MIDTIER.name:
-                    store = StoreMidTier(store_type=EnumStoreTier.MIDTIER, grid=self.grid,id=i*j+j)
-                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.CONVENIENTTIER.name:
-                    store = StoreConvenientStore(store_type=EnumStoreTier.CONVENIENTTIER, grid=self.grid,id=i*j+j)
+                if globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.DISCOUNTRETAILER.name:
+                    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.PREMIUMTIER.name:
+                    store = StorePremimumRetailer(store_type=EnumStoreTier.PREMIUMTIER, grid=self.grid,id=i*j+j)
+                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.CONVENIENCETIER.name:
+                    store = StoreConvenienceStore(store_type=EnumStoreTier.CONVENIENCETIER, grid=self.grid,id=i*j+j)
                 else: 
                     raise ValueError("store type does not exist")
                 self.grid.assign_location(object=store)
