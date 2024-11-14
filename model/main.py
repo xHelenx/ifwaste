@@ -1,10 +1,12 @@
 import logging
+import os
 from Neighborhood import Neighborhood
 import globals
 import argparse
 
 def main(name:str) -> None:
     #read configuration file 
+    os.chdir(r"E:/UF/ifwaste/model")
     globals.configure_simulation(file=name)
     globals.setup_logger()
 

@@ -119,7 +119,7 @@
             "exp_min":5,
             "exp_max":15
         },
-        "FGDryfood" : {
+        "FGDryFood" : {
             "type" : "FGDRYFOOD",
             "kg_per_serving" : 0.065,
             "kcal_per_kg": 3360,
@@ -135,7 +135,7 @@
             "exp_min":7,
             "exp_max":56
         },
-        "FGStorepepared" : {
+        "FGStorePrepared" : {
             "type" : "FGSTOREPREPARED",
             "kg_per_serving" : 0.095,
             "kcal_per_kg": 2790,
@@ -155,19 +155,20 @@
 
             "Sales": {
                 "high_stock_interval_1": 0.8,
-                "high_stock_interval_2": 0.95,
-                "high_stock_discount_interval_1": ["20% Discount", "BOGO"],
-                "high_stock_discount_interval_2":  ["30% Discount", "BOGO"], 
+                "high_stock_interval_2": 0.5,
+                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
+                "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
 
                 "seasonal_likelihood": 0.2,
-                "seasonal_discount": ["20% Discount", "30% Discount", "BOGO"], 
+                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
+                "seasonal_duration" : 5,
 
                 "clearance_interval_1_expires_within" : 5,
                 "clearance_interval_2_expires_within" : 3, 
                 "clearance_interval_3_expires_within" : 2,
-                "clearance_interval_1_discount" : ["40% Discount", "BOGO"],
-                "clearance_interval_2_discount" : ["50% Discount", "BOGO"],
-                "clearance_interval_3_discount" : ["60% Discount", "BOGO"]
+                "clearance_interval_1_discount" : ["DISCOUNT40", "BOGO"],
+                "clearance_interval_2_discount" : ["DISCOUNT50", "BOGO"],
+                "clearance_interval_3_discount" : ["DISCOUNT60", "BOGO"]
             }
         },
         "Discount_retailer": {
@@ -176,20 +177,21 @@
             "price":0.35,
 
             "Sales": {
-                "high_stock_interval_1": 0.8,
-                "high_stock_interval_2": 0.95,
-                "high_stock_discount_interval_1": ["20% Discount", "BOGO"],
-                "high_stock_discount_interval_2":  ["30% Discount", "BOGO"], 
+                "high_stock_interval_1": 0.5,
+                "high_stock_interval_2": 0.3,
+                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
+                "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
 
-                "seasonal_likelihood": 0.2,
-                "seasonal_discount": ["20% Discount", "30% Discount", "BOGO"], 
+                "seasonal_likelihood": 0.3,
+                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
+                "seasonal_duration" : 5,
 
-                "clearance_interval_1_expires_within" : 5,
-                "clearance_interval_2_expires_within" : 3, 
-                "clearance_interval_3_expires_within" : 2,
-                "clearance_interval_1_discount" : ["40% Discount", "BOGO"],
-                "clearance_interval_2_discount" : ["50% Discount", "BOGO"],
-                "clearance_interval_3_discount" : ["60% Discount", "BOGO"]
+                "clearance_interval_1_expires_within" : 3,
+                "clearance_interval_2_expires_within" : 2, 
+                "clearance_interval_3_expires_within" : 1,
+                "clearance_interval_1_discount" : ["DISCOUNT40", "BOGO"],
+                "clearance_interval_2_discount" : ["DISCOUNT50", "BOGO"],
+                "clearance_interval_3_discount" : ["DISCOUNT60", "BOGO"]
             }
         },
         "Premium_retailer": {
@@ -198,19 +200,20 @@
             "price":0.6,
             "Sales": {
                 "high_stock_interval_1": 0.8,
-                "high_stock_interval_2": 0.95,
-                "high_stock_discount_interval_1": ["20% Discount", "BOGO"],
-                "high_stock_discount_interval_2":  ["30% Discount", "BOGO"], 
+                "high_stock_interval_2": 0.5,
+                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
+                "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
 
                 "seasonal_likelihood": 0.2,
-                "seasonal_discount": ["20% Discount", "30% Discount", "BOGO"], 
+                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
+                "seasonal_duration" : 5,
 
                 "clearance_interval_1_expires_within" : 5,
                 "clearance_interval_2_expires_within" : 3, 
                 "clearance_interval_3_expires_within" : 2,
-                "clearance_interval_1_discount" : ["40% Discount", "BOGO"],
-                "clearance_interval_2_discount" : ["50% Discount", "BOGO"],
-                "clearance_interval_3_discount" : ["60% Discount", "BOGO"]
+                "clearance_interval_1_discount" : ["DISCOUNT40", "BOGO"],
+                "clearance_interval_2_discount" : ["DISCOUNT50", "BOGO"],
+                "clearance_interval_3_discount" : ["DISCOUNT60", "BOGO"]
             }
         }
     },

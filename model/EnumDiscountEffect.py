@@ -1,8 +1,8 @@
 from enum import Enum
 
 
-class DiscountEffect(Enum): 
-    NONE = "normal price",0
+class EnumDiscountEffect(Enum): 
+    NONE = "normal price",1
     DISCOUNT10 = "10% Discount",0.9
     DISCOUNT20 = "20% Discount",0.8
     DISCOUNT30 = "30% Discount",0.7

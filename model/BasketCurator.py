@@ -7,7 +7,8 @@ import pandas as pd
 from EnumSales import EnumSales
 import globals
 from FoodGroups import FoodGroups
-from Store import Store 
+from Store import Store
+from EnumDiscountEffect import EnumDiscountEffect 
 
 class BasketCurator(): 
     
@@ -251,13 +252,14 @@ class BasketCurator():
                      
         done_adjusting = False 
         #we are a) in budget, b) have an empty basket or c) tried to replace every items but it is the cheapest combo
-        if self.is_basket_in_budget() or len(self.basket) == 0 or len(self.basket[self.basket["adjustment"] != "not_replaceable"]) == 0: 
+        if (self.is_basket_in_budget() or len(self.basket) == 0 or \
+            ("adjustment" in self.basket.columns and len(self.basket[self.basket["adjustment"] != "not_replaceable"]) == 0)):
             done_adjusting = True 
             next_phase = True 
         
         next_phase = False 
         #move to next state as there is no item that can be replaced
-        if len(self.basket[self.basket["adjustment"] != "not_replaceable"]) == 0: 
+        if "adjustment" in self.basket.columns and len(self.basket[self.basket["adjustment"] != "not_replaceable"]) == 0: 
             next_phase = True 
         
         #let the dice decide: 0-likeli = stop, likeli-(1-likli)/2=stay, (1-likli)/2-1 =next
@@ -579,13 +581,23 @@ class BasketCurator():
        
     def _organize_basket(self) -> None: 
         """Organizes the basket, by merging identical items into one row and the the 
-        summed amoutn
+        summed amount
         
         """        
-        
-        equal_columns = self.basket.columns.tolist()
-        equal_columns.remove("amount") if "amount" in equal_columns else None 
-        self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum()         # type: ignore
+
+
+        # Temporarily convert enums to string for grouping
+        self.basket['discount_effect'] = self.basket['discount_effect'].astype(str)
+        self.basket['sale_type'] = self.basket['sale_type'].astype(str)
+
+        equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
+                         "sale_timer", "ID"]
+        self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
+
+        # Convert str of enums back to enums
+        self.basket['sale_type'] = self.basket['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
+        self.basket['discount_effect'] = self.basket['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
+
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
         """Removes item from the basket

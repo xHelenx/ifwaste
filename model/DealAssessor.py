@@ -26,8 +26,10 @@ class DealAssessor:
             options = [] 
             for store in stores: 
                 stock_by_fg = store.stock[store.stock["type"] == fg]       
-                if not len(stock_by_fg) == 0: #at least one option of fg
-                    options.append(stock_by_fg.loc[stock_by_fg["deal_value"].idxmin()])
+                if len(stock_by_fg) == 1:
+                    options.append(stock_by_fg.iloc[0])
+                elif len(stock_by_fg) > 1:
+                    stock_by_fg.loc[:, "deal_value"] = pd.to_numeric(stock_by_fg["deal_value"])
             if not len(options) == 0: #at least one store carries fg
                 options = pd.DataFrame(options).reset_index(drop=True)
                 best_deal_by_fg = options.loc[options["deal_value"].idxmin()]

@@ -6,41 +6,60 @@ import globals
 class Storage: 
 
     def __init__(self) -> None:
-        self.current_items:pd.DataFrame = pd.DataFrame(columns= [
-            globals.FGMEAT, 
-            globals.FGDAIRY,
-            globals.FGVEGETABLE, 
-            globals.FGDRYFOOD,
-            globals.FGBAKED,
-            globals.FGSNACKS, 
-            globals.FGSTOREPREPARED,
-            'price',
-            'status',
-            'servings', 
-            'days_till_expiry'])
-        self.fg:FoodGroups = FoodGroups.get_instance() # type: ignore
-    
-    def add(self, item:pd.Series) -> None: 
+        self.current_items: pd.DataFrame = pd.DataFrame(
+            columns=[
+                globals.FGMEAT, 
+                globals.FGDAIRY,
+                globals.FGVEGETABLE, 
+                globals.FGDRYFOOD,
+                globals.FGBAKED,
+                globals.FGSNACKS, 
+                globals.FGSTOREPREPARED,
+                'price',
+                'status',
+                'servings', 
+                'days_till_expiry'
+            ],
+        )
+        self.current_items[globals.FGMEAT] = self.current_items[globals.FGMEAT].astype(float)
+        self.current_items[globals.FGDAIRY] = self.current_items[globals.FGDAIRY].astype(float)
+        self.current_items[globals.FGVEGETABLE] = self.current_items[globals.FGVEGETABLE].astype(float)
+        self.current_items[globals.FGDRYFOOD] = self.current_items[globals.FGDRYFOOD].astype(float)
+        self.current_items[globals.FGBAKED] = self.current_items[globals.FGBAKED].astype(float)
+        self.current_items[globals.FGSNACKS] = self.current_items[globals.FGSNACKS].astype(float)
+        self.current_items[globals.FGSTOREPREPARED] = self.current_items[globals.FGSTOREPREPARED].astype(float)
+        
+        self.current_items['price'] = self.current_items['price'].astype(float)
+        self.current_items['status'] = self.current_items['status'].astype(str)
+        self.current_items['servings'] = self.current_items['servings'].astype(int)
+        self.current_items['days_till_expiry'] = self.current_items['days_till_expiry'].astype(int)  
+
+        self.fg: FoodGroups = FoodGroups.get_instance()  # type: ignore
+
+    def add(self, item: pd.Series) -> None: 
         self.current_items.loc[len(self.current_items)] = item
-        self.current_items.reset_index()
+        self.current_items.reset_index(drop=True, inplace=True)  # Drop the old index
+
+    def remove(self, item: pd.Series) -> None:
+        print("Data types of each element in the Series:")
+        for key, value in item.items():
+            print(f"{key}: {type(value).__name__}")
+            
+        # Display data types of each column in the DataFrame
+        print("Data types of each column in the DataFrame:")
+        print(self.current_items.dtypes)
+
+        mask = np.all([
+            np.isclose(self.current_items[col], item[col], equal_nan=True) if pd.api.types.is_float_dtype(self.current_items[col]) 
+            else (self.current_items[col] == item[col])
+            for col in item.index
+            ], axis=0)
         
+        matching_indices = self.current_items[mask].index
+        if len(matching_indices) > 0:
+                # Remove only the first match 
+                self.current_items = self.current_items.drop(matching_indices[0])
     
-    def remove(self,item:pd.Series) -> None:
-        row_to_remove = self.current_items[
-            (self.current_items[globals.FGMEAT] == item[globals.FGMEAT] ) &
-            (self.current_items[globals.FGDAIRY] == item[globals.FGDAIRY] ) &
-            (self.current_items[globals.FGVEGETABLE] == item[globals.FGVEGETABLE] ) &
-            (self.current_items[globals.FGDRYFOOD] == item[globals.FGDRYFOOD] ) &
-            (self.current_items[globals.FGBAKED] == item[globals.FGBAKED] ) &
-            (self.current_items[globals.FGSNACKS] == item[globals.FGSNACKS] ) &
-            (self.current_items[globals.FGSTOREPREPARED] == item[globals.FGSTOREPREPARED]) &
-            (self.current_items["price"] == item.price) &
-            (self.current_items["status"] == item.status) &
-            (self.current_items["servings"] == item.servings) &
-            (self.current_items["days_till_expiry"] == item.days_till_expiry)]
-     
-        self.current_items = self.current_items.drop(row_to_remove.index[0]) #just remove one row in case there are multiple
-        
     def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float]) -> pd.Series: 
        #default random
        #random" = choose random ingredients to cook wit
@@ -60,13 +79,11 @@ class Storage:
             item = self.current_items.loc[idx].iloc[0]
             
         else: #EEF
-            idx = self.current_items['days_till_expiry'].idxmin()
+            idx = self.current_items['days_till_expiry'].astype(float).idxmin()
             item = self.current_items.loc[idx]
             
         self.remove(item) # type: ignore
         return item      # type: ignore
-    
-   # def split_item()
     
     def get_number_of_items(self) -> int:
         return len(self.current_items)

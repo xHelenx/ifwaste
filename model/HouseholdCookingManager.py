@@ -1,5 +1,5 @@
 import random
-from typing import Literal
+from typing import Literal, Union
 
 import globals
 from Storage import Storage
@@ -19,7 +19,7 @@ class HouseholdCookingManager:
         self.shoppingManager: HouseholdShoppingManager = shoppingManager
         self.datalogger:DataLogger = datalogger
         self.household_concern: float = household_concern
-        self.prefence_vector:dict[str,float] = preference_vector
+        self.preference_vector:dict[str,float] = preference_vector
         self.household_plate_waste_ratio = household_plate_waste_ratio
         self.id = id 
         
@@ -48,7 +48,7 @@ class HouseholdCookingManager:
         self.log_today_leftovers = False
         self.log_today_quickcook = False
     
-    def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) -> pd.Series | None:         
+    def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  Union[pd.Series, None]:         
         if not self._has_enough_ingredients(): 
             shopping_time = self.shoppingManager.shop(is_quickshop=True) #shopping time ignored cause its short and we quickcook
             self.todays_time -= shopping_time 
@@ -89,7 +89,7 @@ class HouseholdCookingManager:
                 
         return meal
         
-    def _get_ingredients(self,is_quickcook:bool, strategy:Literal["random"] | Literal["EEF"]) -> list[pd.Series]: 
+    def _get_ingredients(self,is_quickcook:bool, strategy:Literal["random","EEF"]) -> list[pd.Series]: 
         #how much do we want to cook:
         planned_servings = self._choose_how_much_to_cook()
         ingredients = []
@@ -109,10 +109,10 @@ class HouseholdCookingManager:
                 
         return ingredients
                     
-    def _get_ingredient(self, strategy:Literal["EEF"] | Literal["random"], is_quickcook:bool) -> pd.Series: 
+    def _get_ingredient(self, strategy:Literal["EEF","random"], is_quickcook:bool) -> pd.Series: 
         
         to_eat = pd.Series()
-        item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.prefence_vector)#consider they only use unused ingredients and dont cook with leftovers here    
+        item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
         servings = item["servings"]
         
     
@@ -164,7 +164,7 @@ class HouseholdCookingManager:
             self.log_today_eef = True
             
         
-    def _determine_strategy(self) -> Literal['EEFfridge'] |Literal['EEFpantry'] | Literal['random']: 
+    def _determine_strategy(self) -> Literal['EEFfridge', 'EEFpantry','random']: 
         strategy = "random"      
         is_eef = (random.uniform(0,1) < self.household_concern)  
         #EEF 
@@ -186,9 +186,9 @@ class HouseholdCookingManager:
                 
         return strategy
        
-    def get_meal_from_fridge(self, strategy:Literal["EEF"] | Literal["random"]) -> pd.Series:     
+    def get_meal_from_fridge(self, strategy:Literal["EEF","random"]) -> pd.Series:     
         self.log_today_leftovers = True
-        return self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.prefence_vector)
+        return self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)
         
         
     def _eat_meal(self,meal:pd.Series) :
@@ -203,7 +203,7 @@ class HouseholdCookingManager:
         if not plate_waste is None: 
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
-    def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , pd.Series | None ]:
+    def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None] ]:
         fgs = FoodGroups.get_instance() # type: ignore
         consumed = meal.copy(deep=True)
         waste = meal.copy(deep=True)
@@ -241,7 +241,7 @@ class HouseholdCookingManager:
         
         return (consumed, waste)  
         
-    def _split(self,meal:pd.Series,servings:float) -> tuple[pd.Series , pd.Series | None ]: 
+    def _split(self,meal:pd.Series,servings:float) -> tuple[pd.Series , Union[pd.Series, None]]: 
         serv_to_eat = meal["servings"]
         
         to_fridge = meal.copy(deep=True)

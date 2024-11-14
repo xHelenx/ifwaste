@@ -88,12 +88,12 @@ class HouseholdShoppingManager:
             return price_per_serving * req_daily_servings * days_till_payday
           
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> None:
-        price = 0
+        price = 0.0
         for fg in FoodGroups.get_instance().get_all_food_groups():
             if fg != item["type"]: 
-                item[fg] = 0
+                item[fg] = 0.0
             else:
-                item[fg] = item["servings"]
+                item[fg] = float(item["servings"])
                 price = item["servings"] * item["price_per_serving"]
         if "adjustment" in item.index: 
             item.drop(["adjustment"])
