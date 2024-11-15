@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+from re import M
 import pandas as pd
 import globals 
 import os
@@ -32,7 +33,8 @@ class FoodGroups():
                             'kcal_per_kg': value['kcal_per_kg'],
                             'inedible_percentage': value['inedible_percentage'],
                             'exp_min': value['exp_min'],
-                            'exp_max': value['exp_max']
+                            'exp_max': value['exp_max'],
+                            "impulse_buy_likelihood": value["impulse_buy_likelihood"]
                         })
                     self.food_groups:pd.DataFrame = pd.DataFrame(food_groups)
                     self.initialized:bool = True  # Mark as initialized

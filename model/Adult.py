@@ -29,6 +29,7 @@ class Adult(Person):
             dairy_servings = random.uniform(globals.ADULT_MALE_DAIRY_SERVINGS_MIN, globals.ADULT_FEMALE_DAIRY_SERVINGS_MAX)
             meat_servings = random.uniform(globals.ADULT_MALE_MEAT_SERVINGS_MIN, globals.ADULT_FEMALE_MEAT_SERVINGS_MAX)
             snacks_servings = random.uniform(globals.ADULT_MALE_SNACKS_SERVINGS_MIN, globals.ADULT_FEMALE_SNACKS_SERVINGS_MAX)
+            baked_servings = random.uniform(globals.ADULT_MALE_BAKED_SERVINGS_MIN, globals.ADULT_MALE_SNACKS_SERVINGS_MAX)
             store_prepared_servings = random.uniform(globals.ADULT_MALE_STORE_PREPARED_SERVINGS_MIN, globals.ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX)
         else: #FEMALE
             veg_servings = random.uniform(globals.ADULT_MALE_VEG_SERVINGS_MIN, globals.ADULT_FEMALE_VEG_SERVINGS_MAX)
@@ -36,10 +37,11 @@ class Adult(Person):
             dairy_servings = random.uniform(globals.ADULT_MALE_DAIRY_SERVINGS_MIN, globals.ADULT_FEMALE_DAIRY_SERVINGS_MAX)
             meat_servings = random.uniform(globals.ADULT_MALE_MEAT_SERVINGS_MIN, globals.ADULT_FEMALE_MEAT_SERVINGS_MAX)
             snacks_servings = random.uniform(globals.ADULT_MALE_SNACKS_SERVINGS_MIN, globals.ADULT_FEMALE_SNACKS_SERVINGS_MAX)
+            baked_servings = random.uniform(globals.ADULT_FEMALE_BAKED_SERVINGS_MIN, globals.ADULT_FEMALE_SNACKS_SERVINGS_MAX)
             store_prepared_servings = random.uniform(globals.ADULT_MALE_STORE_PREPARED_SERVINGS_MIN, globals.ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX)
             
         food_groups = FoodGroups.get_instance()
-        self.req_servings:float = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + store_prepared_servings
+        self.req_servings:float = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + baked_servings + store_prepared_servings
         sum_pref = sum(self.fg_preference.values())
         self.req_servings_per_fg:dict = dict()
         for item in food_groups.get_all_food_groups():  # type: ignore

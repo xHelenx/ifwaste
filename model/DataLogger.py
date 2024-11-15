@@ -123,6 +123,7 @@ class DataLogger:
                         globals.FGVEGETABLE: item[globals.FGVEGETABLE],
                         globals.FGDRYFOOD: item[globals.FGDRYFOOD],
                         globals.FGSNACKS: item[globals.FGSNACKS],
+                        globals.FGBAKED: item[globals.FGBAKED],
                         globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
                     } 
     
@@ -216,15 +217,15 @@ class DataLogger:
                     "days_till_expiry","price_per_serving"]),
         "log_eaten" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,
+                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
                      globals.FGSTOREPREPARED]),
         "log_still_have" : pd.DataFrame(
             columns=["household","price","servings","days_till_expiry","status",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,
+                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
                      globals.FGSTOREPREPARED]),
         "log_wasted" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status","reason",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,
+                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
                      globals.FGSTOREPREPARED]),
         "log_store_daily" : pd.DataFrame(
             columns=["day","store","type","servings","days_till_expiry",
@@ -289,6 +290,7 @@ class DataLogger:
             globals.FGVEGETABLE: item[globals.FGVEGETABLE],
             globals.FGDRYFOOD: item[globals.FGDRYFOOD],
             globals.FGSNACKS: item[globals.FGSNACKS],
+            globals.FGBAKED: item[globals.FGBAKED],
             globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
         }
     def _log_eaten(self,data:pd.DataFrame) -> None:
@@ -310,6 +312,7 @@ class DataLogger:
             globals.FGVEGETABLE: item[globals.FGVEGETABLE],
             globals.FGDRYFOOD: item[globals.FGDRYFOOD],
             globals.FGSNACKS: item[globals.FGSNACKS],
+            globals.FGBAKED: item[globals.FGBAKED],
             globals.FGSTOREPREPARED: item[globals.FGSTOREPREPARED]
             
         }

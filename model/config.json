@@ -30,6 +30,8 @@
 
         "male_veg_servings_min" : 2.6,
         "male_veg_servings_max" : 2.9,
+        "male_baked_servings_min":2,
+        "male_baked_servings_max":2.5,
         "male_dry_food_servings_min" : 7.3,
         "male_dry_food_servings_max" : 8,
         "male_dairy_servings_min" : 1.9,
@@ -43,6 +45,8 @@
 
         "female_veg_servings_min" : 2.5,
         "female_veg_servings_max" : 2.8,
+        "female_baked_servings_min":2.5,
+        "female_baked_servings_max":3,
         "female_dry_food_servings_min" : 5.3,
         "female_dry_food_servings_max" : 6,
         "female_dairy_servings_min" : 1.3,
@@ -62,6 +66,8 @@
 
         "male_veg_servings_min" : 1.8,
         "male_veg_servings_max" : 2.2,
+        "male_baked_servings_min":1,
+        "male_baked_servings_max":2,
         "male_dry_food_servings_min" : 5.1,
         "male_dry_food_servings_max" : 8.7,
         "male_dairy_servings_min" : 2,
@@ -75,6 +81,8 @@
 
         "female_veg_servings_min" : 1.8,
         "female_veg_servings_max" : 2,
+        "female_baked_servings_min":2,
+        "female_baked_servings_max":2.5,
         "female_dry_food_servings_min" : 4.5,
         "female_dry_food_servings_max" : 7,
         "female_dairy_servings_min" : 1.7,
@@ -93,7 +101,8 @@
             "kcal_per_kg": 2240,
             "inedible_percentage": 0.1,
             "exp_min":4,
-            "exp_max":11
+            "exp_max":11,
+            "impulse_buy_likelihood" : 0.5
         },
         "FGDairy" : {
             "type" : "FGDAIRY",
@@ -101,7 +110,8 @@
             "kcal_per_kg": 1810,
             "inedible_percentage": 0,
             "exp_min":7,
-            "exp_max":28
+            "exp_max":28,
+            "impulse_buy_likelihood" : 0.5
         },
         "FGBaked" : {
             "type" : "FGBAKED",
@@ -109,15 +119,17 @@
             "kcal_per_kg": 3000,
             "inedible_percentage": 0,
             "exp_min":3,
-            "exp_max":14
+            "exp_max":14,
+            "impulse_buy_likelihood" : 0.5
         },
-        "FGVegtable" : {
+        "FGVegetable" : {
             "type" : "FGVEGETABLE",
             "kg_per_serving" : 0.116,
             "kcal_per_kg": 790,
             "inedible_percentage": 0.1,
             "exp_min":5,
-            "exp_max":15
+            "exp_max":15,
+            "impulse_buy_likelihood" : 0.5
         },
         "FGDryFood" : {
             "type" : "FGDRYFOOD",
@@ -125,7 +137,8 @@
             "kcal_per_kg": 3360,
             "inedible_percentage": 0,
             "exp_min":7,
-            "exp_max":56
+            "exp_max":56,
+            "impulse_buy_likelihood" : 0.5
         },
         "FGSnacks" : {
             "type" : "FGSNACKS",
@@ -133,7 +146,8 @@
             "kcal_per_kg": 2790,
             "inedible_percentage": 0,
             "exp_min":7,
-            "exp_max":56
+            "exp_max":56,
+            "impulse_buy_likelihood" : 0.5
         },
         "FGStorePrepared" : {
             "type" : "FGSTOREPREPARED",
@@ -141,12 +155,14 @@
             "kcal_per_kg": 2790,
             "inedible_percentage": 0,
             "exp_min":2,
-            "exp_max":7
+            "exp_max":7,
+            "impulse_buy_likelihood" : 0.5
         }
     },
     "Store": {
         "restock_interval" : 3,
         "baseline_stock": 100,
+        "impulse_buy_percentage": 0.2,
 
         "Convenience_store": {
             "product_range": "parameterization\\store_type_convenience_store.csv",

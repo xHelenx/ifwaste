@@ -73,6 +73,7 @@ SIMULATION_DEBUG_LOG_ON = None
 
 STORE_RESTOCK_INTERVAL = None 
 STORE_BASELINE_STOCK = None
+STORE_IMPULSE_BUY_PERCENTAGE = None
 
 
 STORE_CON_QUALITY = None
@@ -92,8 +93,6 @@ STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = None
 STORE_CON_SAL_CLEARANCE_DISCOUNT_3  = None
 
 STORE_DIS_QUALITY = None 
-STORE_DIS_PRICE = None
-STORE_DIS_QUALITY = None
 STORE_DIS_PRICE = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = None
@@ -142,8 +141,12 @@ ADULT_MALE_DAIRY_SERVINGS_MIN = None
 ADULT_MALE_DAIRY_SERVINGS_MAX = None 
 ADULT_MALE_MEAT_SERVINGS_MIN = None 
 ADULT_MALE_MEAT_SERVINGS_MAX = None 
+ADULT_MALE_MEAT_SERVINGS_MIN = None 
+ADULT_MALE_MEAT_SERVINGS_MIN = None 
 ADULT_MALE_SNACKS_SERVINGS_MIN = None 
 ADULT_MALE_SNACKS_SERVINGS_MAX = None 
+ADULT_MALE_BAKED_SERVINGS_MIN = None 
+ADULT_MALE_BAKED_SERVINGS_MAX = None 
 ADULT_MALE_STORE_PREPARED_SERVINGS_MIN = None 
 ADULT_MALE_STORE_PREPARED_SERVINGS_MAX = None 
 ADULT_FEMALE_VEG_SERVINGS_MIN = None 
@@ -154,8 +157,12 @@ ADULT_FEMALE_DAIRY_SERVINGS_MIN = None
 ADULT_FEMALE_DAIRY_SERVINGS_MAX = None 
 ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
 ADULT_FEMALE_MEAT_SERVINGS_MAX = None 
+ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
+ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
 ADULT_FEMALE_SNACKS_SERVINGS_MIN = None 
 ADULT_FEMALE_SNACKS_SERVINGS_MAX = None 
+ADULT_FEMALE_BAKED_SERVINGS_MIN = None 
+ADULT_FEMALE_BAKED_SERVINGS_MAX = None 
 ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN = None 
 ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX = None 
 CHILD_PLATE_WASTE_MIN = None 
@@ -170,8 +177,12 @@ CHILD_MALE_DAIRY_SERVINGS_MIN = None
 CHILD_MALE_DAIRY_SERVINGS_MAX = None 
 CHILD_MALE_MEAT_SERVINGS_MIN = None 
 CHILD_MALE_MEAT_SERVINGS_MAX = None 
+CHILD_MALE_MEAT_SERVINGS_MIN = None 
+CHILD_MALE_MEAT_SERVINGS_MIN = None 
 CHILD_MALE_SNACKS_SERVINGS_MIN = None 
 CHILD_MALE_SNACKS_SERVINGS_MAX = None 
+CHILD_MALE_BAKED_SERVINGS_MIN = None 
+CHILD_MALE_BAKED_SERVINGS_MAX = None 
 CHILD_MALE_STORE_PREPARED_SERVINGS_MIN = None 
 CHILD_MALE_STORE_PREPARED_SERVINGS_MAX = None 
 CHILD_FEMALE_VEG_SERVINGS_MIN = None 
@@ -182,8 +193,12 @@ CHILD_FEMALE_DAIRY_SERVINGS_MIN = None
 CHILD_FEMALE_DAIRY_SERVINGS_MAX = None 
 CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
 CHILD_FEMALE_MEAT_SERVINGS_MAX = None 
+CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
+CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
 CHILD_FEMALE_SNACKS_SERVINGS_MIN = None 
 CHILD_FEMALE_SNACKS_SERVINGS_MAX = None 
+CHILD_FEMALE_BAKED_SERVINGS_MIN = None 
+CHILD_FEMALE_BAKED_SERVINGS_MAX = None 
 CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = None 
 CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None 
 
@@ -225,6 +240,7 @@ def configure_simulation(file) -> None:
     
     global STORE_RESTOCK_INTERVAL
     global STORE_BASELINE_STOCK
+    global STORE_IMPULSE_BUY_PERCENTAGE
     global STORE_CON_QUALITY
     global STORE_CON_PRICE
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
@@ -282,8 +298,12 @@ def configure_simulation(file) -> None:
     global ADULT_MALE_DAIRY_SERVINGS_MAX
     global ADULT_MALE_MEAT_SERVINGS_MIN
     global ADULT_MALE_MEAT_SERVINGS_MAX
+    global ADULT_MALE_MEAT_SERVINGS_MIN
+    global ADULT_MALE_MEAT_SERVINGS_MIN
     global ADULT_MALE_SNACKS_SERVINGS_MIN
-    global ADULT_MALE_SNACKS_SERVINGS_MAX
+    global ADULT_MALE_SNACKS_SERVINGS_MAX 
+    global ADULT_MALE_BAKED_SERVINGS_MIN
+    global ADULT_MALE_BAKED_SERVINGS_MAX
     global ADULT_MALE_STORE_PREPARED_SERVINGS_MIN
     global ADULT_MALE_STORE_PREPARED_SERVINGS_MAX
     global ADULT_FEMALE_VEG_SERVINGS_MIN
@@ -294,8 +314,12 @@ def configure_simulation(file) -> None:
     global ADULT_FEMALE_DAIRY_SERVINGS_MAX
     global ADULT_FEMALE_MEAT_SERVINGS_MIN
     global ADULT_FEMALE_MEAT_SERVINGS_MAX
+    global ADULT_FEMALE_MEAT_SERVINGS_MIN
+    global ADULT_FEMALE_MEAT_SERVINGS_MIN
     global ADULT_FEMALE_SNACKS_SERVINGS_MIN
     global ADULT_FEMALE_SNACKS_SERVINGS_MAX
+    global ADULT_FEMALE_BAKED_SERVINGS_MIN
+    global ADULT_FEMALE_BAKED_SERVINGS_MAX
     global ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN
     global ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX
     global CHILD_PLATE_WASTE_MIN
@@ -310,8 +334,12 @@ def configure_simulation(file) -> None:
     global CHILD_MALE_DAIRY_SERVINGS_MAX
     global CHILD_MALE_MEAT_SERVINGS_MIN
     global CHILD_MALE_MEAT_SERVINGS_MAX
+    global CHILD_MALE_MEAT_SERVINGS_MIN
+    global CHILD_MALE_MEAT_SERVINGS_MIN
     global CHILD_MALE_SNACKS_SERVINGS_MIN
     global CHILD_MALE_SNACKS_SERVINGS_MAX
+    global CHILD_MALE_BAKED_SERVINGS_MIN
+    global CHILD_MALE_BAKED_SERVINGS_MAX
     global CHILD_MALE_STORE_PREPARED_SERVINGS_MIN
     global CHILD_MALE_STORE_PREPARED_SERVINGS_MAX
     global CHILD_FEMALE_VEG_SERVINGS_MIN
@@ -322,15 +350,19 @@ def configure_simulation(file) -> None:
     global CHILD_FEMALE_DAIRY_SERVINGS_MAX
     global CHILD_FEMALE_MEAT_SERVINGS_MIN
     global CHILD_FEMALE_MEAT_SERVINGS_MAX
+    global CHILD_FEMALE_MEAT_SERVINGS_MIN
+    global CHILD_FEMALE_MEAT_SERVINGS_MIN
     global CHILD_FEMALE_SNACKS_SERVINGS_MIN
     global CHILD_FEMALE_SNACKS_SERVINGS_MAX
+    global CHILD_FEMALE_BAKED_SERVINGS_MIN
+    global CHILD_FEMALE_BAKED_SERVINGS_MAX
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN
     global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
     global NEIGHBORHOOD_PAY_DAY_INTERVAL
     global DEALASSESSOR_WEIGHT_SERVING_PRICE
     global BASKETCURATOR_INCREMENT_LIKELIHOOD
     global BASKETCURATOR_MAX_ITEMS_QUICKSHOP
-    
+        
     print(file)
     print(os.getcwd())
     with open(file) as f:
@@ -345,6 +377,7 @@ def configure_simulation(file) -> None:
     
     STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
     STORE_BASELINE_STOCK = config["Store"]["baseline_stock"]
+    STORE_IMPULSE_BUY_PERCENTAGE = config["Store"]["impulse_buy_percentage"]
     
     STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
     STORE_CON_PRICE = config["Store"]["Convenience_store"]["price"]
@@ -422,8 +455,12 @@ def configure_simulation(file) -> None:
     ADULT_MALE_DAIRY_SERVINGS_MAX = config["Adult"]["male_dairy_servings_max"]
     ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
     ADULT_MALE_MEAT_SERVINGS_MAX = config["Adult"]["male_meat_servings_max"]
+    ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
+    ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
     ADULT_MALE_SNACKS_SERVINGS_MIN = config["Adult"]["male_snacks_servings_min"]
     ADULT_MALE_SNACKS_SERVINGS_MAX = config["Adult"]["male_snacks_servings_max"]
+    ADULT_MALE_BAKED_SERVINGS_MIN = config["Adult"]["male_baked_servings_min"]
+    ADULT_MALE_BAKED_SERVINGS_MAX = config["Adult"]["male_baked_servings_max"]
     ADULT_MALE_STORE_PREPARED_SERVINGS_MIN = config["Adult"]["male_store_prepared_servings_min"]
     ADULT_MALE_STORE_PREPARED_SERVINGS_MAX = config["Adult"]["male_store_prepared_servings_max"]
     ADULT_FEMALE_VEG_SERVINGS_MIN = config["Adult"]["female_veg_servings_min"]
@@ -434,8 +471,12 @@ def configure_simulation(file) -> None:
     ADULT_FEMALE_DAIRY_SERVINGS_MAX = config["Adult"]["female_dairy_servings_max"]
     ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
     ADULT_FEMALE_MEAT_SERVINGS_MAX = config["Adult"]["female_meat_servings_max"]
+    ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
+    ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
     ADULT_FEMALE_SNACKS_SERVINGS_MIN = config["Adult"]["female_snacks_servings_min"]
     ADULT_FEMALE_SNACKS_SERVINGS_MAX = config["Adult"]["female_snacks_servings_max"]
+    ADULT_FEMALE_BAKED_SERVINGS_MIN = config["Adult"]["female_baked_servings_min"]
+    ADULT_FEMALE_BAKED_SERVINGS_MAX = config["Adult"]["female_baked_servings_max"]
     ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Adult"]["female_store_prepared_servings_min"]
     ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Adult"]["female_store_prepared_servings_max"]
     CHILD_PLATE_WASTE_MIN = config["Child"]["child_plate_waste_min"]
@@ -450,8 +491,12 @@ def configure_simulation(file) -> None:
     CHILD_MALE_DAIRY_SERVINGS_MAX = config["Child"]["male_dairy_servings_max"]
     CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
     CHILD_MALE_MEAT_SERVINGS_MAX = config["Child"]["male_meat_servings_max"]
+    CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
+    CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
     CHILD_MALE_SNACKS_SERVINGS_MIN = config["Child"]["male_snacks_servings_min"]
     CHILD_MALE_SNACKS_SERVINGS_MAX = config["Child"]["male_snacks_servings_max"]
+    CHILD_MALE_BAKED_SERVINGS_MIN = config["Child"]["male_baked_servings_min"]
+    CHILD_MALE_BAKED_SERVINGS_MAX = config["Child"]["male_baked_servings_max"]
     CHILD_MALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["male_store_prepared_servings_min"]
     CHILD_MALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["male_store_prepared_servings_max"]
     CHILD_FEMALE_VEG_SERVINGS_MIN = config["Child"]["female_veg_servings_min"]
@@ -462,8 +507,12 @@ def configure_simulation(file) -> None:
     CHILD_FEMALE_DAIRY_SERVINGS_MAX = config["Child"]["female_dairy_servings_max"]
     CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
     CHILD_FEMALE_MEAT_SERVINGS_MAX = config["Child"]["female_meat_servings_max"]
+    CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
+    CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
     CHILD_FEMALE_SNACKS_SERVINGS_MIN = config["Child"]["female_snacks_servings_min"]
     CHILD_FEMALE_SNACKS_SERVINGS_MAX = config["Child"]["female_snacks_servings_max"]
+    CHILD_FEMALE_BAKED_SERVINGS_MIN = config["Child"]["female_baked_servings_min"]
+    CHILD_FEMALE_BAKED_SERVINGS_MAX = config["Child"]["female_baked_servings_max"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["female_store_prepared_servings_min"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["female_store_prepared_servings_max"]
     
