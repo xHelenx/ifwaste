@@ -95,7 +95,16 @@ class BasketCurator():
         else:
             globals.logger_hh.debug("basket: #items: 0")
         globals.logger_hh.debug(self.basket)    
-        
+      
+    def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
+        """Helper function, that returns how many servings of each food type have already been 
+        selected
+
+        Returns:
+            pd.Series: Series including the purchased items per food group
+        """        
+        return self.serv_track["got"] + self.serv_track["is_in_other_fg"] - self.serv_track["is_replacing_other_fg"]
+    
     def _sample_and_buy(self,options:pd.DataFrame) -> pd.Series: 
         """Samples a single item to buy from the options and manages
         the purchase process from the store + move the item to the basket 
@@ -114,15 +123,8 @@ class BasketCurator():
         options = options[options["amount"] > 0]
         self._add_item(plan_to_purchase, 1)
         
-        return plan_to_purchase    
-    def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
-        """Helper function, that returns how many servings of each food type have already been 
-        selected
-
-        Returns:
-            pd.Series: Series including the purchased items per food group
-        """        
-        return self.serv_track["got"] + self.serv_track["is_in_other_fg"] - self.serv_track["is_replacing_other_fg"]
+        return plan_to_purchase  
+    
     
     def _create_shop_basket(self) -> None: 
         """Creates a shopping basket (not quickshop) based on self.stores as store options and
@@ -142,7 +144,41 @@ class BasketCurator():
                         needed_servings -= purchased["servings"]
                     else:
                         break
-#    def _impulse_buy(self): 
+    def impulse_buy(self,  impulsivity:float): 
+        ##adds random item to basket
+        
+        ##determine amount of items bought
+        ##n% of that can be bought max, check each time
+        n_items:int = int(len(self.basket) * globals.STORE_IMPULSE_BUY_PERCENTAGE)
+        #get options from all possible stores
+        options = self._get_stock_options()
+        options = self._add_impulse_buy_likelihood_column(options)
+        #add likelihood columns
+        for i in range(n_items): 
+            if random.random() < impulsivity: 
+                #buy random item
+                item = options.sample(1, weights='impulse_buy_likelihood').iloc[0]
+                self._buy(item, 1)
+                options.loc[item.name, "amount"] -= 1 # type: ignore #keep options current
+                options = options[options["amount"] > 0]
+                self._add_item(item, 1)
+                
+    def _add_impulse_buy_likelihood_column(self,options): 
+        # Convert food_groups to a DataFrame for merging
+        food_groups_df = pd.DataFrame(FoodGroups._instance.food_groups) # type: ignore
+        
+        # Merge the options with food_groups_df to add the impulse_buy_likelihood
+        options = options.merge(food_groups_df[['type', 'impulse_buy_likelihood']], on='type', how='left')
+        
+        # Fill any missing likelihoods with 0 (or a minimum value) if needed
+        options['impulse_buy_likelihood'].fillna(0, inplace=True)
+        
+        # Normalize the likelihoods to get probabilities
+        total_likelihood = options['impulse_buy_likelihood'].sum()
+        options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'] / total_likelihood
+        
+        return options
+        
         
                     
     def _create_quickshop_basket(self) -> None: 
@@ -210,11 +246,11 @@ class BasketCurator():
             globals.logger_hh.debug("BASKET DOES NOT COVER ALL FG")
             self._add_items_from_another_fg()
             #now has_all_req_fg is still false, but we replaced it with other fgs
-            
-        #from now on we track if items have been adjusted
-        self.basket["adjustment"] = "None"   
-       
+        
         if not self.is_basket_in_budget(): 
+            #from now on we track if items have been adjusted
+            self.basket["adjustment"] = "None"   
+       
             globals.logger_hh.debug("BASKET IS NOT IN BUDGET")
             globals.logger_hh.debug("#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
             self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
@@ -239,8 +275,8 @@ class BasketCurator():
                     globals.logger_hh.debug("#####REPLACING:DROP ITEMS ######")
                     self._apply_adjusting_strategy(self._remove_item_without_replacement)
                     (done,next_phase) = self._check_phase_status()       
-    
-        self.basket.drop(columns=["adjustment"])
+            if "adjustment" in self.basket.columns: 
+                self.basket.drop(columns=["adjustment"])
     def _check_phase_status(self)-> tuple[bool,bool]:   
         """Handles the logic of changing the adjustment strategy as well as 
         the early stop of attempting to change the basket. 
@@ -459,6 +495,7 @@ class BasketCurator():
         found_replaceable_item = False #might have to try every item in self.basket
         options = self._get_stock_options(None,focus_on_sales=False)
         options["adjustment"] = "None" 
+        self.basket["adjustment"] = "None"
         
         #adjustment options:         
         #not_replaceable - was attempted to be replaced for a different item, but there was no better option
@@ -585,18 +622,18 @@ class BasketCurator():
         
         """        
 
+        if len(self.basket) > 0: 
+            # Temporarily convert enums to string for grouping
+            self.basket['discount_effect'] = self.basket['discount_effect'].astype(str)
+            self.basket['sale_type'] = self.basket['sale_type'].astype(str)
 
-        # Temporarily convert enums to string for grouping
-        self.basket['discount_effect'] = self.basket['discount_effect'].astype(str)
-        self.basket['sale_type'] = self.basket['sale_type'].astype(str)
+            equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
+                            "sale_timer", "ID"]
+            self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
 
-        equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
-                         "sale_timer", "ID"]
-        self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
-
-        # Convert str of enums back to enums
-        self.basket['sale_type'] = self.basket['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
-        self.basket['discount_effect'] = self.basket['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
+            # Convert str of enums back to enums
+            self.basket['sale_type'] = self.basket['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
+            self.basket['discount_effect'] = self.basket['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
 
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 

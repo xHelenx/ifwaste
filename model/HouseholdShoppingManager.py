@@ -38,6 +38,7 @@ class HouseholdShoppingManager:
         self.availability_sens: float  = random.uniform(0,1)
         self.deal_sens: float  = random.uniform(0,1)
         self.planner: float = random.uniform(0,1)
+        self.impulsivity:float = random.uniform(0,1)
         
         sum_sens = self.price_sens + self.brand_sens + self.quality_sens + self.availability_sens + self.deal_sens
         self.price_sens /= sum_sens
@@ -176,7 +177,7 @@ class HouseholdShoppingManager:
         else: 
             self.log_shopping_time = 0
             
-        ##TODO impulse buying
+        basketCurator.impulse_buy(self.impulsivity)
         self._pay(basket=basketCurator.basket)
         self._store_groceries(basket=basketCurator.basket)
         

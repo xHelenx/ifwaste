@@ -120,7 +120,7 @@ class Store(Location):
             else: 
                 new_item = { "type": self.product_range.loc[i,"type"],
                             "servings": self.product_range.loc[i,"servings"],
-                            "days_till_expiry": days_till_expiry, #TODO entire stock has same expiry date
+                            "days_till_expiry": days_till_expiry, 
                             "price_per_serving": self.product_range.loc[i,"price_per_serving"], 
                             "sale_type":EnumSales.NONE, 
                             "discount_effect":EnumDiscountEffect.NONE,
