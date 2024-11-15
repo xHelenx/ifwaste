@@ -17,12 +17,20 @@
         "travel_time_per_cell" : 0.01,
         "time_per_store": 0.05
     },
+    "Cooking" : {
+        "cook_servings_per_grab": 8, 
+        "cook_ingredients_per_qc": 3,
+        "cook_max_scaler_cooking_amount": 2,
+        "cook_expiration_threshold": 4
+    },
     "Household" : {
         "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2,
         "hh_over_budget_factor" : 1.2,
         "hh_max_avail_time_per_day": 3,
-        "impulse_buy_percentage": 0.2
+        "hh_impulse_buy_likelihood": 0.2,
+        "hh_shopping_frequency": 4, 
+        "hh_min_time_to_cook": 0.5
     },
     "Adult" : {
         "adult_plate_waste_min" : 0.03,

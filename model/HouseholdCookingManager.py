@@ -40,7 +40,7 @@ class HouseholdCookingManager:
         return self.pantry.get_total_servings() > self.todays_servings
     
     def _has_enough_time(self) -> bool:
-        return self.todays_time < globals.MIN_TIME_TO_COOK
+        return self.todays_time < globals.HH_MIN_TIME_TO_COOK
     
     def _reset_logs(self) -> None: 
         self.log_today_eef = False
@@ -101,7 +101,7 @@ class HouseholdCookingManager:
                 ingredients.append(to_eat)
         else: #quickcook
             used_ingredients = 0
-            while planned_servings > 0 and used_ingredients <= globals.INGREDIENTS_PER_QUICKCOOK and not self.pantry.is_empty(): 
+            while planned_servings > 0 and used_ingredients <= globals.COOK_INGREDIENTS_PER_QC and not self.pantry.is_empty(): 
                 to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
                 used_ingredients += 1
                 ingredients.append(to_eat)
@@ -116,8 +116,8 @@ class HouseholdCookingManager:
         servings = item["servings"]
         
     
-        if not is_quickcook and servings > globals.SERVINGS_PER_GRAB: 
-            servings = globals.SERVINGS_PER_GRAB
+        if not is_quickcook and servings > globals.COOK_SERVINGS_PER_GRAB: 
+            servings = globals.COOK_SERVINGS_PER_GRAB
         (to_eat, to_pantry) = self._split(item, servings)
         if not to_pantry is None: 
             self.pantry.add(to_pantry)
@@ -128,8 +128,8 @@ class HouseholdCookingManager:
         available = self.pantry.get_total_servings() 
         ratio_avail_req  = available/self.todays_servings 
         if ratio_avail_req > 1: 
-            if ratio_avail_req > globals.MAX_SCALER_COOKING_AMOUNT: 
-                ratio_avail_req = globals.MAX_SCALER_COOKING_AMOUNT
+            if ratio_avail_req > globals.COOK_MAX_SCALER_COOKING_AMOUNT: 
+                ratio_avail_req = globals.COOK_MAX_SCALER_COOKING_AMOUNT
         else: 
             ratio_avail_req = 1 
         
@@ -177,10 +177,10 @@ class HouseholdCookingManager:
                 earliest_pantry = float("inf")
             
             #sth from fridge or pantry expires soon -> EEF
-            if  ((earliest_fridge <= globals.EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry)) and \
+            if  ((earliest_fridge <= globals.COOK_EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry)) and \
             (not self.fridge.is_empty()):
                 strategy = "EEFfridge"
-            elif ((earliest_pantry <= globals.EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
+            elif ((earliest_pantry <= globals.COOK_EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
             (not self.pantry.is_empty()): 
                 strategy = "EEFpantry"
                 

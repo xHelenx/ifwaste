@@ -39,25 +39,17 @@ MALE = 0
 FEMALE = 1
 
 ##----------------------------------------------------
-## General 
-EXPIRATION_THRESHOLD = 4
-MIN_TIME_TO_COOK = 0.8 #at least 30min to make a meal with 5 ingredients 
-SERVINGS_PER_GRAB = 8
-KCAL_PER_GRAB = 100 
-INGREDIENTS_PER_QUICKCOOK = 3
-MAX_SCALER_COOKING_AMOUNT = 2
-##----------------------------------------------------
 ## Person 
 ADULT_AGE_MIN = 18 
 ADULT_AGE_MAX = 65 
 
 #-----------------------------------------
 
-HH_AMOUNT_CHILDREN = None
-HH_AMOUNT_ADULTS = None
-HH_OVER_BUDGET_FACTOR = None
-HH_MAX_AVAIL_TIME_PER_DAY = None
-HH_IMPULSE_BUY_PERCENTAGE = None
+SIMULATION_RUNS = None
+SIMULATION_DAYS = None
+SIMULATION_OUTPUTFOLDER = None 
+SIMULATION_WRITE_TO_FILE_INTERVAL = None
+SIMULATION_DEBUG_LOG_ON = None
 
 NEIGHBORHOOD_HOUSES = None
 NEIGHBORHOOD_STORE_TYPES = None 
@@ -67,11 +59,18 @@ NEIGHBORHOOD_PAY_DAY_INTERVAL = None
 GRID_TRAVEL_TIME_PER_CELL = None 
 GRID_TIME_PER_STORE = None
 
-SIMULATION_RUNS = None
-SIMULATION_DAYS = None
-SIMULATION_OUTPUTFOLDER = None 
-SIMULATION_WRITE_TO_FILE_INTERVAL = None
-SIMULATION_DEBUG_LOG_ON = None
+COOK_SERVINGS_PER_GRAB = None
+COOK_INGREDIENTS_PER_QC = None
+COOK_MAX_SCALER_COOKING_AMOUNT = None
+COOK_EXPIRATION_THRESHOLD = None
+
+HH_AMOUNT_CHILDREN = None
+HH_AMOUNT_ADULTS = None
+HH_OVER_BUDGET_FACTOR = None
+HH_MAX_AVAIL_TIME_PER_DAY = None
+HH_IMPULSE_BUY_PERCENTAGE = None
+HH_SHOPPING_FREQUENCY = None
+HH_MIN_TIME_TO_COOK =  None
 
 STORE_RESTOCK_INTERVAL = None 
 STORE_BASELINE_STOCK = None
@@ -222,23 +221,33 @@ def to_EnumSales(sale_type: str) -> EnumSales:
         return EnumSales[sale_type]
     raise ValueError(f"{sale_type} is not a valid EnumSales")
 
-def configure_simulation(file) -> None: 
-    global HH_AMOUNT_CHILDREN
-    global HH_AMOUNT_ADULTS
-    global HH_OVER_BUDGET_FACTOR
-    global HH_MAX_AVAIL_TIME_PER_DAY
-    global HH_IMPULSE_BUY_PERCENTAGE
-    global NEIGHBORHOOD_HOUSES
-    global NEIGHBORHOOD_STORE_TYPES
-    global NEIGHBORHOOD_STORE_AMOUNTS    
-    global GRID_TRAVEL_TIME_PER_CELL
-    global GRID_TIME_PER_STORE
+def configure_simulation(file) -> None:     
     global SIMULATION_RUNS
     global SIMULATION_DAYS
     global SIMULATION_OUTPUTFOLDER
     global SIMULATION_WRITE_TO_FILE_INTERVAL
     global SIMULATION_DEBUG_LOG_ON
     global EXPERIMENT_NAME
+    
+    global HH_AMOUNT_CHILDREN
+    global HH_AMOUNT_ADULTS
+    global HH_OVER_BUDGET_FACTOR
+    global HH_MAX_AVAIL_TIME_PER_DAY
+    global HH_IMPULSE_BUY_PERCENTAGE
+    global HH_SHOPPING_FREQUENCY
+    global HH_MIN_TIME_TO_COOK
+    
+    global NEIGHBORHOOD_HOUSES
+    global NEIGHBORHOOD_STORE_TYPES
+    global NEIGHBORHOOD_STORE_AMOUNTS    
+    
+    global GRID_TRAVEL_TIME_PER_CELL
+    global GRID_TIME_PER_STORE
+    
+    global COOK_SERVINGS_PER_GRAB
+    global COOK_INGREDIENTS_PER_QC
+    global COOK_MAX_SCALER_COOKING_AMOUNT
+    global COOK_EXPIRATION_THRESHOLD
     
     global STORE_RESTOCK_INTERVAL
     global STORE_BASELINE_STOCK
@@ -388,13 +397,21 @@ def configure_simulation(file) -> None:
     NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
     
     GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
-    GRID_TIME_PER_STORE = config["Grid"]["tfloaime_per_store"]
+    GRID_TIME_PER_STORE = config["Grid"]["time_per_store"]
+    
+    COOK_SERVINGS_PER_GRAB = config["Cook"]["cook_servings_per_grab"]
+    COOK_INGREDIENTS_PER_QC = config["Cook"]["cook_ingredients_per_qc"]
+    COOK_MAX_SCALER_COOKING_AMOUNT = config["Cook"]["cook_max_scaler_cooking_amount"]
+    COOK_EXPIRATION_THRESHOLD = config["Cook"]["cook_expiration_threshold"]
+    
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
     HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
     HH_OVER_BUDGET_FACTOR = config["Household"]["hh_over_budget_factor"]
     HH_MAX_AVAIL_TIME_PER_DAY = config["Household"]["hh_max_avail_time_per_day"]
     HH_IMPULSE_BUY_PERCENTAGE = config["Household"]["hh_impulse_buy_likelihood"]
+    HH_SHOPPING_FREQUENCY = config["Household"]["hh_shopping_frequency"]
+    HH_MIN_TIME_TO_COOK = config["Household"]["hh_min_time_to_cook"]
     
     ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
     ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"]

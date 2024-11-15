@@ -48,7 +48,7 @@ class Household(Location):
         self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in FoodGroups.get_instance().get_all_food_groups()}
         todays_time: list = [random.random()*globals.HH_MAX_AVAIL_TIME_PER_DAY for i in range(7)]  
         
-        self.shopping_frequency:int = random.randint(2, 4) 
+        self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
         
         
