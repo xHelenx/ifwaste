@@ -56,6 +56,8 @@ ADULT_AGE_MAX = 65
 HH_AMOUNT_CHILDREN = None
 HH_AMOUNT_ADULTS = None
 HH_OVER_BUDGET_FACTOR = None
+HH_MAX_AVAIL_TIME_PER_DAY = None
+HH_IMPULSE_BUY_PERCENTAGE = None
 
 NEIGHBORHOOD_HOUSES = None
 NEIGHBORHOOD_STORE_TYPES = None 
@@ -73,8 +75,6 @@ SIMULATION_DEBUG_LOG_ON = None
 
 STORE_RESTOCK_INTERVAL = None 
 STORE_BASELINE_STOCK = None
-STORE_IMPULSE_BUY_PERCENTAGE = None
-
 
 STORE_CON_QUALITY = None
 STORE_CON_PRICE = None
@@ -226,6 +226,8 @@ def configure_simulation(file) -> None:
     global HH_AMOUNT_CHILDREN
     global HH_AMOUNT_ADULTS
     global HH_OVER_BUDGET_FACTOR
+    global HH_MAX_AVAIL_TIME_PER_DAY
+    global HH_IMPULSE_BUY_PERCENTAGE
     global NEIGHBORHOOD_HOUSES
     global NEIGHBORHOOD_STORE_TYPES
     global NEIGHBORHOOD_STORE_AMOUNTS    
@@ -240,7 +242,7 @@ def configure_simulation(file) -> None:
     
     global STORE_RESTOCK_INTERVAL
     global STORE_BASELINE_STOCK
-    global STORE_IMPULSE_BUY_PERCENTAGE
+    
     global STORE_CON_QUALITY
     global STORE_CON_PRICE
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
@@ -375,57 +377,6 @@ def configure_simulation(file) -> None:
     SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"]
     EXPERIMENT_NAME = config["Simulation"]["name"]
     
-    STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
-    STORE_BASELINE_STOCK = config["Store"]["baseline_stock"]
-    STORE_IMPULSE_BUY_PERCENTAGE = config["Store"]["impulse_buy_percentage"]
-    
-    STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
-    STORE_CON_PRICE = config["Store"]["Convenience_store"]["price"]
-    STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_1"]
-    STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_2"]
-    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_1"]]
-    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_2"]]
-    STORE_CON_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Convenience_store"]["Sales"]["seasonal_likelihood"]
-    STORE_CON_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["seasonal_discount"]]
-    STORE_CON_SAL_SEASONAL_DURATION = config["Store"]["Convenience_store"]["Sales"]["seasonal_duration"]
-    STORE_CON_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_expires_within"]
-    STORE_CON_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_expires_within"]
-    STORE_CON_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_expires_within"]
-    STORE_CON_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_discount"]]
-    STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_discount"]]
-    STORE_CON_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_discount"]]
-    
-    STORE_DIS_QUALITY = config["Store"]["Discount_retailer"]["quality"]
-    STORE_DIS_PRICE = config["Store"]["Discount_retailer"]["price"]
-    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_1"]
-    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_2"]
-    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"]]
-    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_2"]]
-    STORE_DIS_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Discount_retailer"]["Sales"]["seasonal_likelihood"]
-    STORE_DIS_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["seasonal_discount"]]
-    STORE_DIS_SAL_SEASONAL_DURATION = config["Store"]["Discount_retailer"]["Sales"]["seasonal_duration"]
-    STORE_DIS_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_expires_within"]
-    STORE_DIS_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_expires_within"]
-    STORE_DIS_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_expires_within"]
-    STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_discount"]]
-    STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_discount"]]
-    STORE_DIS_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_discount"]]
-    
-    STORE_PRE_QUALITY = config["Store"]["Premium_retailer"]["quality"]
-    STORE_PRE_PRICE = config["Store"]["Premium_retailer"]["price"]
-    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_1"]
-    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_2"]
-    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"]]
-    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_2"]]
-    STORE_PRE_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Premium_retailer"]["Sales"]["seasonal_likelihood"]
-    STORE_PRE_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["seasonal_discount"]]
-    STORE_PRE_SAL_SEASONAL_DURATION = config["Store"]["Premium_retailer"]["Sales"]["seasonal_duration"]
-    STORE_PRE_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_expires_within"]
-    STORE_PRE_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_expires_within"]
-    STORE_PRE_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_expires_within"]
-    STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_discount"]]
-    STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_discount"]]
-    STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_discount"]]
     
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
     
@@ -437,11 +388,13 @@ def configure_simulation(file) -> None:
     NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
     
     GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
-    GRID_TIME_PER_STORE = config["Grid"]["time_per_store"]
+    GRID_TIME_PER_STORE = config["Grid"]["tfloaime_per_store"]
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
     HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
     HH_OVER_BUDGET_FACTOR = config["Household"]["hh_over_budget_factor"]
+    HH_MAX_AVAIL_TIME_PER_DAY = config["Household"]["hh_max_avail_time_per_day"]
+    HH_IMPULSE_BUY_PERCENTAGE = config["Household"]["hh_impulse_buy_likelihood"]
     
     ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
     ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"]
@@ -515,6 +468,60 @@ def configure_simulation(file) -> None:
     CHILD_FEMALE_BAKED_SERVINGS_MAX = config["Child"]["female_baked_servings_max"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["female_store_prepared_servings_min"]
     CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["female_store_prepared_servings_max"]
+    
+    STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
+    STORE_BASELINE_STOCK = config["Store"]["baseline_stock"]
+    
+    
+    STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
+    STORE_CON_PRICE = config["Store"]["Convenience_store"]["price"]
+    STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_1"]
+    STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_2"]
+    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_1"]]
+    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_2"]]
+    STORE_CON_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Convenience_store"]["Sales"]["seasonal_likelihood"]
+    STORE_CON_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["seasonal_discount"]]
+    STORE_CON_SAL_SEASONAL_DURATION = config["Store"]["Convenience_store"]["Sales"]["seasonal_duration"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_CON_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_1_discount"]]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_2_discount"]]
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_discount"]]
+    
+    STORE_DIS_QUALITY = config["Store"]["Discount_retailer"]["quality"]
+    STORE_DIS_PRICE = config["Store"]["Discount_retailer"]["price"]
+    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_1"]
+    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_2"]
+    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"]]
+    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_2"]]
+    STORE_DIS_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Discount_retailer"]["Sales"]["seasonal_likelihood"]
+    STORE_DIS_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["seasonal_discount"]]
+    STORE_DIS_SAL_SEASONAL_DURATION = config["Store"]["Discount_retailer"]["Sales"]["seasonal_duration"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_1_discount"]]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_2_discount"]]
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_discount"]]
+    
+    STORE_PRE_QUALITY = config["Store"]["Premium_retailer"]["quality"]
+    STORE_PRE_PRICE = config["Store"]["Premium_retailer"]["price"]
+    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_1"]
+    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_2"]
+    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"]]
+    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_2"]]
+    STORE_PRE_SAL_SEASONAL_LIKELIHOOD = config["Store"]["Premium_retailer"]["Sales"]["seasonal_likelihood"]
+    STORE_PRE_SAL_SEASONAL_DISCOUNT = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["seasonal_discount"]]
+    STORE_PRE_SAL_SEASONAL_DURATION = config["Store"]["Premium_retailer"]["Sales"]["seasonal_duration"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_1 =  config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_3 = config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_expires_within"]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_discount"]]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_discount"]]
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_discount"]]
+    
+    
     
     DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]
     

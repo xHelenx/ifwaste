@@ -31,8 +31,8 @@ class Household(Location):
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children: int = globals.HH_AMOUNT_CHILDREN
         globals.logger_hh.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
-        self.adult_influence: float = 0.75
-        self.child_influence: float = 1 - self.adult_influence
+        self.adult_influence: float = 0.75 #not used atm
+        self.child_influence: float = 1 - self.adult_influence #not used atm
         self.ppl: list = self.gen_ppl()
         self.household_concern: float = self.calculate_household_concern()
         
@@ -45,15 +45,8 @@ class Household(Location):
         
         self.req_servings = sum(self.req_servings_per_fg.values())
         
-        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in FoodGroups.get_instance().get_all_food_groups() # type: ignore
-}
-        
-        self.maxTimeForCookingAndShopping = 3.0  # This will change and become a HH input
-        
-        todays_time: list = [random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
-                     random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
-                     random.random()*self.maxTimeForCookingAndShopping, random.random()*self.maxTimeForCookingAndShopping,
-                     random.random()*self.maxTimeForCookingAndShopping]  
+        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in FoodGroups.get_instance().get_all_food_groups()}
+        todays_time: list = [random.random()*globals.HH_MAX_AVAIL_TIME_PER_DAY for i in range(7)]  
         
         self.shopping_frequency:int = random.randint(2, 4) 
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
