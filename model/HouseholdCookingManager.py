@@ -97,7 +97,7 @@ class HouseholdCookingManager:
         if not is_quickcook:
             while planned_servings > 0 and not self.pantry.is_empty(): 
                 to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
-                planned_servings -= to_eat["servings"] 
+                planned_servings -= to_eat["servings"] * (1-to_eat["inedible_percentage"]) #TEST LOGIC
                 ingredients.append(to_eat)
         else: #quickcook
             used_ingredients = 0
@@ -105,7 +105,7 @@ class HouseholdCookingManager:
                 to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
                 used_ingredients += 1
                 ingredients.append(to_eat)
-                planned_servings -= to_eat["servings"]
+                planned_servings -= to_eat["servings"] * (1-to_eat["inedible_percentage"])
                 
         return ingredients
                     
@@ -133,8 +133,9 @@ class HouseholdCookingManager:
         else: 
             ratio_avail_req = 1 
         
-        planned = random.uniform(1,ratio_avail_req) * self.todays_servings
-        
+        planned = random.uniform(1,ratio_avail_req) * self.todays_servings +\
+            self.household_plate_waste_ratio * self.todays_servings #eat enough so consider pw already
+        #TODO or should we not do tihs
         return planned
     
     def cook_and_eat(self, used_time:float) -> None: 

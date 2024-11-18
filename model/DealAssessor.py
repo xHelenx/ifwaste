@@ -18,7 +18,6 @@ class DealAssessor:
         Returns:
             pd.DataFrame: dataframe of items with best deals and their "deal_value" 
         """        
-        #TODO what if a store does not offer a food group ?!
         
         best_deals = []
         best_deals_df = pd.DataFrame()   
@@ -50,8 +49,6 @@ class DealAssessor:
         Returns:
             float: normalized deal value of the local deals
         """        
-        
-        #TODO a_1 and b_2 are not used?!
         
         deal = 0  
         counter = 0

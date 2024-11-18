@@ -90,17 +90,21 @@ class HouseholdShoppingManager:
           
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> None:
         price = 0.0
+        inedible = 0
         for fg in FoodGroups.get_instance().get_all_food_groups():
+            #assumes you can buy only one item type items
             if fg != item["type"]: 
                 item[fg] = 0.0
             else:
                 item[fg] = float(item["servings"])
                 price = item["servings"] * item["price_per_serving"]
+                inedible = FoodGroups._instance.food_groups.loc[FoodGroups._instance.food_groups["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
             item.drop(["adjustment"])
         item.drop(["type", "price_per_serving","sale_type", "deal_value", "store"])
         item["status"] = status
         item["price"] = price
+        item["inedible_percentage"] =inedible
         
         
     def _store_groceries(self, basket:pd.DataFrame) -> None: 
@@ -268,6 +272,7 @@ class HouseholdShoppingManager:
                 assert not store.stock.empty
                 local_deal = dealAssessor.assess_best_deals([store])
                 #relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
+                deal = 0
                 deal = dealAssessor.calculate_deal_value(relevant_fg, local_deal, best_deals)
                     
                 avail_fg_value  = 0

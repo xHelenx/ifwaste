@@ -399,10 +399,10 @@ def configure_simulation(file) -> None:
     GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
     GRID_TIME_PER_STORE = config["Grid"]["time_per_store"]
     
-    COOK_SERVINGS_PER_GRAB = config["Cook"]["cook_servings_per_grab"]
-    COOK_INGREDIENTS_PER_QC = config["Cook"]["cook_ingredients_per_qc"]
-    COOK_MAX_SCALER_COOKING_AMOUNT = config["Cook"]["cook_max_scaler_cooking_amount"]
-    COOK_EXPIRATION_THRESHOLD = config["Cook"]["cook_expiration_threshold"]
+    COOK_SERVINGS_PER_GRAB = config["Cooking"]["cook_servings_per_grab"]
+    COOK_INGREDIENTS_PER_QC = config["Cooking"]["cook_ingredients_per_qc"]
+    COOK_MAX_SCALER_COOKING_AMOUNT = config["Cooking"]["cook_max_scaler_cooking_amount"]
+    COOK_EXPIRATION_THRESHOLD = config["Cooking"]["cook_expiration_threshold"]
     
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]

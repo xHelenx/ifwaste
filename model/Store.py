@@ -189,6 +189,8 @@ class Store(Location):
         mask  = self.stock["sale_type"] == EnumSales.SEASONAL #all seasonal items      
         self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends
 
+        self.stock = self.stock[self.stock["amount"] > 0]
+        
         
         
     def _decay(self) -> None:
@@ -334,7 +336,7 @@ class Store(Location):
         # Remove old sale details
         sale_type = selected_rows["sale_type"].iloc[0]
         self.stock.loc[selected_rows.index, "sale_type"] = EnumSales.NONE # type: ignore
-        self.stock.loc[selected_rows.index, "discount_type"] = EnumDiscountEffect.NONE # type: ignore
+        self.stock.loc[selected_rows.index, "discount_effect"] = EnumDiscountEffect.NONE # type: ignore
         self.stock.loc[selected_rows.index, "sale_timer"] = globals.SALES_TIMER_PLACEHOLDER
         discount_effect = discounts_in_place[0] if len(discounts_in_place) > 0 else EnumDiscountEffect.NONE
 
@@ -443,15 +445,17 @@ class Store(Location):
         #all sale options have been slected in sale_options -> now we choose one
         #choose sale and apply it
         
-        mask = (self.stock["sale_type"] == EnumSales.NONE) #only change items that are not on sales already
-        
-        #TODO only need adjustment if sale_option is not always empty  -> 
+        mask = (self.stock["sale_type"] == EnumSales.NONE) & ~self.stock["sale_option"].apply( \
+            lambda x: x == [(EnumSales.NONE, [EnumDiscountEffect.NONE])])
+
+        idx = self.stock.loc[mask].index
+         
         if self.stock["sale_option"].apply(lambda x: x != [(EnumSales.NONE, [EnumDiscountEffect.NONE])]).any():  
-            self.stock.loc[mask,'sale_option'] = self.stock.loc[mask,'sale_option'].apply(lambda x: random.choice(x) if x else (EnumSales.NONE, [EnumDiscountEffect.NONE]))
-            self.stock.loc[mask,"sale_type"] = self.stock.loc[mask,"sale_option"].apply(lambda x: x[0])
-            self.stock.loc[mask,"discount_effect"] = self.stock.loc[mask,"sale_option"].apply(lambda x: random.choice(x[1]))
+            self.stock.loc[idx,'sale_option'] = self.stock.loc[idx,'sale_option'].apply(lambda x: random.choice(x) if x else (EnumSales.NONE, [EnumDiscountEffect.NONE]))
+            self.stock.loc[idx,"sale_type"] = self.stock.loc[idx,"sale_option"].apply(lambda x: x[0])
+            self.stock.loc[idx,"discount_effect"] = self.stock.loc[idx,"sale_option"].apply(lambda x: random.choice(x[1]))
             
-            mask &= (self.stock["discount_effect"] == EnumDiscountEffect.BOGO) #split bogo and sales -> one to change servings one for pricing
+            mask = self.stock.index.isin(idx) & (self.stock["discount_effect"] == EnumDiscountEffect.BOGO) #split bogo and sales -> one to change servings one for pricing
             self.stock.loc[mask,"servings"] = self.stock.loc[mask,"servings"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: x.scaler)
             self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"]/self.stock.loc[mask,"discount_effect"].apply(lambda x: x.scaler) 
             #now the serving price is halved -> here div 2, cause the 2 is multiplied to servings (enum has only one scaler)

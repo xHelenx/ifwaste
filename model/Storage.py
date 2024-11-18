@@ -18,7 +18,8 @@ class Storage:
                 'price',
                 'status',
                 'servings', 
-                'days_till_expiry'
+                'days_till_expiry',
+                'inedible_percentage'
             ],
         )
         self.current_items[globals.FGMEAT] = self.current_items[globals.FGMEAT].astype(float)
@@ -33,6 +34,7 @@ class Storage:
         self.current_items['status'] = self.current_items['status'].astype(str)
         self.current_items['servings'] = self.current_items['servings'].astype(int)
         self.current_items['days_till_expiry'] = self.current_items['days_till_expiry'].astype(int)  
+        self.current_items['inedible_percentage'] = self.current_items['inedible_percentage'].astype(float)  
 
         self.fg: FoodGroups = FoodGroups.get_instance()  # type: ignore
 

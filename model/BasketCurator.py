@@ -149,7 +149,7 @@ class BasketCurator():
         
         ##determine amount of items bought
         ##n% of that can be bought max, check each time
-        n_items:int = int(len(self.basket) * globals.STORE_IMPULSE_BUY_PERCENTAGE)
+        n_items:int = int(len(self.basket) * globals.HH_IMPULSE_BUY_PERCENTAGE)
         #get options from all possible stores
         options = self._get_stock_options()
         options = self._add_impulse_buy_likelihood_column(options)

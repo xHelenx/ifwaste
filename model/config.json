@@ -4,7 +4,7 @@
         "total_days" : 10,
         "name": "stocking",
         "output_folder": "data",
-        "write_to_file_interval": 2,
+        "write_to_file_interval": 1,
         "debug_log_on": "True"
     },
     "Neighborhood" : {
@@ -169,11 +169,12 @@
             "impulse_buy_likelihood" : 0.5
         }
     },
+
     "Store": {
         "restock_interval" : 3,
-        "baseline_stock": 100
+        "baseline_stock": 100,
 
-        "Convenience_store": {
+        "Convenience_store" : {
             "product_range": "parameterization\\store_type_convenience_store.csv",
             "quality":0.2, 
             "price":0.2,
