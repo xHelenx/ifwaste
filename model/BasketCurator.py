@@ -80,7 +80,6 @@ class BasketCurator():
         for store in self.stores:
             store.organize_stock()        
         
-        globals.logger_hh.debug("###########################################")
         globals.logger_hh.debug("#####CREATE BASKET######")
        
         if not is_quickshop:
@@ -154,7 +153,7 @@ class BasketCurator():
         options = self._get_stock_options()
         options = self._add_impulse_buy_likelihood_column(options)
         #add likelihood columns
-        for i in range(n_items): 
+        for _ in range(n_items): 
             if random.random() < impulsivity: 
                 #buy random item
                 item = options.sample(1, weights='impulse_buy_likelihood').iloc[0]

@@ -9,7 +9,7 @@
     },
     "Neighborhood" : {
         "neighborhood_houses" : 1, 
-        "neighborhood_store_types": "['Discount_retailer']",
+        "neighborhood_store_types": "['Premium_retailer']",
         "neighborhood_store_amounts": "[1]",
         "neighborhood_pay_day_interval" : 10
     },

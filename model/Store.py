@@ -66,6 +66,7 @@ class Store(Location):
         list_init =  [0] * globals.STORE_RESTOCK_INTERVAL
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
+        self.price = self.product_range["price_per_serving"].mean()
         
     def __str__(self) -> str:
         return self.store_type.name + " at " + str(self.grid.get_coordinates(self))

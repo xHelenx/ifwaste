@@ -133,7 +133,7 @@ class Grid:
         start: location to start trip from
         avail_time: available traveling time 
         fg: food group that store has to offer 
-        needs_lower_tier: whether a store should be a lower tier than (first_stop)
+        needs_lower_tier: whether a store should be a lower price than (first_stop)
         
         Returns: 
             (list[Store]) : a list of store options, for which all criteria are matching
@@ -163,7 +163,7 @@ class Grid:
         if first_stop != None:
             first_location = self.get_coordinates(location=first_stop)
             if needs_lower_tier:
-                tier = first_stop.store_type.tier
+                price = first_stop.price
         for x_tmp in range(x_min,x_max):
             for y_tmp in range(y_min,y_max):
                 if isinstance(self.grid[x_tmp][y_tmp], Store): 
@@ -177,7 +177,7 @@ class Grid:
                             if self.grid[x_tmp][y_tmp].is_fg_in_productrange(fg): # type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
                         elif needs_lower_tier:
-                            if self.grid[x_tmp][y_tmp].store_type.tier < tier: # type: ignore
+                            if self.grid[x_tmp][y_tmp].price < price: # type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
                         else:
                             relevant_stores.append(self.grid[x_tmp][y_tmp])

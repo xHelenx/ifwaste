@@ -16,7 +16,7 @@ class StorePremimumRetailer(Store):
         super().__init__(store_type, grid, id)
         
         self.quality:float = globals.STORE_PREMIUM_QUALITY # type: ignore
-        self.price:float = globals.STORE_PREMIUM_PRICE # type: ignore #TODO calc based on stock avg p serving?
+        self.price:float = globals.STORE_PREMIUM_PRICE # type: ignore 
         # high 
         # price is expensive, low is cheap -> 1-price in formulas
         self.high_stock_interval_1:float|None = globals.STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1
