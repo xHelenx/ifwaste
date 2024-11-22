@@ -22,8 +22,6 @@ class Child(Person):
         self.age:int = random.randint(2, 18)
         self.is_adult:bool = False 
         self.kcal:float = random.gauss(1200, 200) + self.age*50
-
-        globals.logger_hh.debug("Child needs %i per day", self.kcal)
         
         if self.gender == globals.MALE: 
             veg_servings = random.uniform(globals.CHILD_MALE_VEG_SERVINGS_MIN, globals.CHILD_MALE_VEG_SERVINGS_MAX)

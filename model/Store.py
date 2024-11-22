@@ -1,5 +1,6 @@
 from __future__ import annotations  # Delay import for type hints
 
+from logging import Logger
 import math
 import random
 from typing import Hashable, List, Literal, Optional, Tuple, Union
@@ -35,9 +36,7 @@ class Store(Location):
         self.clearance_discount_1:list[EnumDiscountEffect] = []
         self.clearance_discount_2:list[EnumDiscountEffect] = []
         self.clearance_discount_3:list[EnumDiscountEffect] = []
-        
-        
-        
+               
         
         self.grid:Grid = grid 
         self.food_groups:FoodGroups = FoodGroups.get_instance()
@@ -46,7 +45,7 @@ class Store(Location):
         self.product_range:pd.DataFrame = pd.DataFrame()
         with open(globals.CONFIG_PATH) as f: 
             config = json.load(f)
-            self.product_range = pd.read_csv(config["Store"][store_type.name]["product_range"])
+            self.product_range = pd.read_csv(config["Store"][store_type.value]["product_range"])
             self.product_range["ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
             self.stock = pd.DataFrame(columns= [
             'type', 
@@ -67,9 +66,10 @@ class Store(Location):
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
         self.price = self.product_range["price_per_serving"].mean()
+        self.logger: Logger|None= globals.setup_logger( str(self.store_type.name)+ str(self.id))
         
     def __str__(self) -> str:
-        return self.store_type.name + " at " + str(self.grid.get_coordinates(self))
+        return self.store_type.value + " at " + str(self.grid.get_coordinates(self))
     
     def __eq__(self, other):
         if isinstance(other, Store):
@@ -79,14 +79,14 @@ class Store(Location):
                     self.stock.equals(other.stock) and self.id == other.id 
         return False
     
-    def __hash__(self) -> int:
-        return hash(self.id)
+
+    def __lt__(self, other):
+        if not isinstance(other, Store):
+            return NotImplemented
+        return self.store_type.name < other.store_type.name  # Compare based on name (or any other attribute)
     
-    def __lt__(self, other) -> bool | None:
-        from StoreDiscounterRetailer import StoreDiscounterRetailer 
-        from StorePremimumRetailer import StorePremimumRetailer
-        if isinstance(other, StorePremimumRetailer) or isinstance(other, StoreDiscounterRetailer):
-            return self.store_type.tier < other.store_type.tier       
+    def __hash__(self) -> int:
+        return hash(self.id)  
     
     def buy_stock(self, amount_per_item:int, product:pd.Series | None=None)  -> None: 
         if amount_per_item <= 0:
@@ -116,7 +116,17 @@ class Store(Location):
                         str(self.product_range.loc[i,"price_per_serving"])} 
             idx = self.stock[ new_item["ID"] == self.stock["ID"]].index
             
+            idx = self.stock[
+                    (new_item["ID"] == self.stock["ID"]) &  
+                    (new_item["days_till_expiry"] == self.stock["days_till_expiry"]) & 
+                    (new_item["sale_type"] == self.stock["sale_type"]) & 
+                    (new_item["discount_effect"] == self.stock["discount_effect"]) &
+                    (new_item["sale_timer"] == self.stock["sale_timer"]) 
+                ].index
+            
             if len(idx) > 0:
+                print(idx)
+                print(self.stock.loc[idx])
                 self.stock.loc[idx,"amount"] += amount_per_item # type: ignore
             else: 
                 new_item = { "type": self.product_range.loc[i,"type"],
@@ -170,16 +180,18 @@ class Store(Location):
         return fg in self.stock["type"].unique()
     
     def do_before_day(self) -> None:    
-        globals.logger_store.debug("---- DAY %i ----",  globals.DAY )
-        globals.logger_store.debug(self.stock)
+        globals.log(self,"---- DAY %i ----",  globals.DAY )
+        globals.log(self,self.stock)
         
         if globals.DAY == 0:  #on first day stock store with baseline amount
             self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
+            globals.log(self,"--- after restocking ---" )
+            globals.log(self,self.stock)
         else: #from them on restock based on demand
             self.tracker["today"] = 0 #reset amount tracker for today
             self._plan_and_buy_stock()
             self._manage_sales()
-        
+            
             #TODO put on sales -> update best_deals_per_fg
             
     def do_after_day(self) -> None: 
@@ -188,10 +200,8 @@ class Store(Location):
         self._update_tracker() #shift todays purchase value into memory
         
         mask  = self.stock["sale_type"] == EnumSales.SEASONAL #all seasonal items      
-        self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends
-
+        self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends        
         self.stock = self.stock[self.stock["amount"] > 0]
-        
         
         
     def _decay(self) -> None:
@@ -219,10 +229,35 @@ class Store(Location):
     def is_fg_in_productrange(self, fg) -> bool: 
         return fg in self.product_range["type"].unique().tolist()
     
-    def organize_stock(self) -> None: 
+    def organize_stock(self, item_type:pd.Series|None=None) -> None: 
         """Removes all products from stock, that are sold out (amount=0)
-        """        
-        self.stock = self.stock[self.stock["amount"] > 0]
+        """ 
+        
+        if item_type is not None:
+            idx = self.get_idx_of_identical_item_df(item_type)
+            if idx is not None:  # Ensure the index exists
+                # Check if the amount at the given index is 0
+                if self.stock.loc[idx, 'amount'] == 0:
+                    # Drop the row with the specified index
+                    self.stock = self.stock.drop(index=idx)
+        else:       
+            self.stock = self.stock[self.stock["amount"] > 0]
+            
+       # self._group_stock_items()
+        
+    #def _group_stock_items(self):
+    #    # Temporarily convert enums to string for grouping
+    #    self.stock['discount_effect'] = self.stock['discount_effect'].astype(str)
+    #    self.stock['sale_type'] = self.stock['sale_type'].astype(str)#
+
+    #    equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
+    #                    "sale_timer", "ID"]
+        #self.stock = self.stock.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
+
+        # Convert str of enums back to enums
+       # self.stock['sale_type'] = self.stock['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
+       # self.stock['discount_effect'] = self.stock['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
+
         
     def buy(self,item:pd.Series,amount:int=1) -> None:
         """Purchases an number of items from the store. Reduces the stock
@@ -271,12 +306,15 @@ class Store(Location):
     def _plan_and_buy_stock(self) -> None:
         
         if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:
-            globals.logger_store.debug("Tracker:")
-            globals.logger_store.debug(self.tracker)
+            globals.log(self,"Tracker:")
+            globals.log(self,self.tracker)
+        
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
             for index, row in self.tracker.iterrows():
                 self.buy_stock(self.tracker.loc[index, "planned_restock_amount"], row) # type: ignore
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: 0)
+            globals.log(self,"--- restocking ---" )
+            globals.log(self,self.stock)
     def _manage_sales(self,) -> None: 
         #remove finished sales (clearance automatically when food is bad/bought)
         self._update_seaonsal_sales()
@@ -428,8 +466,8 @@ class Store(Location):
                     self._add_sales_options(mask,[(EnumSales.SEASONAL,self.seasonal_discount)])
         
         
-        globals.logger_store.debug("Sales options have been added:")
-        globals.logger_store.debug(self.stock)
+       #globals.log(self,"Sales options have been added:")
+       # globals.log(self,self.stock)
           
           
         #all items that are empty are set to NONE:         
@@ -439,8 +477,8 @@ class Store(Location):
         self._apply_sales()   
             
         
-        globals.logger_store.debug("Sales have been applied")
-        globals.logger_store.debug(self.stock)
+        #globals.log(self,"Sales have been applied")
+        #globals.log(self,self.stock)
 
     def _apply_sales(self): 
         #all sale options have been slected in sale_options -> now we choose one
@@ -457,11 +495,12 @@ class Store(Location):
             self.stock.loc[idx,"discount_effect"] = self.stock.loc[idx,"sale_option"].apply(lambda x: random.choice(x[1]))
             
             mask = self.stock.index.isin(idx) & (self.stock["discount_effect"] == EnumDiscountEffect.BOGO) #split bogo and sales -> one to change servings one for pricing
-            self.stock.loc[mask,"servings"] = self.stock.loc[mask,"servings"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: x.scaler)
-            self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"]/self.stock.loc[mask,"discount_effect"].apply(lambda x: x.scaler) 
-            #now the serving price is halved -> here div 2, cause the 2 is multiplied to servings (enum has only one scaler)
-            
-            self.stock.loc[~mask,"price_per_serving"] = self.stock.loc[~mask,"price_per_serving"] * self.stock.loc[~mask,"discount_effect"].apply(lambda x: x.scaler)
+            if len(self.stock[mask]) > 0:
+                self.stock.loc[mask,"servings"] = self.stock.loc[mask,"servings"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler))
+                self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"]/self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler) )
+                #now the serving price is halved -> here div 2, cause the 2 is multiplied to servings (enum has only one scaler)
+            if len(self.stock[~mask]) > 0:
+                self.stock.loc[~mask,"price_per_serving"] = self.stock.loc[~mask,"price_per_serving"] * self.stock.loc[~mask,"discount_effect"].apply(lambda x: float(x.scaler))
             
             
             self._update_deal_value()

@@ -25,12 +25,13 @@ class Household(Location):
         self.pantry: Storage  = Storage()
         self.fridge: Storage = Storage()
         self.datalogger: DataLogger = datalogger
+        self.logger: logging.Logger|None= globals.setup_logger( "HH_"+ str(self.id))
         
         ###HOUSEHOLD MEMBER
-        globals.logger_hh.debug("HOUSE INFO")
+        globals.log(self,"HOUSE INFO")
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children: int = globals.HH_AMOUNT_CHILDREN
-        globals.logger_hh.debug("Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
+        globals.log(self,"Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
         self.adult_influence: float = 0.75 #not used atm
         self.child_influence: float = 1 - self.adult_influence #not used atm
         self.ppl: list = self.gen_ppl()
@@ -67,7 +68,8 @@ class Household(Location):
             shopping_freq=self.shopping_frequency,
             time = todays_time,
             datalogger = self.datalogger,
-            id = self.id
+            id = self.id,
+            logger = self.logger
         )
         
         numerator = 0
@@ -86,7 +88,8 @@ class Household(Location):
             household_plate_waste_ratio = household_plate_waste_ratio,
             time = todays_time, 
             id = self.id,
-            req_servings=self.req_servings
+            req_servings=self.req_servings,
+            logger = self.logger
             
         )
     def gen_ppl(self) -> list[Person]:
@@ -145,9 +148,9 @@ class Household(Location):
         Return:
             
         """        
-        globals.logger_hh.debug("###########################################")
-        globals.logger_hh.debug("Day %i:", globals.DAY)
-        globals.logger_hh.debug("###########################################")
+        globals.log(self,"###########################################")
+        globals.log(self,"Day %i:", globals.DAY)
+        globals.log(self,"###########################################")
             
         
         # check if it is payday

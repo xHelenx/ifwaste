@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import Literal, Union
 
@@ -13,7 +14,8 @@ class HouseholdCookingManager:
     
     def __init__(self, pantry:Storage, fridge:Storage, shoppingManager:HouseholdShoppingManager,
                  datalogger:DataLogger, household_concern:float,  preference_vector:dict[str,float],
-                 household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float) -> None:
+                 household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float, 
+                 logger:logging.Logger|None) -> None:
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
         self.shoppingManager: HouseholdShoppingManager = shoppingManager
@@ -22,6 +24,7 @@ class HouseholdCookingManager:
         self.preference_vector:dict[str,float] = preference_vector
         self.household_plate_waste_ratio = household_plate_waste_ratio
         self.id = id 
+        self.logger:logging.Logger|None = logger
         
         self.time:list[float] = time
         self.req_servings = req_servings
@@ -65,6 +68,7 @@ class HouseholdCookingManager:
             if not inedible is None:
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
         prepped = pd.DataFrame(prepped)
+        prepped["inedible_percentage"] = 0.0 #we just cut off the inedible parts
         
         meal = None 
         if not prepped.empty: #TODO undo    
@@ -113,15 +117,17 @@ class HouseholdCookingManager:
         
         to_eat = pd.Series()
         item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
-        servings = item["servings"]
+        if not item is None:
+            servings = item["servings"]
+            
         
-    
-        if not is_quickcook and servings > globals.COOK_SERVINGS_PER_GRAB: 
-            servings = globals.COOK_SERVINGS_PER_GRAB
-        (to_eat, to_pantry) = self._split(item, servings)
-        if not to_pantry is None: 
-            self.pantry.add(to_pantry)
-        
+            if not is_quickcook and servings > globals.COOK_SERVINGS_PER_GRAB: 
+                servings = globals.COOK_SERVINGS_PER_GRAB
+            (to_eat, to_pantry) = self._split(item, servings)
+            if not to_pantry is None: 
+                self.pantry.add(to_pantry)
+        else: 
+            raise ValueError("Pantry is empty, so we cannot grab ingredients")
         return to_eat
 
     def _choose_how_much_to_cook(self) -> float: 
@@ -139,11 +145,13 @@ class HouseholdCookingManager:
         return planned
     
     def cook_and_eat(self, used_time:float) -> None: 
+        globals.log(self,"------> COOKING")    
         self._reset_logs()
         self.todays_time = self.time[globals.DAY%7] - used_time
         self.todays_servings = self.req_servings
         
         strategy = self._determine_strategy()
+        globals.log(self,"cooking strategy: %s", strategy)    
         
         #first round of eating
         self._prepare_by_strategy(strategy)
@@ -152,17 +160,23 @@ class HouseholdCookingManager:
         if self.todays_servings > 0: 
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
                 meal = self._cook("EEF", is_quickcook = True)
+                globals.log(self,"quick cook more:")    
+                globals.log(self,meal)
                 if meal is not None: 
-                    self._eat_meal(meal)
+                    self._eat_meal(meal=meal)
             else: #we already cooked or quick cooked -> so eat left overs now
                 if strategy == "EEFpantry": 
                     strategy = "EEF"
                 if not self.fridge.is_empty(): #else we are just hungry
-                    meal = self.get_meal_from_fridge(strategy)
-                    self._eat_meal(meal)
+                    globals.log(self,"eat leftovers:")    
+                    self._eat_meal(strategy)
                     
         if strategy != "random":
             self.log_today_eef = True
+            
+        globals.log(self,"missing servings: %f", self.todays_servings)    
+        globals.log(self,"req servings: %f", self.req_servings)    
+                
             
         
     def _determine_strategy(self) -> Literal['EEFfridge', 'EEFpantry','random']: 
@@ -187,13 +201,31 @@ class HouseholdCookingManager:
                 
         return strategy
        
-    def get_meal_from_fridge(self, strategy:Literal["EEF","random"]) -> pd.Series:     
-        self.log_today_leftovers = True
-        return self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)
+    #def get_meal_from_fridge(self, strategy:Literal["EEF","random"]) -> pd.Series|None:     
+    #    self.log_today_leftovers = True
+    #    return self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)
         
         
-    def _eat_meal(self,meal:pd.Series) :
+    def _eat_meal(self,strategy:str|None = None, meal:pd.Series|None = None)  -> None:
+        assert not (strategy == None and meal is None)
+        assert not (strategy != None and meal is not None)   
+                
         needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
+        
+        if meal is None and needed_serv > 0.001:  
+            meal = self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector) # type: ignore
+            while needed_serv > 0.001 and not meal is None: #float balance
+                self._consume(meal,needed_serv)
+                needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
+                if needed_serv > 0.001: 
+                    meal = self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector) # type: ignore
+                    
+                self.log_today_leftovers = 1 # type: ignore #yes we ate leftovers today 
+        else: 
+            needed_serv = self._consume(meal,needed_serv) # type: ignore
+
+        
+    def _consume(self,meal:pd.Series,needed_serv:float): 
         (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
         self.todays_servings -= to_eat["servings"]
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
@@ -204,6 +236,9 @@ class HouseholdCookingManager:
         if not plate_waste is None: 
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
+        
+        
+    
     def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None] ]:
         fgs = FoodGroups.get_instance() # type: ignore
         consumed = meal.copy(deep=True)
@@ -271,14 +306,16 @@ class HouseholdCookingManager:
         
         
     def _prepare_by_strategy(self,strategy) -> None:
-        if strategy == "EEFfridge": #eat from fridge 
+        if strategy == "EEFfridge": #eat from fridge cause it expires soon
             if not self.fridge.is_empty():
-                meal = self.get_meal_from_fridge(strategy="EEF")
-                self._eat_meal(meal)
+                globals.log(self,"from fridge:")    
+                self._eat_meal(strategy)
         else: #cook with EEF ingredients or random
             if strategy == "EEFpantry":
                 strategy = "EEF"
             is_quickcook = not self._has_enough_time()
             meal = self._cook(strategy=strategy,is_quickcook=is_quickcook)
+            globals.log(self,"is quickcook %s, cooked:", is_quickcook)    
+            globals.log(self,meal)
             if meal is not None:
-                self._eat_meal(meal)       
+                self._eat_meal(meal=meal)   

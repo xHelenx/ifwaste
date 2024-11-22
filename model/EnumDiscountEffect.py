@@ -14,8 +14,8 @@ class EnumDiscountEffect(Enum):
 
     def __new__(cls, name, scaler):
         obj = object.__new__(cls)
-        obj._name:str = name  # type: ignore # Store the name as _name
-        obj._scaler:int = scaler  # type: ignore # Store the tier as _tier
+        obj._name:str = name  # type: ignore 
+        obj._scaler:int = scaler  # type: ignore
         return obj
 
     @property

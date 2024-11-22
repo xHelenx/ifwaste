@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from param import DataFrame
 
 from FoodGroups import FoodGroups
 import globals 
@@ -39,18 +40,13 @@ class Storage:
         self.fg: FoodGroups = FoodGroups.get_instance()  # type: ignore
 
     def add(self, item: pd.Series) -> None: 
+        #self.current_items = pd.concat([self.current_items, pd.DataFrame([item])], ignore_index=True)
+        #self.current_items.reset_index(drop=True, inplace=True)
         self.current_items.loc[len(self.current_items)] = item
         self.current_items.reset_index(drop=True, inplace=True)  # Drop the old index
 
-    def remove(self, item: pd.Series) -> None:
-        print("Data types of each element in the Series:")
-        for key, value in item.items():
-            print(f"{key}: {type(value).__name__}")
-            
-        # Display data types of each column in the DataFrame
-        print("Data types of each column in the DataFrame:")
-        print(self.current_items.dtypes)
 
+    def remove(self, item: pd.Series) -> None:            
         mask = np.all([
             np.isclose(self.current_items[col], item[col], equal_nan=True) if pd.api.types.is_float_dtype(self.current_items[col]) 
             else (self.current_items[col] == item[col])
@@ -62,13 +58,13 @@ class Storage:
                 # Remove only the first match 
                 self.current_items = self.current_items.drop(matching_indices[0])
     
-    def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float]) -> pd.Series: 
+    def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float]) -> pd.Series|None: 
        #default random
        #random" = choose random ingredients to cook wit
        #"EEF"    = choose "Earliest Expiration First" 
        
-        assert not self.is_empty()
-        
+        if self.is_empty(): 
+            return None 
         
         if strategy == None or strategy == "random": 
             #random grab 

@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 import json
 
 from EnumDiscountEffect import EnumDiscountEffect
@@ -76,7 +75,6 @@ STORE_RESTOCK_INTERVAL = None
 STORE_BASELINE_STOCK = None
 
 STORE_CON_QUALITY = None
-STORE_CON_PRICE = None
 STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
@@ -92,7 +90,6 @@ STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = None
 STORE_CON_SAL_CLEARANCE_DISCOUNT_3  = None
 
 STORE_DIS_QUALITY = None 
-STORE_DIS_PRICE = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
@@ -108,7 +105,6 @@ STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = None
 STORE_DIS_SAL_CLEARANCE_DISCOUNT_3  = None
 
 STORE_PRE_QUALITY = None
-STORE_PRE_PRICE = None
 STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None
@@ -124,8 +120,6 @@ STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 = None
 STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = None
 STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = None
 
-STORE_PREMIUM_QUALITY = None 
-STORE_PREMIUM_PRICE = None
 
 EXPERIMENT_NAME = None 
 ADULT_PLATE_WASTE_MIN = None 
@@ -253,7 +247,6 @@ def configure_simulation(file) -> None:
     global STORE_BASELINE_STOCK
     
     global STORE_CON_QUALITY
-    global STORE_CON_PRICE
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
@@ -268,7 +261,6 @@ def configure_simulation(file) -> None:
     global STORE_CON_SAL_CLEARANCE_DISCOUNT_2
     global STORE_CON_SAL_CLEARANCE_DISCOUNT_3
     global STORE_DIS_QUALITY
-    global STORE_DIS_PRICE
     global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
@@ -283,7 +275,6 @@ def configure_simulation(file) -> None:
     global STORE_DIS_SAL_CLEARANCE_DISCOUNT_2
     global STORE_DIS_SAL_CLEARANCE_DISCOUNT_3
     global STORE_PRE_QUALITY
-    global STORE_PRE_PRICE
     global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1
@@ -383,8 +374,8 @@ def configure_simulation(file) -> None:
     SIMULATION_DAYS = config["Simulation"]["total_days"]
     SIMULATION_OUTPUTFOLDER = config["Simulation"]["output_folder"]
     SIMULATION_WRITE_TO_FILE_INTERVAL = config["Simulation"]["write_to_file_interval"]
-    SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"]
-    EXPERIMENT_NAME = config["Simulation"]["name"]
+    SIMULATION_DEBUG_LOG_ON = config["Simulation"]["debug_log_on"] == "True"
+    EXPERIMENT_NAME = config["Simulation"]["name"] 
     
     
     NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
@@ -491,7 +482,6 @@ def configure_simulation(file) -> None:
     
     
     STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
-    STORE_CON_PRICE = config["Store"]["Convenience_store"]["price"]
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_1"]
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_2"]
     STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["high_stock_discount_interval_1"]]
@@ -507,7 +497,6 @@ def configure_simulation(file) -> None:
     STORE_CON_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Convenience_store"]["Sales"]["clearance_interval_3_discount"]]
     
     STORE_DIS_QUALITY = config["Store"]["Discount_retailer"]["quality"]
-    STORE_DIS_PRICE = config["Store"]["Discount_retailer"]["price"]
     STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_1"]
     STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Discount_retailer"]["Sales"]["high_stock_interval_2"]
     STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"]]
@@ -523,7 +512,6 @@ def configure_simulation(file) -> None:
     STORE_DIS_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Discount_retailer"]["Sales"]["clearance_interval_3_discount"]]
     
     STORE_PRE_QUALITY = config["Store"]["Premium_retailer"]["quality"]
-    STORE_PRE_PRICE = config["Store"]["Premium_retailer"]["price"]
     STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_1"]
     STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = config["Store"]["Premium_retailer"]["Sales"]["high_stock_interval_2"]
     STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"]]
@@ -545,16 +533,30 @@ def configure_simulation(file) -> None:
     BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]
     BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]
     
-def setup_logger() -> None:
-    global logger_hh 
-    global logger_store
+def setup_logger(logger_name) -> logging.Logger|None:
     if SIMULATION_DEBUG_LOG_ON:
-            
-            logging.basicConfig(encoding="utf-8",level=logging.DEBUG, filemode="w")
-            logger_hh = logging.getLogger("household")
-            logger_store = logging.getLogger("store")
-            handler_hh = logging.FileHandler('log_hh.log')
-            handler_store = logging.FileHandler('log_store.log')
+            log_dir = "LOGS"
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)  # Create the directory if it doesn't exist
 
-            logger_hh.addHandler(handler_hh)
-            logger_store.addHandler(handler_store)
+            logger = logging.getLogger(logger_name)
+            logger.setLevel(logging.DEBUG)
+
+            # Create a file handler
+            handler = logging.FileHandler(f"{log_dir}/{logger_name}.log")
+            handler.setLevel(logging.DEBUG)
+
+            # Add handler to the logger
+            logger.addHandler(handler)
+            logger.setLevel(logging.DEBUG)
+
+            return logger
+            
+
+def log(obj, message, *args) -> None:
+    if SIMULATION_DEBUG_LOG_ON:
+        if isinstance(message, str) and args:  # Format if message is a string and args are provided
+            message = message % args
+        else:  # Convert non-string objects to string representation
+            message = str(message)
+        obj.logger.debug(message)

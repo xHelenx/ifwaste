@@ -9,10 +9,7 @@ class StoreConvenienceStore(Store):
     def __init__(self, store_type:EnumStoreTier, grid:Grid, id) -> None:
         super().__init__(store_type, grid,id)
         
-        self.quality:float = globals.STORE_DIS_QUALITY  # type: ignore
-        self.price:float = globals.STORE_DIS_PRICE # type: ignore
-        # high price is expensive, low is cheap -> 1-price in formulas
-        
+        self.quality:float = globals.STORE_DIS_QUALITY  # type: ignore        
         self.high_stock_interval_1:float|None = globals.STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
         self.high_stock_interval_2:float|None = globals.STORE_CON_SAL_HIGH_STOCK_INTERVAL_2
         self.high_stock_discount_1:list[EnumDiscountEffect] = globals.STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1

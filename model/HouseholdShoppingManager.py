@@ -1,5 +1,5 @@
 from __future__ import annotations
-from operator import index
+import logging
 import random
 from typing import List
 
@@ -16,10 +16,11 @@ from FoodGroups import FoodGroups
 class HouseholdShoppingManager: 
     
     def __init__(self, budget:float, pantry:Storage, fridge:Storage, req_servings_per_fg, grid:Grid, household:Household, # type: ignore
-                 shopping_freq, time:list[float], datalogger:DataLogger, id:int) -> None: # type: ignore
+                 shopping_freq, time:list[float], datalogger:DataLogger, id:int, logger:logging.Logger|None) -> None: # type: ignore
         from Household import Household
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
+        self.logger: logging.Logger|None = logger
         
         self.grid = grid
         self.location:Household = household
@@ -127,13 +128,15 @@ class HouseholdShoppingManager:
         relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
         left_fg = [i for i in relevant_fg if i not in avail_fgs]
         if len(left_fg) > 0: 
-            store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, required_fgs=left_fg[0])
+            store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, required_fgs=left_fg) #TODO it was left_fg[0], dunno why
 
         return store
         
     def shop(self, is_quickshop:bool=False) -> float:
         """Shops for groceries and stores them in the correct location in the house
         """ 
+        
+        globals.log(self,"------> SHOPPING")    
         self.todays_time = self.time[globals.DAY%7] 
         budget = self._get_budget_for_this_purchase() 
         is_planner = self.planner > random.uniform(0,1)
@@ -153,7 +156,7 @@ class HouseholdShoppingManager:
         
         if is_quickshop: 
             #build quick basket
-            basketCurator = BasketCurator(stores=selected_stores)
+            basketCurator = BasketCurator(stores=selected_stores, logger=self.logger)
             basketCurator.create_basket(is_quickshop=True)
         else: 
             if servings_to_buy_fg.sum() < 0: # type: ignore #we dont need to buy anything
@@ -166,11 +169,17 @@ class HouseholdShoppingManager:
                 selected_stores.append(store)     
                
             #create initial basket with groceries
-            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget) # type: ignore
+            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
             basketCurator.create_basket()
         
             self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
                     
+        if len(basketCurator.basket) > 0:
+            globals.log(self,"FINAL BASKET: items %i, cost: %f", basketCurator.basket["amount"].sum(), (basketCurator.basket["price_per_serving"] * basketCurator.basket["servings"]).sum())
+        else:
+            globals.log(self,"FINAL BASKET is empty")
+
+        globals.log(self,basketCurator.basket)    
         #calculated required time for shopping tour (final time for planner, current time for not planner)
         visited_stores = basketCurator.get_visited_stores()
         duration = 0
@@ -181,10 +190,12 @@ class HouseholdShoppingManager:
         else: 
             self.log_shopping_time = 0
             
-        basketCurator.impulse_buy(self.impulsivity)
-        self._pay(basket=basketCurator.basket)
-        self._store_groceries(basket=basketCurator.basket)
         
+        basketCurator.impulse_buy(self.impulsivity)
+        if len(basketCurator.basket) > 0:
+            self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
+            self._store_groceries(basket=basketCurator.basket)
+            
         return duration
         
     def _pay(self, basket:pd.DataFrame) -> None: 
@@ -200,16 +211,16 @@ class HouseholdShoppingManager:
             else: 
                 if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
                     if not basketCurator.is_basket_in_budget(): 
-                        store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_tier=True)
+                        store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_price=True)
                         if store != None: 
                             selected_stores.append(store)
                             #redo entire basket now with a bonus store
                             basketCurator.return_basket_to_store() #we are starting over instead
-                            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget)
+                            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
                             basketCurator.create_basket()
                     if not basketCurator.does_basket_cover_all_fg(): 
                         if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
-                            #adding a store from a lower tier
+                            #adding a store from a lower price group
                             store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
                             if store != None: 
                                 selected_stores.append(store)
@@ -226,12 +237,13 @@ class HouseholdShoppingManager:
         return not basketCurator.is_basket_in_budget()  or not basketCurator.does_basket_cover_all_fg()
 
     
-    def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_tier: bool | None =None) -> None | Store:
-        assert not (required_fgs == None and needs_lower_tier == None)
+    def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_price: bool | None =None) -> None | Store:
+        assert not (required_fgs == None and needs_lower_price == None)
         selection = None 
         #TODO if this is the second store the time for the first part of the route has to be considered! 
         store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time)
         #choose a store from possible options (not is_planner just selects 1 store here)
+        #TODO what if no store is possible to visit?
         if len(store_options) > 0:
             store_order = self._get_store_order(is_planner, required_fgs,store_options)
             selection = self._wheel_selection(store_order)
@@ -262,7 +274,7 @@ class HouseholdShoppingManager:
             for store in stores: #we only take 3 in account here, but as we do it everywhere its fine that it 
                 #cant reach 1
                 preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
-                    self.brand_sens * self.brand_pref[store.store_type.name])
+                    self.brand_sens * self.brand_pref[store.store_type.value])
                 store_preference[store] = preference
         else: 
             dealAssessor = DealAssessor()
@@ -281,7 +293,7 @@ class HouseholdShoppingManager:
                     avail_fg_value  = len(relevant_fg)/len(avail_fg)
                                                            
                 preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
-                    self.brand_sens * self.brand_pref[store.store_type.name] + self.deal_sens *\
+                    self.brand_sens * self.brand_pref[store.store_type.value] + self.deal_sens *\
                         deal + self.availability_sens *avail_fg_value)
                 store_preference[store] = preference
                 

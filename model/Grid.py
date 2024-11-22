@@ -119,21 +119,21 @@ class Grid:
         else:
             return self.get_travel_time_one_way(coords, first_stop) * 2 + globals.GRID_TIME_PER_STORE
   
-    def get_stores_within_time_constraint(self,start:Location, avail_time:float, fg:str | None=None, needs_lower_tier:bool=False, first_stop: Store | None=None) -> list[Store]: #assuming up to single travel 
+    def get_stores_within_time_constraint(self,start:Location, avail_time:float, fg:str | None=None, needs_lower_price:bool=False, first_stop: Store | None=None) -> list[Store]: #assuming up to single travel 
         '''
         Returns a list of store options, that meet different criteria: 
                 avail_time:  the traveling time for adding this store to the current trip does not exceed the avail time 
                 avail_time considers travling to the first stop too, if not none
             optional: 
                 fg (str): the store must carry this food group XOR 
-                needs_lower_tier (bool): the store must be of a lower tier than the "first stop" store
-                first_stop (Store | None): required to set for needs_lower_tier 
+                needs_lower_price (bool): the store must be of a lower price than the "first stop" store
+                first_stop (Store | None): required to set for needs_lower_price 
         
         Args: 
         start: location to start trip from
         avail_time: available traveling time 
         fg: food group that store has to offer 
-        needs_lower_tier: whether a store should be a lower price than (first_stop)
+        needs_lower_price: whether a store should be a lower price than (first_stop)
         
         Returns: 
             (list[Store]) : a list of store options, for which all criteria are matching
@@ -162,7 +162,7 @@ class Grid:
         first_location = None
         if first_stop != None:
             first_location = self.get_coordinates(location=first_stop)
-            if needs_lower_tier:
+            if needs_lower_price:
                 price = first_stop.price
         for x_tmp in range(x_min,x_max):
             for y_tmp in range(y_min,y_max):
@@ -176,7 +176,7 @@ class Grid:
                         if fg != None: #we need to find a store that offers a specifc fg
                             if self.grid[x_tmp][y_tmp].is_fg_in_productrange(fg): # type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
-                        elif needs_lower_tier:
+                        elif needs_lower_price:
                             if self.grid[x_tmp][y_tmp].price < price: # type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
                         else:

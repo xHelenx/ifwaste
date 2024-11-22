@@ -1,3 +1,4 @@
+import sys
 from Store import Store
 import pandas as pd
 
@@ -18,23 +19,20 @@ class DealAssessor:
         Returns:
             pd.DataFrame: dataframe of items with best deals and their "deal_value" 
         """        
+        fgs = FoodGroups.get_instance().get_all_food_groups()
         
-        best_deals = []
-        best_deals_df = pd.DataFrame()   
-        for fg in FoodGroups.get_instance().get_all_food_groups(): # type: ignore
-            options = [] 
+        best_deals_df = pd.DataFrame({
+            "type": fgs,
+            "deal_value": sys.float_info.max
+        }) 
+        for fg in fgs: # type: ignore
             for store in stores: 
                 stock_by_fg = store.stock[store.stock["type"] == fg]       
-                if len(stock_by_fg) == 1:
-                    options.append(stock_by_fg.iloc[0])
-                elif len(stock_by_fg) > 1:
-                    stock_by_fg.loc[:, "deal_value"] = pd.to_numeric(stock_by_fg["deal_value"])
-            if not len(options) == 0: #at least one store carries fg
-                options = pd.DataFrame(options).reset_index(drop=True)
-                best_deal_by_fg = options.loc[options["deal_value"].idxmin()]
-                best_deals.append(best_deal_by_fg)
-        if not len(best_deals) == 0:
-            best_deals_df = pd.DataFrame(best_deals).reset_index(drop=True)
+                stock_by_fg.loc[:, "deal_value"] = pd.to_numeric(stock_by_fg["deal_value"])                
+                is_better_deal = stock_by_fg["deal_value"].min() < best_deals_df.loc[best_deals_df["type"] == fg,"deal_value"]
+                if len(stock_by_fg) > 0 and is_better_deal.values[0]:
+                    best_deal_this_fg = stock_by_fg.loc[stock_by_fg["deal_value"].idxmin()]
+                    best_deals_df.loc[best_deals_df["type"] == fg,"deal_value"] = best_deal_this_fg["deal_value"]
         return best_deals_df
     
     def calculate_deal_value(self,relevant_food_groups:list[str], local_deals:pd.DataFrame, best_deals:pd.DataFrame) -> float: 
@@ -54,12 +52,10 @@ class DealAssessor:
         counter = 0
         result = 0
         for fg in relevant_food_groups: 
-            if len(best_deals.loc[best_deals["type"] == fg,"deal_value"]) > 0:
                 best_deal_value = best_deals.loc[best_deals["type"] == fg,"deal_value"].values[0]
-                if len(local_deals.loc[local_deals["type"] == fg,"deal_value"]):
-                    local_deal_value = local_deals.loc[local_deals["type"] == fg,"deal_value"].values[0]
-                    deal += best_deal_value/local_deal_value
-                    counter += 1
+                local_deal_value = local_deals.loc[local_deals["type"] == fg,"deal_value"].values[0]
+                deal += best_deal_value/local_deal_value
+                counter += 1
         if counter > 0: 
             result = deal/counter
         return result
