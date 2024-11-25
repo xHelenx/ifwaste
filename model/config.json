@@ -1,16 +1,16 @@
 {
     "Simulation" : { 
-        "runs" : 1, 
-        "total_days" : 10,
+        "runs" : 5, 
+        "total_days" : 100,
         "name": "v2_test_run",
         "output_folder": "data",
         "write_to_file_interval": 1,
         "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 10, 
+        "neighborhood_houses" : 50, 
         "neighborhood_store_types": "['Convenience_store', 'Discount_retailer', 'Premium_retailer']",
-        "neighborhood_store_amounts": "[2,1,1]",
+        "neighborhood_store_amounts": "[2,2,2]",
         "neighborhood_pay_day_interval" : 14
     },
     "Grid": {
@@ -172,25 +172,25 @@
 
     "Store": {
         "restock_interval" : 2,
-        "baseline_stock": 500,
+        "baseline_stock": 600,
 
         "Convenience_store" : {
             "product_range": "parameterization\\store_type_convenience_store.csv",
             "quality":0.2, 
 
             "Sales": {
-                "high_stock_interval_1": 0.8,
-                "high_stock_interval_2": 0.5,
-                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
-                "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
+                "high_stock_interval_1": 1.3,
+                "high_stock_interval_2": 1.2,
+                "high_stock_discount_interval_1": ["DISCOUNT30", "BOGO"],
+                "high_stock_discount_interval_2":  ["DISCOUNT20"], 
 
-                "seasonal_likelihood": 0.2,
+                "seasonal_likelihood": 0.1,
                 "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
                 "seasonal_duration" : 5,
 
-                "clearance_interval_1_expires_within" : 5,
-                "clearance_interval_2_expires_within" : 3, 
-                "clearance_interval_3_expires_within" : 2,
+                "clearance_interval_1_expires_within" : 3,
+                "clearance_interval_2_expires_within" : 2, 
+                "clearance_interval_3_expires_within" : 1,
                 "clearance_interval_1_discount" : ["DISCOUNT40", "BOGO"],
                 "clearance_interval_2_discount" : ["DISCOUNT50", "BOGO"],
                 "clearance_interval_3_discount" : ["DISCOUNT60", "BOGO"]
@@ -201,13 +201,13 @@
             "quality":0.5, 
 
             "Sales": {
-                "high_stock_interval_1": 0.5,
-                "high_stock_interval_2": 0.3,
-                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
+                "high_stock_interval_1": 1,
+                "high_stock_interval_2": 0.9,
+                "high_stock_discount_interval_1": ["DISCOUNT40", "BOGO"],
                 "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
 
-                "seasonal_likelihood": 0.3,
-                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
+                "seasonal_likelihood": 0.1,
+                "seasonal_discount": ["BOGO"], 
                 "seasonal_duration" : 5,
 
                 "clearance_interval_1_expires_within" : 3,
@@ -223,13 +223,13 @@
             "quality":0.7, 
             "price":0.6,
             "Sales": {
-                "high_stock_interval_1": 0.8,
-                "high_stock_interval_2": 0.5,
-                "high_stock_discount_interval_1": ["DISCOUNT20", "BOGO"],
-                "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
+                "high_stock_interval_1": 1.2,
+                "high_stock_interval_2": 1.1,
+                "high_stock_discount_interval_1": ["DISCOUNT20"],
+                "high_stock_discount_interval_2":  ["DISCOUNT10"], 
 
-                "seasonal_likelihood": 0.2,
-                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
+                "seasonal_likelihood": 0.25,
+                "seasonal_discount": ["DISCOUNT20", "DISCOUNT30"], 
                 "seasonal_duration" : 5,
 
                 "clearance_interval_1_expires_within" : 5,
