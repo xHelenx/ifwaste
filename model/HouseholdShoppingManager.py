@@ -102,7 +102,7 @@ class HouseholdShoppingManager:
                 inedible = FoodGroups._instance.food_groups.loc[FoodGroups._instance.food_groups["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
             item.drop(["adjustment"])
-        item.drop(["type", "price_per_serving","sale_type", "deal_value", "store"])
+        item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "item_ID", "sale_timer"])
         item["status"] = status
         item["price"] = price
         item["inedible_percentage"] =inedible
@@ -149,7 +149,7 @@ class HouseholdShoppingManager:
             
         selected_stores = []
         store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores,required_fgs=relevant_fg)
-        if store != None:
+        if store != None and not store in selected_stores: 
             selected_stores.append(store)
         else:
             return 0
@@ -165,7 +165,7 @@ class HouseholdShoppingManager:
             #if planner add more stores if necessary because of missing fg
             if is_planner: #planner hh 
                 store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
-            if not store is None: 
+            if not store is None and not store in selected_stores: 
                 selected_stores.append(store)     
                
             #create initial basket with groceries
@@ -212,21 +212,21 @@ class HouseholdShoppingManager:
                 if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
                     if not basketCurator.is_basket_in_budget(): 
                         store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_price=True)
-                        if store != None: 
-                            selected_stores.append(store)
-                            #redo entire basket now with a bonus store
-                            basketCurator.return_basket_to_store() #we are starting over instead
-                            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
-                            basketCurator.create_basket()
+                        if store != None and store not in selected_stores:
+                                selected_stores.append(store)
+                                #redo entire basket now with a bonus store
+                                basketCurator.return_basket_to_store() #we are starting over instead
+                                basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
+                                basketCurator.create_basket()
                     if not basketCurator.does_basket_cover_all_fg(): 
                         if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
                             #adding a store from a lower price group
                             store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
-                            if store != None: 
-                                selected_stores.append(store)
-                                basketCurator.stores.append(store)
-                                #buy missing food items + keep old basket #TODO is this ok?
-                                basketCurator.create_basket()
+                            if store != None and store not in selected_stores:
+                                    selected_stores.append(store)
+                                    basketCurator.stores.append(store)
+                                    #buy missing food items + keep old basket #TODO is this ok?
+                                    basketCurator.create_basket()
         if self._is_adjustment_needed(basketCurator): 
             basketCurator.adjust_basket()
             

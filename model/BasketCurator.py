@@ -102,7 +102,7 @@ class BasketCurator():
         """        
         return self.serv_track["got"] + self.serv_track["is_in_other_fg"] - self.serv_track["is_replacing_other_fg"]
     
-    def _sample_and_buy(self,options:pd.DataFrame) -> pd.Series: 
+    def _sample_and_buy(self,options:pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]: 
         """Samples a single item to buy from the options and manages
         the purchase process from the store + move the item to the basket 
         and updates the serving tracker
@@ -114,13 +114,19 @@ class BasketCurator():
             pd.Series: chosen item 
         """        
         # buy 1 
+        options = options[options["amount"]> 0]
+        #globals.log(self.stores[0], "OPTIONS Before purchase")
+        #globals.log(self.stores[0], options)
         plan_to_purchase = options.sample(1,replace=True).iloc[0]
         self._buy(plan_to_purchase, 1)
         options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current
         options = options[options["amount"] > 0]
+        #globals.log(self.stores[0], "OPTIONS after purchase")
+        #globals.log(self.stores[0], options)
+        
         self._add_item(plan_to_purchase, 1)
     
-        return plan_to_purchase  
+        return options, plan_to_purchase  
     
     
     def _create_shop_basket(self) -> None: 
@@ -131,15 +137,12 @@ class BasketCurator():
         for fg in self.serv_track[self._get_purchased_servings_from_serv_track()  < self.serv_track["required"]]["type"].tolist():
             options = self._get_stock_options(fgs=[fg], focus_on_sales=True)   
             if not options.empty: 
-                options = options[options["amount"] > 0]                 
                 idx =  self.serv_track[self.serv_track["type"] == fg].index[0]
                 needed_servings = self.serv_track.loc[idx,"required"]- self._get_purchased_servings_from_serv_track().loc[idx]
                 
                 while needed_servings > 0: 
-                    options = options[options["amount"] > 0]    ####new
-                    options = options.dropna()
                     if len(options) > 0:
-                        purchased = self._sample_and_buy(options)
+                        options, purchased = self._sample_and_buy(options)
                         needed_servings -= purchased["servings"]
                     else:
                         break
@@ -168,10 +171,7 @@ class BasketCurator():
         
         # Merge the options with food_groups_df to add the impulse_buy_likelihood
         options = options.merge(food_groups_df[['type', 'impulse_buy_likelihood']], on='type', how='left')
-        
-        # Fill any missing likelihoods with 0 (or a minimum value) if needed
-        options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'].fillna(0)
-        
+            
         # Normalize the likelihoods to get probabilities
         total_likelihood = options['impulse_buy_likelihood'].sum()
         options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'] / total_likelihood
@@ -191,19 +191,19 @@ class BasketCurator():
         #only allow 1 store to be visited! 
         
         options = self._get_stock_options(fgs=[globals.FGSTOREPREPARED]) 
-        options = options.dropna()
+        #options = options.dropna()
         if not options.empty:
-            self._sample_and_buy(options)
+            options, _ = self._sample_and_buy(options)
         
         options = self._get_stock_options()
         n = random.randint(1,globals.BASKETCURATOR_MAX_ITEMS_QUICKSHOP)
         
         for _ in range(n): 
             options = options[options["amount"] > 0]
-            options = options.dropna()
+            #options = options.dropna()
             if options.empty: 
                 break
-            self._sample_and_buy(options)
+            options, _ = self._sample_and_buy(options)
         
     def is_basket_in_budget(self)-> bool: 
         '''
@@ -241,7 +241,6 @@ class BasketCurator():
        # for store in self.stores:
        #     store.organize_stock()      
         self._organize_basket()
-        
         
         if not self.does_basket_cover_all_fg():
             globals.log(self,"BASKET DOES NOT COVER ALL FG")
@@ -343,18 +342,19 @@ class BasketCurator():
         have been compensated.
         """        
         options = self._get_stock_options(fgs=None, focus_on_sales=False)
-        options = options.dropna()
+        #options = options.dropna()
     
         #sales and no sales here
         #buy items (can be larger serving size then needed)
         for idx in self.serv_track.index: 
-            
             while self.serv_track.loc[idx, "required"] > self._get_purchased_servings_from_serv_track().loc[idx]:
                 if not options.empty:
-                    self._sample_and_buy(options)
+                    options, _ = self._sample_and_buy(options)
                 else:
                     break
         self._organize_basket()
+        for store in self.stores: 
+            store.organize_stock() 
         
     def _update_serv_track(self, item:pd.Series, add_to_basket:bool) -> None: 
         """Manages the serving tracker, will add and remove items from the tracking system
@@ -594,14 +594,20 @@ class BasketCurator():
             take_instead (Optional[List], optional): List of items to buy instead. Defaults to None.
             amount_give_back (Optional[List[int]], optional): how many items to give back of each type. Defaults to None.
             amount_take_instead (Optional[List[int]], optional): how many items to take instead of each type. Defaults to None.
-        """        
+        """       
+        
+         
         if give_back != None and amount_give_back != None: 
             for i in range(len(give_back)): 
+                if "adjustment" in give_back[i]:
+                    give_back[i] = give_back[i].drop(["adjustment"])
                 self._give_back(item=give_back[i], amount=amount_give_back[i]) #to store
                 self._remove_item(give_back[i], amount_give_back[i]) #from basket
         
         if take_instead != None and amount_take_instead != None :    
             for i in range(len(take_instead)): 
+                if "adjustment" in take_instead[i]:
+                    take_instead[i] = take_instead[i].drop(["adjustment"])
                 self._buy(item=take_instead[i], amount=amount_take_instead[i])
                 self._add_item(take_instead[i], amount_take_instead[i])
         
@@ -623,17 +629,25 @@ class BasketCurator():
         """        
 
         if len(self.basket) > 0: 
-            # Temporarily convert enums to string for grouping
-            self.basket['discount_effect'] = self.basket['discount_effect'].astype(str)
-            self.basket['sale_type'] = self.basket['sale_type'].astype(str)
+          
+            self.basket = ( #aggegrate duplicates
+            self.basket.groupby('item_ID', as_index=False)
+            .agg({
+                "type" : "first",
+                "servings" : "first",
+                "days_till_expiry" : "first",
+                "price_per_serving" : "first",
+                "sale_type" : "first",
+                "discount_effect" : "first",
+                "amount" : "sum",
+                "deal_value" : "first",
+                "sale_timer" : "first",
+                "store" : "first",
+                "product_ID" : "first",
+                "item_ID" : "first"
+            })
+            )
 
-            equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
-                            "sale_timer", "ID"]
-            self.basket = self.basket.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
-
-            # Convert str of enums back to enums
-            self.basket['sale_type'] = self.basket['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
-            self.basket['discount_effect'] = self.basket['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
 
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
@@ -706,9 +720,17 @@ class BasketCurator():
         Returns:
             float: returns cost of the purchase (- n -> gain n, +n -> pay n)
         """        
+               
         store = item["store"] #take replacement from store
+        #globals.log(store, "buying: ")
+        #globals.log(store, message=item)
+        #globals.log(store, "stock before purchase")
+        #globals.log(store,store.stock)
         store.buy(item, amount)
-        store.organize_stock(item) 
+        
+        #globals.log(store, message="stock after purchase")
+        #globals.log(store,store.stock)
+        store.organize_stock()
         
     def _give_back(self,item:pd.Series,amount:int) -> None:
         """Return item in amount from store
@@ -750,7 +772,7 @@ class BasketCurator():
                 for store in self.stores: 
                     if store.is_fg_in_stock(fg): 
                         if len(options) == 0: 
-                            options = store.get_stock_of_fg(fg)
+                            options = store.stock[store.stock["type"]==fg].copy(deep=True)
                         else: 
                             options = pd.concat([options, store.stock.copy(deep=True)], ignore_index=True)
         if len(options) > 0 and focus_on_sales : 
@@ -788,7 +810,7 @@ class BasketCurator():
     
     def get_idx_of_identical_item_df(self,item:pd.Series, df:pd.DataFrame) -> None | int :
         """Helper function to get the idx of an item in df. 
-
+            has to be a stock not a product range item
         Args:
             item (pd.Dataframe): item to be found 
             df (pd.Dataframe): df to look for the item for
@@ -797,14 +819,7 @@ class BasketCurator():
             int | None: index of item or none, if item is not in df
         """        
         # Find the index of the matching row
-        idx = df.loc[
-            (df["type"] == item["type"]) &
-            (df["servings"] == item["servings"]) &
-            (df["days_till_expiry"] == item["days_till_expiry"]) &
-            (df["sale_type"] == item["sale_type"]) &
-            (df["store"] == item["store"])
-        ].index
-
+        idx = df.loc[(df["item_ID"] == item["item_ID"])].index
         # If you expect only one match, you can get the first index
         if not idx.empty:
             return idx[0]

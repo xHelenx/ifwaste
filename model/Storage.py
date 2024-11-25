@@ -40,10 +40,17 @@ class Storage:
         self.fg: FoodGroups = FoodGroups.get_instance()  # type: ignore
 
     def add(self, item: pd.Series) -> None: 
-        #self.current_items = pd.concat([self.current_items, pd.DataFrame([item])], ignore_index=True)
-        #self.current_items.reset_index(drop=True, inplace=True)
-        self.current_items.loc[len(self.current_items)] = item
-        self.current_items.reset_index(drop=True, inplace=True)  # Drop the old index
+        if self.current_items.empty:
+            self.current_items = pd.DataFrame(columns=list(item.keys()))
+
+        # Convert item to a DataFrame and concatenate
+        item_df = pd.DataFrame([item])
+        
+        if len(self.current_items) == 0:
+                    self.current_items = item_df
+        else:
+            self.current_items = pd.concat([self.current_items, item_df], ignore_index=True)
+        self.current_items.reset_index(drop=True, inplace=True)
 
 
     def remove(self, item: pd.Series) -> None:            

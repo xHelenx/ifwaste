@@ -1,5 +1,6 @@
 from __future__ import annotations  # Delay import for type hints
 
+import hashlib
 from logging import Logger
 import math
 import random
@@ -46,7 +47,7 @@ class Store(Location):
         with open(globals.CONFIG_PATH) as f: 
             config = json.load(f)
             self.product_range = pd.read_csv(config["Store"][store_type.value]["product_range"])
-            self.product_range["ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
+            self.product_range["product_ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
             self.stock = pd.DataFrame(columns= [
             'type', 
             'servings', 
@@ -58,7 +59,8 @@ class Store(Location):
             'deal_value', 
             'sale_timer',
             'store',
-            'ID'])      
+            'product_ID',
+            'item_ID'])      
         
         self.tracker: pd.DataFrame = self.product_range.copy() 
         self.tracker = self.tracker.drop(columns=["price_per_serving", "type", "servings"])
@@ -96,9 +98,10 @@ class Store(Location):
 
         to_be_purchased = self.product_range
         if not product is None: 
-            to_be_purchased = self.tracker[self.tracker["ID"] == product["ID"]]
+            to_be_purchased = self.tracker[self.tracker["product_ID"] == product["product_ID"]]
             
         for i in to_be_purchased.index: 
+            #for each item that is bought, init a new item
             curr_fg = self.food_groups.get_food_group(str(self.product_range.loc[i,"type"]))
             days_till_expiry = random.randint(curr_fg["exp_min"].tolist()[0], curr_fg["exp_max"].tolist()[0]) #TODO only max here
             new_item = {"type": self.product_range.loc[i,"type"], 
@@ -112,39 +115,18 @@ class Store(Location):
                             self.product_range.loc[i,"price_per_serving"] * self.product_range.loc[i,"servings"],
                         "sale_timer": globals.SALES_TIMER_PLACEHOLDER,
                         "store": self,
-                        "ID": str(self.product_range.loc[i,"type"]) + str(self.product_range.loc[i,"servings"])+ \
-                        str(self.product_range.loc[i,"price_per_serving"])} 
-            idx = self.stock[ new_item["ID"] == self.stock["ID"]].index
-            
-            idx = self.stock[
-                    (new_item["ID"] == self.stock["ID"]) &  
-                    (new_item["days_till_expiry"] == self.stock["days_till_expiry"]) & 
-                    (new_item["sale_type"] == self.stock["sale_type"]) & 
-                    (new_item["discount_effect"] == self.stock["discount_effect"]) &
-                    (new_item["sale_timer"] == self.stock["sale_timer"]) 
-                ].index
-            
+                        "product_ID": str(self.product_range.loc[i,"type"]) + str(self.product_range.loc[i,"servings"])+ \
+                        str(self.product_range.loc[i,"price_per_serving"]),
+                        "item_ID":None} 
+            new_item["item_ID"] = self._generate_hash(pd.Series(new_item))            
+            idx = self.stock[(new_item["item_ID"] == self.stock["item_ID"])].index
+            #check if the exact item specs. already exist -> then just add amount instead
             if len(idx) > 0:
-                print(idx)
-                print(self.stock.loc[idx])
                 self.stock.loc[idx,"amount"] += amount_per_item # type: ignore
-            else: 
-                new_item = { "type": self.product_range.loc[i,"type"],
-                            "servings": self.product_range.loc[i,"servings"],
-                            "days_till_expiry": days_till_expiry, 
-                            "price_per_serving": self.product_range.loc[i,"price_per_serving"], 
-                            "sale_type":EnumSales.NONE, 
-                            "discount_effect":EnumDiscountEffect.NONE,
-                            "amount": amount_per_item,
-                            "deal_value":a_1 * self.product_range.loc[i,"price_per_serving"] + a_2 *\
-                            self.product_range.loc[i,"price_per_serving"] * self.product_range.loc[i,"servings"],
-                            "sale_timer": globals.SALES_TIMER_PLACEHOLDER,
-                            "store":self,
-                            "ID":str(self.product_range.loc[i,"type"]) + str(self.product_range.loc[i,"servings"]) +\
-                            str(self.product_range.loc[i,"price_per_serving"])
-                            }
-                    
+            else: #else add it as new item 
+                new_item = pd.Series(new_item).reindex(self.stock.columns)                   
                 self.stock.loc[len(self.stock)] = new_item     # type: ignore
+            self.organize_stock()
                                         
     def get_idx_of_identical_item_df(self,item:pd.Series) -> int | None : #returns item or none
         """Takes a stock item and returns stock item with the same characteristics
@@ -157,24 +139,8 @@ class Store(Location):
             pd.Dataframe: selected row that matches the item attributes, if none matches
             returns None 
         """        
-        mask =  (self.stock["type"] == item["type"]) & (self.stock["servings"] == item["servings"]) &\
-            (self.stock["days_till_expiry"] == item["days_till_expiry"]) & (self.stock["sale_type"] == item["sale_type"]) &\
-            (self.stock["discount_effect"] == item["discount_effect"]) & (self.stock["sale_timer"] == item["sale_timer"]) &\
-            (self.stock["store"] == item["store"])
-        if len(self.stock.index[mask].tolist())> 0: 
-            return self.stock.index[mask].tolist()[0]
-        else:
-            return None
-             
-    def get_idx_of_identical_item_dict(self,item)-> int | None :  #returns item or none
-        mask =  (self.stock["type"] == item["type"]) & (self.stock["servings"] == item["servings"]) &\
-            (self.stock["days_till_expiry"] == item["days_till_expiry"]) & (self.stock["sale_type"] == item["sale_type"]) &\
-            (self.stock["discount_effect"] == item["discount_effect"]) & (self.stock["sale_timer"] == item["sale_timer"]) &\
-            (self.stock["store"] == item["store"])
-        if len(self.stock.loc[mask].index) > 0: 
-            return self.stock.loc[mask].index[0]
-        else:
-            return None
+        indices =  self.stock[(self.stock["item_ID"] == item.item_ID)].index
+        return indices[0] if not indices.empty else None
     
     def is_fg_in_stock(self, fg) -> bool: 
         return fg in self.stock["type"].unique()
@@ -191,8 +157,9 @@ class Store(Location):
             self.tracker["today"] = 0 #reset amount tracker for today
             self._plan_and_buy_stock()
             self._manage_sales()
-            
-            #TODO put on sales -> update best_deals_per_fg
+            globals.log(self,"--- after restocking and sales ---" )
+            globals.log(self,self.stock)
+
             
     def do_after_day(self) -> None: 
         self._decay()
@@ -201,7 +168,10 @@ class Store(Location):
         
         mask  = self.stock["sale_type"] == EnumSales.SEASONAL #all seasonal items      
         self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends        
-        self.stock = self.stock[self.stock["amount"] > 0]
+        self.organize_stock()
+        
+        globals.log(self,"Tracker:")
+        globals.log(self,self.tracker)
         
         
     def _decay(self) -> None:
@@ -216,9 +186,6 @@ class Store(Location):
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
             self.stock = self.stock[self.stock["days_till_expiry"] > 0] #remove spoiled food 
             self.stock = self.stock.drop(columns=["reason"])
-            
-    def get_stock_of_fg(self,fg) -> pd.DataFrame:
-        return self.stock[self.stock["type"]==fg]
     
     def get_available_food_groups(self) -> list[str]:
         '''
@@ -229,35 +196,29 @@ class Store(Location):
     def is_fg_in_productrange(self, fg) -> bool: 
         return fg in self.product_range["type"].unique().tolist()
     
-    def organize_stock(self, item_type:pd.Series|None=None) -> None: 
+    def organize_stock(self) -> None: 
         """Removes all products from stock, that are sold out (amount=0)
         """ 
+        self.stock = self.stock[self.stock["amount"] > 0]
         
-        if item_type is not None:
-            idx = self.get_idx_of_identical_item_df(item_type)
-            if idx is not None:  # Ensure the index exists
-                # Check if the amount at the given index is 0
-                if self.stock.loc[idx, 'amount'] == 0:
-                    # Drop the row with the specified index
-                    self.stock = self.stock.drop(index=idx)
-        else:       
-            self.stock = self.stock[self.stock["amount"] > 0]
-            
-       # self._group_stock_items()
+        self.stock = ( #aggegrate duplicates
+            self.stock.groupby('item_ID', as_index=False)
+            .agg({
+                "type" : "first",
+                "servings" : "first",
+                "days_till_expiry" : "first",
+                "price_per_serving" : "first",
+                "sale_type" : "first",
+                "discount_effect" : "first",
+                "amount" : "sum",
+                "deal_value" : "first",
+                "sale_timer" : "first",
+                "store" : "first",
+                "product_ID" : "first",
+                "item_ID" : "first"
+            })
+        )
         
-    #def _group_stock_items(self):
-    #    # Temporarily convert enums to string for grouping
-    #    self.stock['discount_effect'] = self.stock['discount_effect'].astype(str)
-    #    self.stock['sale_type'] = self.stock['sale_type'].astype(str)#
-
-    #    equal_columns = ["type", "servings", "days_till_expiry", "price_per_serving", "store", "sale_type", "discount_effect", "deal_value", 
-    #                    "sale_timer", "ID"]
-        #self.stock = self.stock.groupby(equal_columns, as_index=False)['amount'].sum() # type: ignore
-
-        # Convert str of enums back to enums
-       # self.stock['sale_type'] = self.stock['sale_type'].apply(lambda x: globals.to_EnumSales(x))   # type: ignore
-       # self.stock['discount_effect'] = self.stock['discount_effect'].apply(lambda x: globals.to_EnumDiscountEffect(x))  # type: ignore # Adjust to your enum class if different
-
         
     def buy(self,item:pd.Series,amount:int=1) -> None:
         """Purchases an number of items from the store. Reduces the stock
@@ -297,24 +258,18 @@ class Store(Location):
     
     def _track_removed_from_stock(self, item:pd.Series, amount:int|None=None)  -> None:
         assert (isinstance(item, pd.Series) and not amount is None) or isinstance(item,pd.DataFrame)
-        mask = (self.tracker["ID"] == item["ID"])
+        mask = (self.tracker["product_ID"] == item["product_ID"]) #here product not item 
         self.tracker.loc[mask, "today"] += amount # type: ignore
         
     def _update_tracker(self) -> None: 
         self.tracker["purchased"] = self.tracker.apply(lambda row: row["purchased"][1:] + [row["today"]], axis=1)
 
     def _plan_and_buy_stock(self) -> None:
-        
-        if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:
-            globals.log(self,"Tracker:")
-            globals.log(self,self.tracker)
-        
+        if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
             for index, row in self.tracker.iterrows():
                 self.buy_stock(self.tracker.loc[index, "planned_restock_amount"], row) # type: ignore
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: 0)
-            globals.log(self,"--- restocking ---" )
-            globals.log(self,self.stock)
     def _manage_sales(self,) -> None: 
         #remove finished sales (clearance automatically when food is bad/bought)
         self._update_seaonsal_sales()
@@ -411,8 +366,8 @@ class Store(Location):
     def _update_high_stock_sales(self): 
         #update high stock items that are already on sale
         for _, row in self.product_range.iterrows():
-            # Select the actual product from the product range
-            mask = (self.stock["ID"] == row["ID"])
+            # Select the actual product from the product range (all items that match)
+            mask = (self.stock["product_ID"] == row["product_ID"])
             high_stock_mask =  self.stock.loc[mask, "sale_type"] == EnumSales.HIGHSTOCK
             
             if high_stock_mask.any(): # type: ignore
@@ -441,7 +396,7 @@ class Store(Location):
         self.stock["sale_option"] = [[] for _ in range(len(self.stock))]
         for _,row in self.product_range.iterrows(): 
             #select all items of this product type
-            mask = (self.stock["ID"] == row["ID"])
+            mask = (self.stock["product_ID"] == row["product_ID"])
             current_product = self.stock[mask]
             ## high stock sales ##
             mask_no_sale_applied = mask & (self.stock["sale_type"] == EnumSales.NONE)
@@ -452,7 +407,7 @@ class Store(Location):
            
            #now we look at each item of this product type (could vary by e.g. expiry date)
             for _,row_by_exp in self.stock[mask_no_sale_applied].iterrows():
-                 ## clearance sales ## 
+                ## clearance sales ## 
                 #select all item of 1 expiry date
                 if row_by_exp["days_till_expiry"] <= self.clearance_interval_3: 
                     self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_3)])
@@ -463,22 +418,13 @@ class Store(Location):
                               
                 ## seasonal sales (random sales)
                 if random.uniform(0,1) < self.seasonal_likelihood:  # type: ignore
-                    self._add_sales_options(mask,[(EnumSales.SEASONAL,self.seasonal_discount)])
-        
-        
-       #globals.log(self,"Sales options have been added:")
-       # globals.log(self,self.stock)
-          
+                    self._add_sales_options(mask,[(EnumSales.SEASONAL,self.seasonal_discount)])        
           
         #all items that are empty are set to NONE:         
         self.stock['sale_option'] = self.stock['sale_option'].apply(lambda x: [(EnumSales.NONE,[EnumDiscountEffect.NONE])] if len(x) == 0 else x)
 
         ## select a random sale and apply it  
         self._apply_sales()   
-            
-        
-        #globals.log(self,"Sales have been applied")
-        #globals.log(self,self.stock)
 
     def _apply_sales(self): 
         #all sale options have been slected in sale_options -> now we choose one
@@ -502,10 +448,10 @@ class Store(Location):
             if len(self.stock[~mask]) > 0:
                 self.stock.loc[~mask,"price_per_serving"] = self.stock.loc[~mask,"price_per_serving"] * self.stock.loc[~mask,"discount_effect"].apply(lambda x: float(x.scaler))
             
-            
             self._update_deal_value()
-            self.stock = self.stock.drop(columns=["sale_option"])   
             self.stock["sale_timer"] = self.stock["sale_type"].apply(lambda x: self.seasonal_duration if x == EnumSales.SEASONAL else globals.SALES_TIMER_PLACEHOLDER)
+        
+        self.stock = self.stock.drop(columns=["sale_option"])   
         
     def _update_deal_value(self): 
         #update deal value because servings size or price has changed
@@ -518,3 +464,9 @@ class Store(Location):
     def _add_sales_options(self, item_mask: pd.Series, sale_option: list[tuple[EnumSales, list[EnumDiscountEffect]]]):
         #add item to the temporary list of possible sales to apply to the item 
         self.stock.loc[item_mask, 'sale_option'] = self.stock.loc[item_mask, 'sale_option'].apply(lambda x: x + sale_option)
+        
+        
+    def _generate_hash(self, row: pd.Series) -> str:
+        row_filtered = row.drop(labels=['amount', 'item_ID'])
+        row_str = ''.join(str(value) for value in row_filtered)  # Concatenate all column values as a string
+        return hashlib.sha256(row_str.encode('utf-8')).hexdigest()
