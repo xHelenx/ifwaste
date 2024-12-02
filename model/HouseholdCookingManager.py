@@ -33,10 +33,10 @@ class HouseholdCookingManager:
         self.todays_servings: float = req_servings
         self.today:int = 0
         
-        self.log_today_eef: bool 
-        self.log_today_cooked: bool 
-        self.log_today_leftovers: bool 
-        self.log_today_quickcook: bool 
+        self.log_today_eef: int
+        self.log_today_cooked: int
+        self.log_today_leftovers: int
+        self.log_today_quickcook: int
         
         
     def _has_enough_ingredients(self) -> bool: 
@@ -46,10 +46,10 @@ class HouseholdCookingManager:
         return self.todays_time < globals.HH_MIN_TIME_TO_COOK
     
     def _reset_logs(self) -> None: 
-        self.log_today_eef = False
-        self.log_today_cooked = False
-        self.log_today_leftovers = False
-        self.log_today_quickcook = False
+        self.log_today_eef = 0
+        self.log_today_cooked = 0
+        self.log_today_leftovers = 0
+        self.log_today_quickcook = 0
     
     def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  tuple[Union[pd.Series, None], float,float]:
         shopping_time = 0
@@ -77,7 +77,7 @@ class HouseholdCookingManager:
             meal = self._combine_to_meal(prepped)
         
         if not is_quickcook: 
-            self.log_today_cooked = True 
+            self.log_today_cooked = 1 
         else: 
             self.log_today_quickcook
             
@@ -182,7 +182,7 @@ class HouseholdCookingManager:
                     self._eat_meal(strategy)
                     
         if strategy != "random":
-            self.log_today_eef = True
+            self.log_today_eef = 1
             
         globals.log(self,"missing servings: %f", self.todays_servings)    
         globals.log(self,"req servings: %f", self.req_servings)    
@@ -208,13 +208,7 @@ class HouseholdCookingManager:
             elif ((earliest_pantry <= globals.COOK_EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
             (not self.pantry.is_empty()): 
                 strategy = "EEFpantry"
-                
         return strategy
-       
-    #def get_meal_from_fridge(self, strategy:Literal["EEF","random"]) -> pd.Series|None:     
-    #    self.log_today_leftovers = True
-    #    return self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)
-        
         
     def _eat_meal(self,strategy:str|None = None, meal:pd.Series|None = None)  -> None:
         assert not (strategy == None and meal is None)
