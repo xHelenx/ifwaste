@@ -13,6 +13,7 @@ data/*
 debug.log 
 analysis/*.html 
 analysis/plots/*
+analysis/__pycache__/*
 
 #ignore log files
 model/LOGS/*
