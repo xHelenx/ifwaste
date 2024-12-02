@@ -52,8 +52,6 @@ class HouseholdShoppingManager:
         self.todays_time:float = 0
         self.req_servings_per_fg = req_servings_per_fg
         self.req_servings:float = sum(self.req_servings_per_fg.values())
-        
-        self.log_shopping_time:float = 0
     
     def _get_what_to_buy(self) -> pd.Series: 
         required_servings = dict()
@@ -185,11 +183,7 @@ class HouseholdShoppingManager:
         duration = 0
         if visited_stores != None:
             coords = [store.get_coordinates() for store in visited_stores]
-            duration += self.grid.get_travel_time_entire_trip(self.location,coords) 
-            self.log_shopping_time:float =  duration 
-        else: 
-            self.log_shopping_time = 0
-            
+            duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
         
         basketCurator.impulse_buy(self.impulsivity)
         if len(basketCurator.basket) > 0:

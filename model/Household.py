@@ -53,10 +53,8 @@ class Household(Location):
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
         
         
-        self.log_today_eef: int = 0
-        self.log_today_cooked: int = 0
-        self.log_today_leftovers: int = 0
-        self.log_today_quickcook: int = 0
+        self.log_shopping_time: float = 0
+        self.log_cooking_time: float = 0
         
         self.shoppingManager:HouseholdShoppingManager = HouseholdShoppingManager(
             budget = self.budget,
@@ -92,6 +90,11 @@ class Household(Location):
             logger = self.logger
             
         )
+        
+    def _reset_logs(self) -> None: 
+        self.log_shopping_time: float = 0
+        self.log_cooking_time: float = 0
+
     def gen_ppl(self) -> list[Person]:
         """Generates the people living together in a household.
 
@@ -147,7 +150,8 @@ class Household(Location):
 
         Return:
             
-        """        
+        """  
+        self._reset_logs()      
         globals.log(self,"###########################################")
         globals.log(self,"Day %i:", globals.DAY)
         globals.log(self,"###########################################")
@@ -162,10 +166,15 @@ class Household(Location):
         if globals.DAY % self.shopping_frequency == 0:
             shopping_time = self.shoppingManager.shop(is_quickshop=False)
         #cook and eat
-        self.cookingManager.cook_and_eat(used_time=shopping_time)
+        cooking_time = 0 
+        quick_shopping_time, cooking_time = self.cookingManager.cook_and_eat(used_time=shopping_time)
+        shopping_time += quick_shopping_time
         #decay food and throw spoiled food out
         self.decay_food()
         self.throw_food_out()    
+        
+        self.log_shopping_time = shopping_time
+        self.log_cooking_time = cooking_time
                
     
     def decay_food(self) -> None:

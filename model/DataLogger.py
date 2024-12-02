@@ -1,17 +1,9 @@
-from __future__ import annotations
-from multiprocessing import Value
-
-import pandas as pd 
-import globals
-
 import datetime
 import os
 from pathlib import Path
-
-from FoodGroups import FoodGroups
+import globals
+import pandas as pd
 from Store import Store
-
-
 
 class DataLogger: 
 
@@ -51,7 +43,7 @@ class DataLogger:
                                                    ["total_days"])
         
     
-    def log_configs(self,houses:list[Household]) -> None:  # type: ignore
+    def log_configs(self,houses:list["Household"]) -> None:  # type: ignore
         """Log the household configuration and simulation configurations.
 
         Args:
@@ -81,7 +73,7 @@ class DataLogger:
                 "shopping_frequency" : house.shopping_frequency
     }
             
-    def log_households_daily(self,houses:list[Household]) -> None: # type: ignore
+    def log_households_daily(self,houses:list["Household"]) -> None: # type: ignore
         """Collects the daily data from each house
 
         Args:
@@ -93,14 +85,15 @@ class DataLogger:
                 "day":globals.DAY,
                 "budget":house.shoppingManager.todays_budget,
                 "servings":house.cookingManager.todays_servings,      
-                "EEF": house.log_today_eef, 
-                "cooked": house.log_today_cooked, 
-                "ate_leftovers": house.log_today_leftovers,
-                "quick_cook":house.log_today_quickcook,
-                "shopping_time": house.shoppingManager.log_shopping_time
+                "EEF": house.cookingManager.log_today_eef, 
+                "cooked": house.cookingManager.log_today_cooked, 
+                "ate_leftovers": house.cookingManager.log_today_leftovers,
+                "quick_cook":house.cookingManager.log_today_quickcook,
+                "shopping_time": house.log_shopping_time,
+                "cooking_time": house.log_cooking_time
             }
     
-    def log_households_left_resources(self, houses:list[Household]) -> None:  # type: ignore
+    def log_households_left_resources(self, houses:list["Household"]) -> None:  # type: ignore
         """Tracks the final content of the storage, used after simulation is finished
 
         Args:
@@ -232,7 +225,7 @@ class DataLogger:
             columns=(["store","day","type","servings",
                     "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"])),
         "log_hh_daily" : pd.DataFrame(
-            columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time"])
+            columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time", "cooking_time"])
         }
                
         

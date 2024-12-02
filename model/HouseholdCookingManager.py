@@ -51,7 +51,9 @@ class HouseholdCookingManager:
         self.log_today_leftovers = False
         self.log_today_quickcook = False
     
-    def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  Union[pd.Series, None]:         
+    def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  tuple[Union[pd.Series, None], float,float]:
+        shopping_time = 0
+        cooking_time = 0
         if not self._has_enough_ingredients(): 
             shopping_time = self.shoppingManager.shop(is_quickshop=True) #shopping time ignored cause its short and we quickcook
             self.todays_time -= shopping_time 
@@ -78,7 +80,13 @@ class HouseholdCookingManager:
             self.log_today_cooked = True 
         else: 
             self.log_today_quickcook
-        return meal
+            
+        ## TODO calc cooking time
+        cooking_time = globals.HH_MIN_TIME_TO_COOK
+        if is_quickcook: 
+            cooking_time /=2
+            
+        return meal, shopping_time, cooking_time
     
     def _combine_to_meal(self,items:pd.DataFrame) -> pd.Series: 
         meal = pd.Series()
@@ -144,8 +152,10 @@ class HouseholdCookingManager:
         #TODO or should we not do tihs
         return planned
     
-    def cook_and_eat(self, used_time:float) -> None: 
+    def cook_and_eat(self, used_time:float) -> tuple[float,float]: 
         globals.log(self,"------> COOKING")    
+        cooking_time = 0
+        shopping_time = 0
         self._reset_logs()
         self.todays_time = self.time[globals.DAY%7] - used_time
         self.todays_servings = self.req_servings
@@ -154,12 +164,12 @@ class HouseholdCookingManager:
         globals.log(self,"cooking strategy: %s", strategy)    
         
         #first round of eating
-        self._prepare_by_strategy(strategy)
+        shopping_time, cooking_time = self._prepare_by_strategy(strategy)
             
         #still hungry -> fe
         if self.todays_servings > 0: 
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
-                meal = self._cook("EEF", is_quickcook = True)
+                meal,shopping_time,cooking_time = self._cook("EEF", is_quickcook = True)
                 globals.log(self,"quick cook more:")    
                 globals.log(self,meal)
                 if meal is not None: 
@@ -177,7 +187,7 @@ class HouseholdCookingManager:
         globals.log(self,"missing servings: %f", self.todays_servings)    
         globals.log(self,"req servings: %f", self.req_servings)    
                 
-            
+        return shopping_time, cooking_time
         
     def _determine_strategy(self) -> Literal['EEFfridge', 'EEFpantry','random']: 
         strategy = "random"      
@@ -305,7 +315,8 @@ class HouseholdCookingManager:
         return (to_eat, to_fridge)
         
         
-    def _prepare_by_strategy(self,strategy) -> None:
+    def _prepare_by_strategy(self,strategy) -> tuple[float,float]:
+        shopping_time = cooking_time = 0
         if strategy == "EEFfridge": #eat from fridge cause it expires soon
             if not self.fridge.is_empty():
                 globals.log(self,"from fridge:")    
@@ -314,8 +325,9 @@ class HouseholdCookingManager:
             if strategy == "EEFpantry":
                 strategy = "EEF"
             is_quickcook = not self._has_enough_time()
-            meal = self._cook(strategy=strategy,is_quickcook=is_quickcook)
+            meal,shopping_time,cooking_time = self._cook(strategy=strategy,is_quickcook=is_quickcook)
             globals.log(self,"is quickcook %s, cooked:", is_quickcook)    
             globals.log(self,meal)
             if meal is not None:
                 self._eat_meal(meal=meal)   
+        return shopping_time, cooking_time
