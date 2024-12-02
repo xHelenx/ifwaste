@@ -9,7 +9,7 @@ def main(name:str) -> None:
     #read configuration file 
     os.chdir(r"E:/UF/ifwaste/model")
     globals.configure_simulation(file=name)     
-    pd.set_option("display.max_rows", None)  # Show all rows
+    pd.set_option("display.max_rows", None)     # Show all rows
     pd.set_option("display.max_columns", None)  # Show all columns
     pd.set_option("display.width", 300)         # Set max characters per line
 

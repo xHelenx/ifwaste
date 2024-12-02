@@ -40,9 +40,9 @@ class Grid:
                 elif isinstance(self.grid[i][j], Household):
                     grid_str += " h "
                 elif isinstance(self.grid[i][j], StoreDiscounterRetailer):
-                    grid_str += " sl"
+                    grid_str += " sd"
                 elif isinstance(self.grid[i][j], StorePremimumRetailer):
-                    grid_str += " sm"
+                    grid_str += " sp"
                 elif isinstance(self.grid[i][j], StoreConvenienceStore):
                     grid_str += " sc"
                 else: 

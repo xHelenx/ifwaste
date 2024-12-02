@@ -70,7 +70,7 @@ class Neighborhood():
             self.data_logger.log_households_daily(houses=self.houses)
             self.data_logger.log_stores_daily(stores=self.stores)
             if i%globals.SIMULATION_WRITE_TO_FILE_INTERVAL == 0: 
-                self.data_logger.data_to_csv(run=run_id)
+                self.data_logger.data_to_csv(run=run_id) #TODO make sure rest is written depenidng on %
 
             
             globals.DAY += 1

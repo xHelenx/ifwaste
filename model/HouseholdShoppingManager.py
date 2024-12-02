@@ -102,7 +102,7 @@ class HouseholdShoppingManager:
                 inedible = FoodGroups._instance.food_groups.loc[FoodGroups._instance.food_groups["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
             item.drop(["adjustment"])
-        item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "item_ID", "sale_timer"])
+        item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "sale_timer"])
         item["status"] = status
         item["price"] = price
         item["inedible_percentage"] =inedible

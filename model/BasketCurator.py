@@ -613,7 +613,6 @@ class BasketCurator():
         
     def _add_item(self, item:pd.Series, amount:int) -> None:
         """Adds item to basket
-
         Args:
             item (pd.Series): item to add
             amount (int): amount of instance to add
@@ -626,29 +625,30 @@ class BasketCurator():
         """Organizes the basket, by merging identical items into one row and the the 
         summed amount
         
-        """        
+        """   
 
-        if len(self.basket) > 0: 
-          
-            self.basket = ( #aggegrate duplicates
-            self.basket.groupby('item_ID', as_index=False)
-            .agg({
-                "type" : "first",
-                "servings" : "first",
-                "days_till_expiry" : "first",
-                "price_per_serving" : "first",
-                "sale_type" : "first",
-                "discount_effect" : "first",
-                "amount" : "sum",
-                "deal_value" : "first",
-                "sale_timer" : "first",
-                "store" : "first",
-                "product_ID" : "first",
-                "item_ID" : "first"
-            })
+        # Convert enums to strings temporarily for grouping
+        self.basket["sale_type"] = self.basket["sale_type"].apply(lambda x: str(x))
+        self.basket["discount_effect"] = self.basket["discount_effect"].apply(lambda x: str(x))
+
+        # Perform grouping and aggregation
+        self.basket = (
+            self.basket.groupby(
+                [
+                    "type", "servings", "days_till_expiry", "price_per_serving",
+                    "sale_type", "discount_effect", "deal_value",
+                    "sale_timer", "store", "product_ID"
+                ],
+                as_index=False
             )
+            .agg({
+                "amount": "sum"  # Sum up the amounts
+            })
+        )
 
-
+        # Convert strings back to Enums
+        self.basket["sale_type"] = self.basket["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
+        self.basket["discount_effect"] = self.basket["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
         """Removes item from the basket
@@ -746,7 +746,7 @@ class BasketCurator():
         store.give_back(item, amount)
         
     
-    def _get_stock_options(self, fgs:List[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
+    def _get_stock_options(self, fgs:list[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
         """_summary_
 
         Args:
@@ -758,28 +758,35 @@ class BasketCurator():
         Returns:
             _type_: _description_
         """
-        
+        predefined_columns_set = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
+                                  "deal_value", "sale_timer", "store", "product_ID", "amount"}
         options = pd.DataFrame()
         #go over required food groups
         if fgs == None: 
             for store in self.stores: 
                 if len(options) == 0:
                     options = store.stock.copy(deep=True)
+                    assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                 else: 
                     options = pd.concat([options, store.stock.copy(deep=True)], ignore_index=True)
+                    assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
         else: 
             for fg in fgs:
                 for store in self.stores: 
                     if store.is_fg_in_stock(fg): 
                         if len(options) == 0: 
                             options = store.stock[store.stock["type"]==fg].copy(deep=True)
+                            assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                         else: 
                             options = pd.concat([options, store.stock.copy(deep=True)], ignore_index=True)
+                            assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
         if len(options) > 0 and focus_on_sales : 
             items_on_sale = options[options["sale_type"] != EnumSales.NONE] 
             if len(items_on_sale) > 0: 
                 #if items are on sale buy from those (even tho might not be best deal)
                 options = items_on_sale
+                assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
+                
         return options 
     
     def return_basket_to_store(self) -> None: 
@@ -817,9 +824,19 @@ class BasketCurator():
 
         Returns:
             int | None: index of item or none, if item is not in df
-        """        
-        # Find the index of the matching row
-        idx = df.loc[(df["item_ID"] == item["item_ID"])].index
-        # If you expect only one match, you can get the first index
-        if not idx.empty:
-            return idx[0]
+        """      
+        if len(df) > 0:
+            indices =  df[
+                (df["type"] == item.type)
+                & (df["servings"] == item.servings)
+                & (df["days_till_expiry"] == item.days_till_expiry)
+                & (df["price_per_serving"] == item.price_per_serving)
+                & (df["sale_type"] == item.sale_type)
+                & (df["discount_effect"] == item.discount_effect)
+                & (df["sale_timer"] == item.sale_timer)
+                & (df["store"] == item.store)
+                & (df["product_ID"] == item.product_ID)            
+                ].index
+        else: 
+            return None
+        return indices[0] if not indices.empty else None

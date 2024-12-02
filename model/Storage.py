@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from param import DataFrame
 
 from FoodGroups import FoodGroups
 import globals 
