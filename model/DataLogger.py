@@ -44,8 +44,7 @@ class DataLogger:
             "avail_time_friday",
             "avail_time_saturday",
             "avail_time_sunday",
-            "shopping_frequency",
-            "total_runs"            
+            "shopping_frequency",        
         ])
         
         self.logs["log_sim_config"] = pd.DataFrame(columns=
@@ -79,8 +78,7 @@ class DataLogger:
                 "avail_time_friday" :  house.cookingManager.time[4], 
                 "avail_time_saturday" :  house.cookingManager.time[5], 
                 "avail_time_sunday" :  house.cookingManager.time[6],
-                "shopping_frequency" : house.shopping_frequency,
-                "total_runs" :  globals.SIMULATION_RUNS
+                "shopping_frequency" : house.shopping_frequency
     }
             
     def log_households_daily(self,houses:list[Household]) -> None: # type: ignore
@@ -137,14 +135,17 @@ class DataLogger:
             for index in store.stock.index: 
                 item = store.stock.loc[index]
                 self.logs["log_store_daily"].loc[len(self.logs["log_store_daily"])] = { # type: ignore
-                    "day":globals.DAY,
-                    "store": str(store),
-                    "type": item["type"],
-                    "servings": item["servings"],
-                    "days_till_expiry": item["days_till_expiry"],
-                    "price_per_serving": item["price_per_serving"],
-                    "sale_type": item["sale_type"],
-                    "amount": item["amount"]
+                    "day": globals.DAY,
+                    'type': item["type"],
+                    'servings': item["servings"],
+                    'days_till_expiry': item["days_till_expiry"],
+                    'price_per_serving': item["price_per_serving"],
+                    'sale_type': item["sale_type"],
+                    'discount_effect': item["discount_effect"],
+                    'amount': item["amount"],
+                    'sale_timer': item["sale_timer"],
+                    'store': item["store"],
+                    'product_ID':item["product_ID"]
                 }
     
     def data_to_csv(self, run:int, logs_to_write: list[str]|None=None) -> None: 
@@ -163,7 +164,7 @@ class DataLogger:
                 config_path = path + self.foldername + f"//"+ item + ".csv"
                 if os.path.exists(config_path):
                    config_header = False
-                self.logs[item].to_csv(config_path, header=config_header, mode="a")
+                self.logs[item].to_csv(config_path, header=config_header, mode="a", index=False)
         else:
             for log_name, log_file in self.logs.items():
                 if not log_name == "log_hh_config" and not log_name == "log_sim_config":
@@ -171,7 +172,7 @@ class DataLogger:
                     log_header = True
                     if os.path.exists(file_path):
                         log_header = False
-                    log_file.to_csv(file_path, header=log_header, mode="a")
+                    log_file.to_csv(file_path, header=log_header, mode="a", index=False)
                     self.reset_logs()
        
     
@@ -213,8 +214,8 @@ class DataLogger:
         """        
         self.logs = {    
         "log_bought" : pd.DataFrame(
-            columns=["household","day","type","servings","sale_type",
-                    "days_till_expiry","price_per_serving"]),
+            columns=["household","day","type","servings",
+                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"]),
         "log_eaten" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status",
                      globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
@@ -228,8 +229,8 @@ class DataLogger:
                      globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
                      globals.FGSTOREPREPARED]),
         "log_store_daily" : pd.DataFrame(
-            columns=["day","store","type","servings","days_till_expiry",
-                     "price_per_serving","sale_type","amount"]),
+            columns=(["store","day","type","servings",
+                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"])),
         "log_hh_daily" : pd.DataFrame(
             columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time"])
         }
@@ -327,9 +328,14 @@ class DataLogger:
             self.logs["log_bought"].loc[len(self.logs["log_bought"])] = { # type: ignore
                 "household": item["household"],
                 "day": globals.DAY,
-                "type": item["type"],
-                "servings": item["servings"],
-                "days_till_expiry": item["days_till_expiry"],
-                "price_per_serving":item["price_per_serving"],
-                "sale_type":item["sale_type"]
+                'type': item["type"],
+                'servings': item["servings"],
+                'days_till_expiry': item["days_till_expiry"],
+                'price_per_serving': item["price_per_serving"],
+                'sale_type': item["sale_type"],
+                'discount_effect': item["discount_effect"],
+                'amount': item["amount"],
+                'sale_timer': item["sale_timer"],
+                'store': item["store"],
+                'product_ID':item["product_ID"]
             }
