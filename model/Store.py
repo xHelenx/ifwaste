@@ -237,8 +237,8 @@ class Store(Location):
             )
             .agg({
                 "amount": "sum"  # Sum up the amounts
-            })
-        )
+            }) # type: ignore
+        ) # type: ignore
 
         # Convert strings back to Enums
         self.stock["sale_type"] = self.stock["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
@@ -367,6 +367,7 @@ class Store(Location):
         if discount_effect == EnumDiscountEffect.BOGO:
             self.stock.loc[selected_rows.index, "servings"] /= discount_effect.scaler
             self.stock.loc[selected_rows.index, "price_per_serving"] *= discount_effect.scaler
+            self.stock.loc[selected_rows.index, "amount"] *= discount_effect.scaler
         else:
             self.stock.loc[selected_rows.index, "price_per_serving"] /= discount_effect.scaler
 
@@ -382,13 +383,47 @@ class Store(Location):
         self._update_deal_value()
 
     
+    def handle_bogo_per_row(self,row:pd.Series, discount_scaler) -> list[pd.Series]:
+        if row["amount"] % discount_scaler == 0: #even number -> easy - apply bogo rules
+            row["amount"] //= discount_scaler
+            row["servings"] *= discount_scaler
+            row["price_per_serving"] /= discount_scaler
+            return [row]
+        else: #split into row that applies bogo for as many items as possible + leftover row
+            no_bogo = row.copy()
+            bogo = row.copy()
+            
+            bogo["amount"] //= discount_scaler
+            bogo["servings"] *= discount_scaler
+            bogo["price_per_serving"] /= discount_scaler
+            
+            no_bogo["amount"] = row["amount"] % discount_scaler   
+            no_bogo["sale_type"] = EnumSales.NONE
+            no_bogo["discount_effect"] = EnumDiscountEffect.NONE
+            
+            return [bogo,no_bogo]
+    
     def _add_sale_to_item(self,mask, sale_type, discount_effects) -> None:  
         selected_discount_effect = random.choice(discount_effects) # type: ignore
         self.stock.loc[mask, "sale_type"] = sale_type
         self.stock.loc[mask, "discount_effect"] = selected_discount_effect
         if selected_discount_effect == EnumDiscountEffect.BOGO: 
-            self.stock.loc[mask, "servings"]  *= selected_discount_effect.scaler # type: ignore
-            self.stock.loc[mask, "price_per_serving"]  /= selected_discount_effect.scaler # type: ignore
+            result_rows = []
+            if not isinstance(mask, int): #more than 1 row     
+
+                result_rows = [
+                            processed_row
+                            for _, row in self.stock.loc[mask].iterrows()
+                            for processed_row in self.handle_bogo_per_row(row, row["discount_effect"].scaler)
+                ]
+                self.stock = self.stock[~self.stock.index.isin([mask])]
+            else: 
+                result_rows = self.handle_bogo_per_row(self.stock.iloc[mask], self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                self.stock = self.stock[~mask]
+                         
+            self.stock = self.stock[~self.stock.index.isin([mask])]
+            self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
+            self.stock = self.stock.reset_index(drop=True)
         else: 
             self.stock.loc[mask, "price_per_serving"]  *= selected_discount_effect.scaler
             
@@ -471,11 +506,27 @@ class Store(Location):
             
             mask = self.stock.index.isin(idx) & (self.stock["discount_effect"] == EnumDiscountEffect.BOGO) #split bogo and sales -> one to change servings one for pricing
             if len(self.stock[mask]) > 0:
-                self.stock.loc[mask,"servings"] = self.stock.loc[mask,"servings"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler))
-                self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"]/self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler) )
+                #self.stock.loc[mask,"servings"] = self.stock.loc[mask,"servings"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler))
+                #self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"]/self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler) )
                 #now the serving price is halved -> here div 2, cause the 2 is multiplied to servings (enum has only one scaler)
-            if len(self.stock[~mask]) > 0:
-                self.stock.loc[~mask,"price_per_serving"] = self.stock.loc[~mask,"price_per_serving"] * self.stock.loc[~mask,"discount_effect"].apply(lambda x: float(x.scaler))
+                result_rows = []
+                if not isinstance(mask, int): #more than 1 row     
+
+                    result_rows = [
+                                processed_row
+                                for _, row in self.stock.loc[mask].iterrows()
+                                for processed_row in self.handle_bogo_per_row(row, row["discount_effect"].scaler)
+                    ]
+                    self.stock = self.stock[~self.stock.index.isin([mask])]
+                else: 
+                    result_rows = self.handle_bogo_per_row(self.stock.iloc[mask], self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                    self.stock = self.stock[~mask]
+                
+                self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
+                self.stock = self.stock.reset_index(drop=True)
+            mask = self.stock.index.isin(idx) & (self.stock["discount_effect"] != EnumDiscountEffect.BOGO)
+            if len(self.stock[mask]) > 0:
+                self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler))
             
             self._update_deal_value()
             self.stock["sale_timer"] = self.stock["sale_type"].apply(lambda x: self.seasonal_duration if x == EnumSales.SEASONAL else globals.SALES_TIMER_PLACEHOLDER)
