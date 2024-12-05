@@ -231,13 +231,15 @@ class HouseholdShoppingManager:
         return not basketCurator.is_basket_in_budget()  or not basketCurator.does_basket_cover_all_fg()
 
     
-    def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_price: bool | None =None) -> None | Store:
-        assert not (required_fgs == None and needs_lower_price == None)
+    def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_price: bool=False) -> None | Store:
+        assert not (required_fgs == None and needs_lower_price == None) #TODO technically ok now
         selection = None 
         #TODO if this is the second store the time for the first part of the route has to be considered! 
-        store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time)
+        if len(selected_store) == 0: #no store is selected
+            store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time)
+        else: #a store has been selected
+            store_options = self.grid.get_second_store_within_time_constraint(self.location,selected_store[0],self.todays_time,fg=required_fgs, needs_lower_price=needs_lower_price)
         #choose a store from possible options (not is_planner just selects 1 store here)
-        #TODO what if no store is possible to visit?
         if len(store_options) > 0:
             store_order = self._get_store_order(is_planner, required_fgs,store_options)
             selection = self._wheel_selection(store_order)

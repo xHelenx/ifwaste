@@ -160,7 +160,7 @@ class Store(Location):
         else:
             return None
             
-        return indices[0] if not indices.empty else None
+        return indices[0] if not indices.empty else None # type: ignore
     
     def is_fg_in_stock(self, fg:str) -> bool: 
         return fg in self.stock["type"].unique()
@@ -384,6 +384,7 @@ class Store(Location):
 
     
     def handle_bogo_per_row(self,row:pd.Series, discount_scaler) -> list[pd.Series]:
+        ##Important pass a copy of the item?
         if row["amount"] % discount_scaler == 0: #even number -> easy - apply bogo rules
             row["amount"] //= discount_scaler
             row["servings"] *= discount_scaler
@@ -414,14 +415,13 @@ class Store(Location):
                 result_rows = [
                             processed_row
                             for _, row in self.stock.loc[mask].iterrows()
-                            for processed_row in self.handle_bogo_per_row(row, row["discount_effect"].scaler)
+                            for processed_row in self.handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
                 ]
-                self.stock = self.stock[~self.stock.index.isin([mask])]
-            else: 
-                result_rows = self.handle_bogo_per_row(self.stock.iloc[mask], self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
                 self.stock = self.stock[~mask]
+            else: 
+                result_rows = self.handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                self.stock = self.stock[~self.stock.index.isin([mask])]
                          
-            self.stock = self.stock[~self.stock.index.isin([mask])]
             self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
             self.stock = self.stock.reset_index(drop=True)
         else: 
@@ -515,13 +515,12 @@ class Store(Location):
                     result_rows = [
                                 processed_row
                                 for _, row in self.stock.loc[mask].iterrows()
-                                for processed_row in self.handle_bogo_per_row(row, row["discount_effect"].scaler)
+                                for processed_row in self.handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
                     ]
-                    self.stock = self.stock[~self.stock.index.isin([mask])]
-                else: 
-                    result_rows = self.handle_bogo_per_row(self.stock.iloc[mask], self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
                     self.stock = self.stock[~mask]
-                
+                else: 
+                    result_rows = self.handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                    self.stock = self.stock[~self.stock.index.isin([mask])]
                 self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
                 self.stock = self.stock.reset_index(drop=True)
             mask = self.stock.index.isin(idx) & (self.stock["discount_effect"] != EnumDiscountEffect.BOGO)

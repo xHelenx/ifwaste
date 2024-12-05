@@ -119,7 +119,7 @@ class Grid:
         else:
             return self.get_travel_time_one_way(coords, first_stop) * 2 + globals.GRID_TIME_PER_STORE
   
-    def get_stores_within_time_constraint(self,start:Location, avail_time:float, fg:str | None=None, needs_lower_price:bool=False, first_stop: Store | None=None) -> list[Store]: #assuming up to single travel 
+    def get_stores_within_time_constraint(self,start:Location, avail_time:float, fg:str | None=None) -> list[Store]: #assuming up to single travel 
         '''
         Returns a list of store options, that meet different criteria: 
                 avail_time:  the traveling time for adding this store to the current trip does not exceed the avail time 
@@ -159,28 +159,50 @@ class Grid:
         if y_max >= len(self.grid[0]):
             y_max = len(self.grid[0])
             
-        first_location = None
-        if first_stop != None:
-            first_location = self.get_coordinates(location=first_stop)
-            if needs_lower_price:
-                price = first_stop.price
         for x_tmp in range(x_min,x_max):
             for y_tmp in range(y_min,y_max):
                 if isinstance(self.grid[x_tmp][y_tmp], Store): 
                     stores = [(x_tmp,y_tmp)]
-                    if first_location != None:
-                        stores.append(first_location)
-                    traveling_time= self.get_travel_time_entire_trip(start,stores) # type: ignore #we just go the other way round for easier calc
+                    traveling_time = self.get_travel_time_entire_trip(start,stores) # type: ignore #we just go the other way round for easier calc
                     
                     if traveling_time <= avail_time:
-                        if fg != None: #we need to find a store that offers a specifc fg
-                            if self.grid[x_tmp][y_tmp].is_fg_in_productrange(fg): # type: ignore
+                        if not(fg != None and not set(fg).issubset(set(self.grid[x_tmp][y_tmp].get_available_food_groups()))): #type: ignore
+                            relevant_stores.append(self.grid[x_tmp][y_tmp])                    
+        return relevant_stores
+    
+    def get_second_store_within_time_constraint(self,start:Location, first_stop:Store, avail_time:float, fg:list[str]|None=None, needs_lower_price:bool=False) -> list[Store]: #assuming up to single travel 
+        '''
+        Returns a list of store options, that meet different criteria: 
+                avail_time:  the traveling time for adding this store to the current trip does not exceed the avail time 
+                avail_time considers travling to the first stop too, if not none
+            optional: 
+                fg (str): the store must carry this food group XOR 
+                needs_lower_price (bool): the store must be of a lower price than the "first stop" store
+                first_stop (Store): required to set for needs_lower_price 
+        
+        Args: 
+        start: location to start trip from
+        avail_time: available traveling time 
+        fg: food group that store has to offer 
+        needs_lower_price: whether a store should be a lower price than (first_stop)
+        
+        Returns: 
+            (list[Store]) : a list of store options, for which all criteria are matching
+        '''
+        relevant_stores = []                  
+        first_stop_coord = self.get_coordinates(first_stop)
+        price = first_stop.price
+        for x_tmp in range(0,len(self.grid)):
+            for y_tmp in range(0,len(self.grid[0])):
+                if isinstance(self.grid[x_tmp][y_tmp], Store): 
+                    if (x_tmp,y_tmp) != first_stop_coord: #dont add the same store again
+                        stores = [first_stop_coord,(x_tmp,y_tmp)]
+                        traveling_time = self.get_travel_time_entire_trip(start,stores) # type: ignore #we just go the other way round for easier calc
+                        if traveling_time <= avail_time:
+                            if not((fg != None and not
+                                    set(fg).issubset(set(self.grid[x_tmp][y_tmp].get_available_food_groups()))) #type: ignore
+                                   or (needs_lower_price and not self.grid[x_tmp][y_tmp].price < price)): #type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
-                        elif needs_lower_price:
-                            if self.grid[x_tmp][y_tmp].price < price: # type: ignore
-                                relevant_stores.append(self.grid[x_tmp][y_tmp])
-                        else:
-                            relevant_stores.append(self.grid[x_tmp][y_tmp])
-                    
+                        
         return relevant_stores
     

@@ -223,7 +223,7 @@ class DataLogger:
                      globals.FGSTOREPREPARED]),
         "log_store_daily" : pd.DataFrame(
             columns=(["store","day","type","servings",
-                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"])),
+                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "product_ID"])),
         "log_hh_daily" : pd.DataFrame(
             columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time", "cooking_time"])
         }

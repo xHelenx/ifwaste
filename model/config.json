@@ -1,16 +1,16 @@
 {
     "Simulation" : { 
-        "runs" : 5, 
-        "total_days" : 100,
-        "name": "v2_test_run",
+        "runs" : 2, 
+        "total_days" : 30,
+        "name": "test",
         "output_folder": "data",
         "write_to_file_interval": 1,
-        "debug_log_on": "True"
+        "debug_log_on": "False"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 50, 
-        "neighborhood_store_types": "['Convenience_store', 'Discount_retailer', 'Premium_retailer']",
-        "neighborhood_store_amounts": "[2,2,2]",
+        "neighborhood_houses" : 15, 
+        "neighborhood_store_types": "['Discount_retailer', 'Premium_retailer', 'Convenience_store']",
+        "neighborhood_store_amounts": "[2,1,2]",
         "neighborhood_pay_day_interval" : 14
     },
     "Grid": {
@@ -27,7 +27,7 @@
         "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2,
         "hh_over_budget_factor" : 1.2,
-        "hh_max_avail_time_per_day": 3,
+        "hh_max_avail_time_per_day": 4,
         "hh_impulse_buy_likelihood": 0.2,
         "hh_shopping_frequency": 4, 
         "hh_min_time_to_cook": 0.5
@@ -40,8 +40,8 @@
 
         "male_veg_servings_min" : 2.6,
         "male_veg_servings_max" : 2.9,
-        "male_baked_servings_min":2,
-        "male_baked_servings_max":2.5,
+        "male_baked_servings_min": 2,
+        "male_baked_servings_max": 2.5,
         "male_dry_food_servings_min" : 7.3,
         "male_dry_food_servings_max" : 8,
         "male_dairy_servings_min" : 1.9,
@@ -56,7 +56,7 @@
         "female_veg_servings_min" : 2.5,
         "female_veg_servings_max" : 2.8,
         "female_baked_servings_min":2.5,
-        "female_baked_servings_max":3,
+        "female_baked_servings_max": 3,
         "female_dry_food_servings_min" : 5.3,
         "female_dry_food_servings_max" : 6,
         "female_dairy_servings_min" : 1.3,
@@ -179,12 +179,12 @@
             "quality":0.2, 
 
             "Sales": {
-                "high_stock_interval_1": 1.3,
-                "high_stock_interval_2": 1.2,
+                "high_stock_interval_1": 1.4,
+                "high_stock_interval_2": 1.3,
                 "high_stock_discount_interval_1": ["DISCOUNT30", "BOGO"],
                 "high_stock_discount_interval_2":  ["DISCOUNT20"], 
 
-                "seasonal_likelihood": 0.1,
+                "seasonal_likelihood": 0.05,
                 "seasonal_discount": ["DISCOUNT20", "DISCOUNT30", "BOGO"], 
                 "seasonal_duration" : 5,
 
@@ -201,8 +201,8 @@
             "quality":0.5, 
 
             "Sales": {
-                "high_stock_interval_1": 1,
-                "high_stock_interval_2": 0.9,
+                "high_stock_interval_1": 1.3,
+                "high_stock_interval_2": 1.2,
                 "high_stock_discount_interval_1": ["DISCOUNT40", "BOGO"],
                 "high_stock_discount_interval_2":  ["DISCOUNT30", "BOGO"], 
 
@@ -228,7 +228,7 @@
                 "high_stock_discount_interval_1": ["DISCOUNT20"],
                 "high_stock_discount_interval_2":  ["DISCOUNT10"], 
 
-                "seasonal_likelihood": 0.25,
+                "seasonal_likelihood": 0.05,
                 "seasonal_discount": ["DISCOUNT20", "DISCOUNT30"], 
                 "seasonal_duration" : 5,
 
@@ -245,7 +245,7 @@
         "weight_serving_price": 0.5
     },
     "BasketCurator":{
-        "increment_likelihood":0.02,
+        "increment_likelihood":0.05,
         "max_items_quickshop": 5
 
     }

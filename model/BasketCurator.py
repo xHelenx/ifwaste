@@ -787,7 +787,7 @@ class BasketCurator():
                 options = items_on_sale
                 assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                 
-        return options 
+        return options  # type: ignore
     
     def return_basket_to_store(self) -> None: 
         """Returns the entire basket to the store(s)
