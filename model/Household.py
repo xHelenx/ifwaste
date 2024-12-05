@@ -51,7 +51,7 @@ class Household(Location):
         
         self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
-        
+        globals.log(self,"Budget: %f", self.budget)
         
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
@@ -155,12 +155,11 @@ class Household(Location):
         globals.log(self,"###########################################")
         globals.log(self,"Day %i:", globals.DAY)
         globals.log(self,"###########################################")
-            
         
         # check if it is payday
         if globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL == 0:  #pay day
             self.shoppingManager.todays_budget += self.budget
-        
+        globals.log(self,"Budget: %f", self.budget)
         shopping_time = 0
         #check if it is time for a big grocery shop
         if globals.DAY % self.shopping_frequency == 0:
@@ -188,12 +187,12 @@ class Household(Location):
         """Throws out all food, that expired
         """    
         for location in [self.fridge.current_items, self.pantry.current_items]:
-            spoiled_food =  location[location["days_till_expiry"] <= 0] #selected spoiled food to track it
+            spoiled_food = location[location["days_till_expiry"] <= 0.0] #selected spoiled food to track it
             if len(spoiled_food) > 0:
                 for i in spoiled_food.index: 
                     (edible,inedible) = self.cookingManager._split_waste_from_food(meal=spoiled_food.loc[i],waste_type=globals.FW_INEDIBLE)
                     edible["reason"] = globals.FW_SPOILED
                     self.datalogger.append_log(self.id, "log_wasted", edible)   
                     self.datalogger.append_log(self.id, "log_wasted", inedible)   
-                location = location[location["days_till_expiry"] > 0] #remove spoiled food 
+                location = location[location["days_till_expiry"] > 0.0] #remove spoiled food 
                 

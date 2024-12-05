@@ -299,7 +299,7 @@ class DataLogger:
             "day": globals.DAY,
             "price": item["price"],
             "servings": item["servings"],
-            "days_till_expiry": item.days_till_expiry,
+            "days_till_expiry": item["days_till_expiry"],
             "status": item["status"],
             globals.FGMEAT: item[globals.FGMEAT],
             globals.FGDAIRY: item[globals.FGDAIRY],

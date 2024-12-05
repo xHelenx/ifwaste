@@ -1,21 +1,21 @@
 {
     "Simulation" : { 
-        "runs" : 2, 
-        "total_days" : 30,
+        "runs" : 1, 
+        "total_days" : 10,
         "name": "test",
         "output_folder": "data",
         "write_to_file_interval": 1,
-        "debug_log_on": "False"
+        "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 15, 
+        "neighborhood_houses" : 1, 
         "neighborhood_store_types": "['Discount_retailer', 'Premium_retailer', 'Convenience_store']",
         "neighborhood_store_amounts": "[2,1,2]",
         "neighborhood_pay_day_interval" : 14
     },
     "Grid": {
-        "travel_time_per_cell" : 0.6,
-        "time_per_store": 0.4
+        "travel_time_per_cell" : 0.2,
+        "time_per_store": 0.1
     },
     "Cooking" : {
         "cook_servings_per_grab": 8, 

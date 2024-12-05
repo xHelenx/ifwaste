@@ -79,7 +79,7 @@ class BasketCurator():
         #new day so reset: self.likelihood_to_stop
         self.likelihood_to_stop = 0       
         
-        globals.log(self,"#####CREATE BASKET######")
+        #globals.log(self,"#####CREATE BASKET######")
        
         if not is_quickshop:
             self._create_shop_basket()
@@ -88,10 +88,10 @@ class BasketCurator():
                        
         if len(self.basket) > 0: 
             self._organize_basket()        
-            globals.log(self,"is_quickshop: %s, basket: #items:%i, cost %f",is_quickshop, self.basket["amount"].sum(), (self.basket["price_per_serving"] * self.basket["servings"]).sum())
+            globals.log(self,"is_quickshop: %s, basket: #items:%i, cost %f",is_quickshop, self.basket["amount"].sum(), (self.basket["price_per_serving"] * self.basket["servings"] *  self.basket["amount"]).sum())
         else:
             globals.log(self,"is_quickshop: %s basket: #items: 0", is_quickshop)
-        globals.log(self,self.basket)    
+        #globals.log(self,self.basket)    
       
     def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
         """Helper function, that returns how many servings of each food type have already been 
@@ -213,7 +213,7 @@ class BasketCurator():
         '''
         if self.basket.empty:
             return True 
-        cost = (self.basket["price_per_serving"] * self.basket["servings"]).sum()
+        cost = (self.basket["price_per_serving"] * self.basket["servings"] * self.basket["amount"]).sum()
         return cost < self.budget 
     
     def does_basket_cover_all_fg(self) -> bool:

@@ -79,7 +79,7 @@ class HouseholdCookingManager:
         if not is_quickcook: 
             self.log_today_cooked = 1 
         else: 
-            self.log_today_quickcook
+            self.log_today_quickcook = 1
             
         ## TODO calc cooking time
         cooking_time = globals.HH_MIN_TIME_TO_COOK
@@ -171,8 +171,8 @@ class HouseholdCookingManager:
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
                 meal,shopping_time,cooking_time = self._cook("EEF", is_quickcook = True)
                 globals.log(self,"quick cook more:")    
-                globals.log(self,meal)
                 if meal is not None: 
+                    globals.log(self,meal["servings"])
                     self._eat_meal(meal=meal)
             else: #we already cooked or quick cooked -> so eat left overs now
                 if strategy == "EEFpantry": 
@@ -214,6 +214,11 @@ class HouseholdCookingManager:
         assert not (strategy == None and meal is None)
         assert not (strategy != None and meal is not None)   
                 
+        servings = 0
+        if meal is not None: 
+            servings = str(format(meal["servings"], ".2f"))
+        msg = "eat meal: " + str(strategy) + " servings: " + str(servings)
+        globals.log(self, msg)    
         needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
         
         if meal is None and needed_serv > 0.001:  
@@ -320,8 +325,13 @@ class HouseholdCookingManager:
                 strategy = "EEF"
             is_quickcook = not self._has_enough_time()
             meal,shopping_time,cooking_time = self._cook(strategy=strategy,is_quickcook=is_quickcook)
-            globals.log(self,"is quickcook %s, cooked:", is_quickcook)    
-            globals.log(self,meal)
+
+            servings = 0
+            if meal is not None: 
+                servings = str(format(meal["servings"], ".2f"))
+                
+            globals.log(self,"is quickcook %s, cooked: %s", str(is_quickcook), servings)
+            #globals.log(self,meal)
             if meal is not None:
                 self._eat_meal(meal=meal)   
         return shopping_time, cooking_time
