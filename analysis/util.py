@@ -14,17 +14,11 @@ def load_data() -> dict[str, dd.DataFrame]:
 
     # List of the main folders to process
     main_folders = [f for f in os.listdir(PATH) if os.path.isdir(os.path.join(PATH, f))]
-
-    # CSV file types to be read
-    csv_types = ['bought', 'config', 'daily', 'eaten', 'still_have', 'wasted']
+    df_dict = dict()
 
     # Iterate over each main folder
     for main_folder in main_folders:
-        folder_path = os.path.join(PATH, main_folder)
-        
-        # Initialize a dictionary to hold DataFrames for each CSV type within the main folder
-        df_dict = {csv_type: [] for csv_type in csv_types}
-
+        folder_path = os.path.join(PATH, main_folder) # type: ignore
         # Iterate over each run folder inside the main folder
         for run_folder in os.listdir(folder_path):
             run_path = os.path.join(folder_path, run_folder)
@@ -32,7 +26,9 @@ def load_data() -> dict[str, dd.DataFrame]:
                 run_id = run_folder.split('_')[-1]  # Extract the run ID from the folder name
                 
                 # Read each CSV type and append the DataFrame to the respective list
-                for csv_type in csv_types:
+                file_names = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+                print(file_names)
+                for csv_type in file_names:
                     file_path = os.path.join(run_path, f'{csv_type}.csv')
                     if os.path.exists(file_path):
                         # Read the CSV file into a Dask DataFrame
@@ -43,13 +39,10 @@ def load_data() -> dict[str, dd.DataFrame]:
                             df['House'] = run_id + "_" + df['House'].astype(str) 
                         if "Unnamed: 0" in df.columns: 
                             df = df.drop(columns=["Unnamed: 0"])
-                        
                         #rename column in old version  
                         for item in df.columns: 
                             if "Day" in item: 
-                                df = df.rename(columns={item:"Day"})                         
-                        
-                                                
+                                df = df.rename(columns={item:"Day"})                                       
                         # Append the modified DataFrame to the list
                         df_dict[csv_type].append(df)
 
