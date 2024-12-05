@@ -1,14 +1,14 @@
 {
     "Simulation" : { 
-        "runs" : 1, 
-        "total_days" : 10,
+        "runs" : 20, 
+        "total_days" : 150,
         "name": "test",
         "output_folder": "data",
         "write_to_file_interval": 1,
-        "debug_log_on": "True"
+        "debug_log_on": "False"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 1, 
+        "neighborhood_houses" : 50, 
         "neighborhood_store_types": "['Discount_retailer', 'Premium_retailer', 'Convenience_store']",
         "neighborhood_store_amounts": "[2,1,2]",
         "neighborhood_pay_day_interval" : 14
@@ -175,7 +175,7 @@
         "baseline_stock": 600,
 
         "Convenience_store" : {
-            "product_range": "parameterization\\store_type_convenience_store.csv",
+            "product_range": "model/parameterization/store_type_convenience_store.csv",
             "quality":0.2, 
 
             "Sales": {
@@ -197,7 +197,7 @@
             }
         },
         "Discount_retailer": {
-            "product_range": "parameterization\\store_type_discount_retailer.csv",
+            "product_range": "model/parameterization/store_type_discount_retailer.csv",
             "quality":0.5, 
 
             "Sales": {
@@ -219,7 +219,7 @@
             }
         },
         "Premium_retailer": {
-            "product_range": "parameterization\\store_type_premium_retailer.csv",
+            "product_range": "model/parameterization/store_type_premium_retailer.csv",
             "quality":0.7, 
             "price":0.6,
             "Sales": {

@@ -10,7 +10,7 @@ DAY = 0
 SALES_TIMER_PLACEHOLDER = 1000
 
 ## Constants - DONT CHANGE
-CONFIG_PATH = 'config.json'
+CONFIG_PATH = '/blue/carpena/haasehelen/ifwaste/model/config.json'
 ### Food types
 logger_hh = None 
 logger_store = None 

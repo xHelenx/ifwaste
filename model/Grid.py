@@ -36,20 +36,21 @@ class Grid:
         for i in range(len(self.grid))   :
             for j in range(len(self.grid[0])):
                 if self.grid[i][j] is None:
-                    grid_str += " -"
+                    grid_str += "NO,"
                 elif isinstance(self.grid[i][j], Household):
-                    grid_str += " h "
+                    grid_str += "HH-" + str(self.grid[i][j].id) + ","
                 elif isinstance(self.grid[i][j], StoreDiscounterRetailer):
-                    grid_str += " sd"
+                    grid_str += "SD-" + str(self.grid[i][j].id) + ","
                 elif isinstance(self.grid[i][j], StorePremimumRetailer):
-                    grid_str += " sp"
+                    grid_str += "SP-" +  str(self.grid[i][j].id) + ","
                 elif isinstance(self.grid[i][j], StoreConvenienceStore):
-                    grid_str += " sc"
+                    grid_str += "SC-" + str(self.grid[i][j].id) + ","
                 else: 
                     print(type(self.grid[i][j]))
                     grid_str += " ??"
             grid_str += "\n"
         return grid_str
+
 
     def get_coordinates(self,location:Location) -> tuple[int, int] : 
         """Returns x,y coordinate of the given location

@@ -52,7 +52,8 @@ class Neighborhood():
             days (int, optional): number of days to simulate. Defaults to 365.
         """        
         self.data_logger.log_configs(houses=self.houses)
-        self.data_logger.data_to_csv(run=run_id, logs_to_write=["log_hh_config", "log_sim_config"])
+        self.data_logger.log_grid(grid=self.grid)
+        self.data_logger.data_to_csv(run=run_id, logs_to_write=["log_hh_config", "log_sim_config", "log_grid"])
         globals.DAY = 0
         for i in range(globals.SIMULATION_DAYS):
             print(i)

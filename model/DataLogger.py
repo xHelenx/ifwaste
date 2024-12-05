@@ -42,14 +42,15 @@ class DataLogger:
         self.logs["log_sim_config"] = pd.DataFrame(columns=
                                                    ["total_days"])
         
-    
+        self.logs["log_grid"] = ""
+    def log_grid(self,grid:"Grid"): 
+        self.logs["log_grid"] = str(grid)
     def log_configs(self,houses:list["Household"]) -> None:  # type: ignore
         """Log the household configuration and simulation configurations.
 
         Args:
             houses (list[Household]): houses to log the information for
         """        
-        
         
         
         self.logs["log_sim_config"].loc[0, "total_days"] = globals.SIMULATION_DAYS
@@ -140,6 +141,7 @@ class DataLogger:
                     'store': item["store"],
                     'product_ID':item["product_ID"]
                 }
+        
     
     def data_to_csv(self, run:int, logs_to_write: list[str]|None=None) -> None: 
         """Saves the finished tracked data to csv files
@@ -151,16 +153,21 @@ class DataLogger:
         path = self._create_folder(run)
         
         
-        if not logs_to_write is None: 
+        if logs_to_write is not None: 
             for item in logs_to_write: 
                 config_header = True
                 config_path = path + self.foldername + f"//"+ item + ".csv"
                 if os.path.exists(config_path):
                    config_header = False
-                self.logs[item].to_csv(config_path, header=config_header, mode="a", index=False)
+                if isinstance(self.logs[item], pd.DataFrame):
+                    self.logs[item].to_csv(config_path, header=config_header, mode="a", index=False)
+                else: 
+                    with open( config_path, "w", newline="") as file:
+                        file.write(self.logs[item])
         else:
             for log_name, log_file in self.logs.items():
-                if not log_name == "log_hh_config" and not log_name == "log_sim_config":
+                if not log_name == "log_hh_config" and not log_name == "log_sim_config"\
+                    and not log_name == "log_grid":
                     file_path = path + self.foldername + "//" + log_name + ".csv"
                     log_header = True
                     if os.path.exists(file_path):
