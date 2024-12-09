@@ -8,6 +8,7 @@ import pandas as pd
 def main(name:str) -> None:
     #read configuration file 
     #os.chdir(r"E:/UF/ifwaste/model")
+    os.chdir(r"/blue/carpena/haasehelen/ifwaste/model")
     globals.configure_simulation(file=name)     
     pd.set_option("display.max_rows", None)     # Show all rows
     pd.set_option("display.max_columns", None)  # Show all columns

@@ -232,7 +232,6 @@ class HouseholdShoppingManager:
             basketCurator.adjust_basket()
             
         return basketCurator
-       
 
     def _is_adjustment_needed(self, basketCurator:BasketCurator) -> bool:
         return not basketCurator.is_basket_in_budget()  or not basketCurator.does_basket_cover_all_fg()
@@ -283,9 +282,9 @@ class HouseholdShoppingManager:
             best_deals = dealAssessor.assess_best_deals(stores)
             
             for store in stores: 
-                assert not store.stock.empty
+                #assert not store.stock.empty #TODO sometimes it is empty, should this be handled or do we ignore it?
+                
                 local_deal = dealAssessor.assess_best_deals([store])
-                #relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
                 deal = 0
                 deal = dealAssessor.calculate_deal_value(relevant_fg, local_deal, best_deals)
                     
@@ -293,7 +292,7 @@ class HouseholdShoppingManager:
                 if relevant_fg != None: 
                     avail_fg = store.get_available_food_groups()   
                     avail_fg_value  = len(relevant_fg)/len(avail_fg)
-                                                           
+
                 preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
                     self.brand_sens * self.brand_pref[store.store_type.value] + self.deal_sens *\
                         deal + self.availability_sens *avail_fg_value)

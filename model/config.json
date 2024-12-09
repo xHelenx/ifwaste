@@ -172,10 +172,10 @@
 
     "Store": {
         "restock_interval" : 2,
-        "baseline_stock": 600,
+        "baseline_stock": 1000,
 
         "Convenience_store" : {
-            "product_range": "model/parameterization/store_type_convenience_store.csv",
+            "product_range": "parameterization/store_type_convenience_store.csv",
             "quality":0.2, 
 
             "Sales": {
@@ -197,7 +197,7 @@
             }
         },
         "Discount_retailer": {
-            "product_range": "model/parameterization/store_type_discount_retailer.csv",
+            "product_range": "parameterization/store_type_discount_retailer.csv",
             "quality":0.5, 
 
             "Sales": {
@@ -219,7 +219,7 @@
             }
         },
         "Premium_retailer": {
-            "product_range": "model/parameterization/store_type_premium_retailer.csv",
+            "product_range": "parameterization/store_type_premium_retailer.csv",
             "quality":0.7, 
             "price":0.6,
             "Sales": {
