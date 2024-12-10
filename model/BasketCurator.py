@@ -626,18 +626,27 @@ class BasketCurator():
         summed amount
         
         """   
+        columns = ["type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "deal_value","store", "product_ID"]
 
         # Convert enums to strings temporarily for grouping
-        self.basket["sale_type"] = self.basket["sale_type"].apply(lambda x: str(x))
-        self.basket["discount_effect"] = self.basket["discount_effect"].apply(lambda x: str(x))
+        if "sale_type" in self.basket.columns:
+            self.basket["sale_type"] = self.basket["sale_type"].apply(lambda x: str(x))
+            print("no sale type")
+            columns += ["sale_type"]
+        else:
+            print(self.basket)
+        if "discount_effect" in self.basket.columns:
+            self.basket["discount_effect"] = self.basket["discount_effect"].apply(lambda x: str(x))
+            columns += ["discount_effect"]
+        else: 
+            print("no discount effect")
+            print(self.basket)
 
         # Perform grouping and aggregation
         self.basket = (
             self.basket.groupby(
                 [
-                    "type", "servings", "days_till_expiry", "price_per_serving",
-                    "sale_type", "discount_effect", "deal_value",
-                    "sale_timer", "store", "product_ID"
+                    columns
                 ],
                 as_index=False
             )
@@ -647,7 +656,9 @@ class BasketCurator():
         )
 
         # Convert strings back to Enums
-        self.basket["sale_type"] = self.basket["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
+        if "sale_type" in self.basket.columns:
+            self.basket["sale_type"] = self.basket["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
+        if "discount_effect" in self.basket.columns:
         self.basket["discount_effect"] = self.basket["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
