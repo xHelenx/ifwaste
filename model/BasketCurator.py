@@ -626,14 +626,14 @@ class BasketCurator():
         summed amount
         
         """   
-        columns = ["type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "deal_value","store", "product_ID"]
+        columns = ["type", "servings", "days_till_expiry", "price_per_serving", "sale_timer","deal_value","store", "product_ID"]
 
         # Convert enums to strings temporarily for grouping
         if "sale_type" in self.basket.columns:
             self.basket["sale_type"] = self.basket["sale_type"].apply(lambda x: str(x))
-            print("no sale type")
             columns += ["sale_type"]
         else:
+            print("no sale type")
             print(self.basket)
         if "discount_effect" in self.basket.columns:
             self.basket["discount_effect"] = self.basket["discount_effect"].apply(lambda x: str(x))
@@ -645,9 +645,9 @@ class BasketCurator():
         # Perform grouping and aggregation
         self.basket = (
             self.basket.groupby(
-                [
+                
                     columns
-                ],
+                ,
                 as_index=False
             )
             .agg({
@@ -659,7 +659,7 @@ class BasketCurator():
         if "sale_type" in self.basket.columns:
             self.basket["sale_type"] = self.basket["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
         if "discount_effect" in self.basket.columns:
-        self.basket["discount_effect"] = self.basket["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
+            self.basket["discount_effect"] = self.basket["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
         """Removes item from the basket

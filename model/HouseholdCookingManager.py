@@ -234,26 +234,25 @@ class HouseholdCookingManager:
             needed_serv = self._consume(meal,needed_serv) # type: ignore
 
         
-    def _consume(self,meal:pd.Series,needed_serv:float): 
+    def _consume(self,meal:pd.Series,needed_serv:float) -> None: 
         (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
         self.todays_servings -= to_eat["servings"]
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
-        if not to_fridge is None: 
+        if to_fridge is not None: 
             self.fridge.add(to_fridge)
         
         self.datalogger.append_log(self.id,"log_eaten",consumed)
-        if not plate_waste is None: 
+        if plate_waste is not None: 
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
         
         
     
-    def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None] ]:
+    def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None]]:
         fgs = FoodGroups.get_instance() # type: ignore
         consumed = meal.copy(deep=True)
         waste = meal.copy(deep=True)
         total_serv = 0
-    
         for fg in fgs.get_all_food_groups(): 
             portion = 0
             if waste_type == globals.FW_INEDIBLE: 
@@ -267,7 +266,7 @@ class HouseholdCookingManager:
             serv_this_fg = consumed[fg] - (consumed[fg] * portion)
             consumed[fg] = serv_this_fg
             waste[fg] = waste[fg] * portion
-            total_serv += consumed[fg] - (consumed[fg] * portion)
+            total_serv += serv_this_fg
     
         consumed["servings"] = total_serv
         waste["servings"] -= total_serv

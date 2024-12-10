@@ -68,7 +68,7 @@ class Neighborhood():
             #stock decays / throw out items 
             for store in self.stores: 
                 store.do_after_day()
-                  
+
             self.data_logger.log_households_daily(houses=self.houses)
             self.data_logger.log_stores_daily(stores=self.stores)
             if i%globals.SIMULATION_WRITE_TO_FILE_INTERVAL == 0: 

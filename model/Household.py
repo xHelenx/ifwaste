@@ -174,15 +174,14 @@ class Household(Location):
         
         self.log_shopping_time = shopping_time
         self.log_cooking_time = cooking_time
-               
-    
+
+
     def decay_food(self) -> None:
         """Decays food in fridge and pantry by reducing the expiration dates 
         """    
         self.fridge.current_items["days_till_expiry"] -= 1
         self.pantry.current_items["days_till_expiry"] -= 1
-       
-                
+
     def throw_food_out(self) -> None:
         """Throws out all food, that expired
         """    
@@ -194,5 +193,5 @@ class Household(Location):
                     edible["reason"] = globals.FW_SPOILED
                     self.datalogger.append_log(self.id, "log_wasted", edible)   
                     self.datalogger.append_log(self.id, "log_wasted", inedible)   
-                location = location[location["days_till_expiry"] > 0.0] #remove spoiled food 
-                
+                location.drop(spoiled_food.index, inplace=True)  # remove expired food
+                print("")

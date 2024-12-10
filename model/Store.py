@@ -198,13 +198,13 @@ class Store(Location):
         self.stock["days_till_expiry"] -= 1
         
     def _throw_out(self) -> None:    
-        spoiled_food =  self.stock[self.stock["days_till_expiry"] <= 0] #selected spoiled food to track it
+        spoiled_food =  self.stock[self.stock["days_till_expiry"] <= 0.0] #selected spoiled food to track it
         if len(spoiled_food) > 0:
-            self.stock.loc[self.stock["days_till_expiry"] <= 0, "reason"] = globals.FW_SPOILED  
-            for _, item in self.stock.loc[self.stock["days_till_expiry"] <= 0].iterrows():
+            self.stock.loc[self.stock["days_till_expiry"] <= 0.0, "reason"] = globals.FW_SPOILED  
+            for _, item in self.stock.loc[self.stock["days_till_expiry"] <= 0.0].iterrows():
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
-            self.stock = self.stock[self.stock["days_till_expiry"] > 0] #remove spoiled food 
+            self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
             self.stock = self.stock.drop(columns=["reason"])
     
     def get_available_food_groups(self) -> list[str]:

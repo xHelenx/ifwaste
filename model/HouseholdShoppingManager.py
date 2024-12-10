@@ -25,7 +25,7 @@ class HouseholdShoppingManager:
         self.grid = grid
         self.location:Household = household
         self.datalogger = datalogger
-        self.id = id
+        self.id:int = id
         
         self.budget:float = budget
         self.time:list[float]= time
@@ -170,7 +170,7 @@ class HouseholdShoppingManager:
                 store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
             if not store is None and not store in selected_stores: 
                 selected_stores.append(store)     
-               
+
             #create initial basket with groceries
             basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
             basketCurator.create_basket()
