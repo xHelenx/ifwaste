@@ -56,8 +56,8 @@ class DataLogger:
         self.logs["log_sim_config"].loc[0, "total_days"] = globals.SIMULATION_DAYS
 
         for house in houses: 
-            self.logs["log_hh_config"].loc[house.id] = { # type: ignore
-                "household" :  house.id, 
+            self.logs["log_hh_config"].loc[int(house.id)] = { # type: ignore
+                "household" :  int(house.id), 
                 "required_servings" :  house.req_servings,
                 "budget" :  house.budget, 
                 "adults" :  house.amount_adults,
@@ -82,7 +82,7 @@ class DataLogger:
         """     
         for house in houses: 
             self.logs["log_hh_daily"].loc[len(self.logs["log_hh_daily"])] = { # type: ignore
-                "household": house.id,
+                "household": int(house.id),
                 "day":globals.DAY,
                 "budget":house.shoppingManager.todays_budget,
                 "servings":house.cookingManager.todays_servings,      
@@ -105,7 +105,7 @@ class DataLogger:
                 for i in storage.current_items.index:
                     item = storage.current_items.loc[i]
                     self.logs["log_still_have"].loc[len(self.logs["log_still_have"])] = { # type: ignore
-                        "household": house.id,
+                        "household": int(house.id),
                         "price": item["price"],
                         "servings": item["servings"],
                         "days_till_expiry": item["days_till_expiry"],

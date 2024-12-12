@@ -13,9 +13,9 @@ from FoodGroups import FoodGroups
 class HouseholdCookingManager: 
     
     def __init__(self, pantry:Storage, fridge:Storage, shoppingManager:HouseholdShoppingManager,
-                 datalogger:DataLogger, household_concern:float,  preference_vector:dict[str,float],
-                 household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float, 
-                 logger:logging.Logger|None) -> None:
+                datalogger:DataLogger, household_concern:float,  preference_vector:dict[str,float],
+                household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float, 
+                logger:logging.Logger|None) -> None:
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
         self.shoppingManager: HouseholdShoppingManager = shoppingManager
@@ -70,7 +70,6 @@ class HouseholdCookingManager:
             if not inedible is None:
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
         prepped = pd.DataFrame(prepped)
-        prepped["inedible_percentage"] = 0.0 #we just cut off the inedible parts
         
         meal = None 
         if not prepped.empty: #TODO undo    
@@ -98,6 +97,7 @@ class HouseholdCookingManager:
         meal["days_till_expiry"] = random.randint(4,7)
         meal["status"] = globals.STATUS_PREPARED
         meal["price"] = items["price"].sum()
+        meal["inedible_percentage"] = 0.0 #we just cut off the inedible parts of all items before combining the item
                 
         return meal
         
@@ -217,8 +217,8 @@ class HouseholdCookingManager:
         servings = 0
         if meal is not None: 
             servings = str(format(meal["servings"], ".2f"))
-        msg = "eat meal: " + str(strategy) + " servings: " + str(servings)
-        globals.log(self, msg)    
+            #msg = "eat meal: " + str(strategy) + " servings: " + str(servings)
+            #globals.log(self, msg)    
         needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
         
         if meal is None and needed_serv > 0.001:  
@@ -235,14 +235,21 @@ class HouseholdCookingManager:
 
         
     def _consume(self,meal:pd.Series,needed_serv:float) -> None: 
+
         (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
-        self.todays_servings -= to_eat["servings"]
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
+        self.todays_servings -= consumed["servings"]
         if to_fridge is not None: 
+            globals.log(self,"to fridge:")
+            globals.log(self, to_fridge)
             self.fridge.add(to_fridge)
         
+        globals.log(self,"CONSUMED:")
+        globals.log(self, consumed)
         self.datalogger.append_log(self.id,"log_eaten",consumed)
-        if plate_waste is not None: 
+        if plate_waste is not None:
+            globals.log(self,"PLATE WASTE:") 
+            globals.log(self, plate_waste)
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
         

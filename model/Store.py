@@ -275,6 +275,10 @@ class Store(Location):
             expense (float): Expenses of returned food items
         """        
         idx = self.get_item_index(item)
+        
+        if "impulse_buy_likelihood" in item.index:
+            item = item.drop(labels=["impulse_buy_likelihood"])
+        
         if idx != None: #add to existing entry
             self.stock.loc[idx,"amount"] += amount # type: ignore
             assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"

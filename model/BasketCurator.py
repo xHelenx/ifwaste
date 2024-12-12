@@ -20,12 +20,12 @@ class BasketCurator():
             servings_to_buy_fg (pd.Series | None, optional): _description_. Defaults to None.
             budget (float | None, optional): _description_. Defaults to None.
             
-         Class variables: 
+        Class variables: 
             basket (pd.DataFrame) : selected items to buy
             stores (list[Stores]) : selected store options to buy from 
             budget (float)        : budget for this shopping tour 
             likelihood_to_stop (float) : chance of stopping to adjust basket and purchasing the 
-                                         current basket composition 
+                                        current basket composition 
             serv_track (pd.DataFrame) : helping df to keep track of bought and needed servings                                        
             
         """      
@@ -620,7 +620,7 @@ class BasketCurator():
         item["amount"] = amount
         self._update_serv_track(item=item,add_to_basket=True)    
         self.basket = pd.concat([self.basket, pd.DataFrame([item])], ignore_index=True)
-       
+
     def _organize_basket(self) -> None: 
         """Organizes the basket, by merging identical items into one row and the the 
         summed amount
@@ -731,7 +731,7 @@ class BasketCurator():
         Returns:
             float: returns cost of the purchase (- n -> gain n, +n -> pay n)
         """        
-               
+
         store = item["store"] #take replacement from store
         #globals.log(store, "buying: ")
         #globals.log(store, message=item)

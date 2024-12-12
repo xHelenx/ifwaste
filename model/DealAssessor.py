@@ -31,6 +31,8 @@ class DealAssessor:
                 stock_by_fg.loc[:, "deal_value"] = pd.to_numeric(stock_by_fg["deal_value"])                
                 is_better_deal = stock_by_fg["deal_value"].min() < best_deals_df.loc[best_deals_df["type"] == fg,"deal_value"]
                 if len(stock_by_fg) > 0 and is_better_deal.values[0]:
+                    stock_by_fg = stock_by_fg.copy(deep=True)
+                    stock_by_fg.reindex()
                     best_deal_this_fg = stock_by_fg.loc[stock_by_fg["deal_value"].idxmin()]
                     best_deals_df.loc[best_deals_df["type"] == fg,"deal_value"] = best_deal_this_fg["deal_value"]
         return best_deals_df

@@ -86,8 +86,8 @@ class HouseholdShoppingManager:
             price_per_serving = total_budget/(req_daily_servings*days)
             
             return price_per_serving * req_daily_servings * days_till_payday
-          
-    def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> None:
+
+    def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> pd.Series:
         price = 0.0
         inedible = 0
         for fg in FoodGroups.get_instance().get_all_food_groups():
@@ -96,30 +96,40 @@ class HouseholdShoppingManager:
                 item[fg] = 0.0
             else:
                 item[fg] = float(item["servings"])
-                price = item["servings"] * item["price_per_serving"] * item["amount"]
+                price = item["servings"] * item["price_per_serving"]
                 inedible = FoodGroups._instance.food_groups.loc[FoodGroups._instance.food_groups["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
-            item.drop(["adjustment"])
-        item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "sale_timer"])
+            item = item.drop(["adjustment"])
+        if "impulse_buy_likelihood" in item.index: 
+            item = item.drop(["impulse_buy_likelihood"])
+        item = item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "sale_timer",
+                        "product_ID", "amount"])
         item["status"] = status
         item["price"] = price
-        item["inedible_percentage"] =inedible
+        item["inedible_percentage"] = inedible #assuming item is exactly on fg
+        
+        return item
         
         
     def _store_groceries(self, basket:pd.DataFrame) -> None: 
         #put groceries away
         for idx in basket.index:
-           self.datalogger.append_log(self.id,"log_bought", basket.loc[idx])
-           item = basket.loc[idx].copy()
-           if item["type"] == globals.FGSTOREPREPARED:
-                self._convert_bought_to_store_series(item=item, status=globals.STATUS_PREPREPARED)
-                for _ in range(item["amount"]):
-                    self.fridge.add(item=item)
-           else:
-                self._convert_bought_to_store_series(item=item, status=globals.STATUS_UNPREPARED)
-                for _ in range(item["amount"]):
-                    self.pantry.add(item=item)
-        
+            self.datalogger.append_log(self.id,"log_bought", basket.loc[idx])
+            item = basket.loc[idx].copy()
+            
+            status = storage = None
+            if item["type"] == globals.FGSTOREPREPARED:
+                status = globals.STATUS_PREPREPARED
+                storage = self.fridge
+            else: 
+                status = globals.STATUS_UNPREPARED
+                storage = self.pantry
+            
+            amount = item["amount"]    
+            item = self._convert_bought_to_store_series(item=item, status=status)
+            for _ in range(amount):
+                storage.add(item=item)
+            
     def _choose_second_store(self, is_planner:bool, selected_stores:list[Store], servings_to_buy_fg:pd.Series) -> Store | None: 
         store = None
         avail_fgs = selected_stores[0].get_available_food_groups()
@@ -176,11 +186,6 @@ class HouseholdShoppingManager:
             basketCurator.create_basket()
         
             self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
-                    
-        if len(basketCurator.basket) > 0:
-            globals.log(self,"FINAL BASKET: items %i, cost: %f", basketCurator.basket["amount"].sum(), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
-        else:
-            globals.log(self,"FINAL BASKET is empty")
 
         #globals.log(self,basketCurator.basket)    
         #calculated required time for shopping tour (final time for planner, current time for not planner)
@@ -191,9 +196,17 @@ class HouseholdShoppingManager:
             duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
         
         basketCurator.impulse_buy(self.impulsivity)
+        
+        if len(basketCurator.basket) > 0:
+            globals.log(self,"FINAL BASKET: items %i, cost: %f", basketCurator.basket["amount"].sum(), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+        else:
+            globals.log(self,"FINAL BASKET is empty")
+        
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
+            
+        globals.log(self,"BOUGHT: %i", sum(basketCurator.basket["servings"]*basketCurator.basket["amount"]))
             
         return duration
         
@@ -204,7 +217,7 @@ class HouseholdShoppingManager:
         
         
     def _handle_basket_adjustment(self,is_planner, basketCurator:BasketCurator, selected_stores:list[Store],
-                                  budget:float, servings_to_buy_fg:pd.Series) -> BasketCurator: 
+        budget:float, servings_to_buy_fg:pd.Series) -> BasketCurator: 
 
         if self._is_adjustment_needed(basketCurator): 
             if is_planner: 
