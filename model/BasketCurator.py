@@ -57,7 +57,7 @@ class BasketCurator():
             'is_replacing_other_fg': 'float'
         }) 
         
-         
+
     def _remove_item_without_replacement(self) -> bool: 
         """Removes a random item item from the basket
 
@@ -80,19 +80,19 @@ class BasketCurator():
         self.likelihood_to_stop = 0       
         
         #globals.log(self,"#####CREATE BASKET######")
-       
+
         if not is_quickshop:
             self._create_shop_basket()
         else:
             self._create_quickshop_basket()
-                       
+
         if len(self.basket) > 0: 
             self._organize_basket()        
             globals.log(self,"is_quickshop: %s, basket: #items:%i, cost %f",is_quickshop, self.basket["amount"].sum(), (self.basket["price_per_serving"] * self.basket["servings"] *  self.basket["amount"]).sum())
         else:
             globals.log(self,"is_quickshop: %s basket: #items: 0", is_quickshop)
         #globals.log(self,self.basket)    
-      
+
     def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
         """Helper function, that returns how many servings of each food type have already been 
         selected
@@ -141,7 +141,7 @@ class BasketCurator():
                 needed_servings = self.serv_track.loc[idx,"required"]- self._get_purchased_servings_from_serv_track().loc[idx]
                 
                 while needed_servings > 0: 
-                    if len(options) > 0:
+                    if not options.empty:
                         options, purchased = self._sample_and_buy(options)
                         needed_servings -= purchased["servings"]
                     else:
@@ -159,12 +159,13 @@ class BasketCurator():
         for _ in range(n_items): 
             if random.random() < impulsivity: 
                 #buy random item
-                item = options.sample(1, weights='impulse_buy_likelihood').iloc[0]
-                self._buy(item, 1)
-                options.loc[item.name, "amount"] -= 1 # type: ignore #keep options current
-                options = options[options["amount"] > 0]
-                self._add_item(item, 1)
-                
+                if not options.empty:
+                    item = options.sample(1, weights='impulse_buy_likelihood').iloc[0]
+                    self._buy(item, 1)
+                    options.loc[item.name, "amount"] -= 1 # type: ignore #keep options current
+                    options = options[options["amount"] > 0]
+                    self._add_item(item, 1)
+                    
     def _add_impulse_buy_likelihood_column(self,options): 
         # Convert food_groups to a DataFrame for merging
         food_groups_df = pd.DataFrame(FoodGroups._instance.food_groups) # type: ignore
@@ -238,8 +239,8 @@ class BasketCurator():
         as initially defined
         """        
         
-       # for store in self.stores:
-       #     store.organize_stock()      
+        # for store in self.stores:
+        #     store.organize_stock()      
         self._organize_basket()
         
         if not self.does_basket_cover_all_fg():
@@ -250,7 +251,7 @@ class BasketCurator():
         if not self.is_basket_in_budget(): 
             #from now on we track if items have been adjusted
             self.basket["adjustment"] = "None"   
-       
+
             globals.log(self,"BASKET IS NOT IN BUDGET")
             globals.log(self,"#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
             self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
@@ -277,6 +278,7 @@ class BasketCurator():
                     (done,next_phase) = self._check_phase_status()       
             if "adjustment" in self.basket.columns: 
                 self.basket.drop(columns=["adjustment"])
+                
     def _check_phase_status(self)-> tuple[bool,bool]:   
         """Handles the logic of changing the adjustment strategy as well as 
         the early stop of attempting to change the basket. 
@@ -322,7 +324,7 @@ class BasketCurator():
                             added for _remove_item_without_replacement 
 
         """        
-         
+
         found_cheaper_option = func(*args)
         in_budget = self.is_basket_in_budget()
         rand = random.uniform(0,1)
@@ -334,7 +336,7 @@ class BasketCurator():
             rand = random.uniform(0,1)
             self.likelihood_to_stop += globals.BASKETCURATOR_INCREMENT_LIKELIHOOD
         self._organize_basket()    
-             
+
     
     def _add_items_from_another_fg(self) -> None: 
         """

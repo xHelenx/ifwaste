@@ -21,6 +21,9 @@ class Store(Location):
     def __init__(self, store_type:EnumStoreTier, grid:Grid, id:int) -> None: # type: ignore
         from Grid import Grid 
         
+        
+        #debug
+        self.sold_today = 0
         self.allowed_cols = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
                                   "deal_value", "sale_timer", "store", "product_ID", "amount"}
         
@@ -42,7 +45,6 @@ class Store(Location):
         self.clearance_discount_1:list[EnumDiscountEffect] = []
         self.clearance_discount_2:list[EnumDiscountEffect] = []
         self.clearance_discount_3:list[EnumDiscountEffect] = []
-               
         
         self.grid:Grid = grid 
         self.food_groups:FoodGroups = FoodGroups.get_instance()
@@ -130,9 +132,9 @@ class Store(Location):
                 new_item = new_item.reindex(self.stock.columns, fill_value=None) 
                 self.stock = pd.concat([self.stock, pd.DataFrame([new_item])], ignore_index=True)                  
                 assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
-                globals.log(self,new_item)
+            globals.log(self,new_item.to_frame().T)
             self.organize_stock()
-       
+
     def get_item_index(self, item:pd.Series) -> int | None: 
         """Takes a stock item and returns stock item with the same characteristics
         (besides amount). Helper function to manipulate stock items. 
@@ -165,20 +167,26 @@ class Store(Location):
     def is_fg_in_stock(self, fg:str) -> bool: 
         return fg in self.stock["type"].unique()
     
+    def _debug_amount(self, df:pd.DataFrame) -> int: 
+        non_bogo = df.loc[df["discount_effect"] != EnumDiscountEffect.BOGO, "amount"].sum()
+        bogo = df.loc[df["discount_effect"] == EnumDiscountEffect.BOGO, "amount"].sum() * 2
+    
+        return non_bogo + bogo
     def do_before_day(self) -> None:    
+        self.sold_today = 0
         globals.log(self,"---- DAY %i ----",  globals.DAY )
-        globals.log(self,self.stock)
+        globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
         
         if globals.DAY == 0:  #on first day stock store with baseline amount
             self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
-            globals.log(self,"--- after restocking ---" )
-            globals.log(self,self.stock)
+            #globals.log(self,"--- after restocking ---" )
+            #globals.log(self,self.stock)
         else: #from them on restock based on demand
             self.tracker["today"] = 0 #reset amount tracker for today
             self._plan_and_buy_stock()
             self._manage_sales()
-            globals.log(self,"--- after restocking and sales ---" )
-            globals.log(self,self.stock)
+            #globals.log(self,"--- after restocking and sales ---" )
+            #globals.log(self,self.stock)
 
             
     def do_after_day(self) -> None: 
@@ -189,9 +197,10 @@ class Store(Location):
         mask  = self.stock["sale_type"] == EnumSales.SEASONAL #all seasonal items      
         self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends        
         self.organize_stock()
-        
-        globals.log(self,"Tracker:")
-        globals.log(self,self.tracker)
+        globals.log(self, "ITEMS SOLD: %i", self.sold_today)
+        globals.log(self, "Tracker:")
+        globals.log(self, self.tracker)
+
         
         
     def _decay(self) -> None:
@@ -199,12 +208,15 @@ class Store(Location):
         
     def _throw_out(self) -> None:    
         spoiled_food =  self.stock[self.stock["days_till_expiry"] <= 0.0] #selected spoiled food to track it
+        globals.log(self, "ITEMS THROWN OUT: %i", self._debug_amount(spoiled_food))
+
         if len(spoiled_food) > 0:
             self.stock.loc[self.stock["days_till_expiry"] <= 0.0, "reason"] = globals.FW_SPOILED  
             for _, item in self.stock.loc[self.stock["days_till_expiry"] <= 0.0].iterrows():
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
-            self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
+            #self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
+            self.stock.drop(spoiled_food.index, inplace=True)  # remove expired 
             self.stock = self.stock.drop(columns=["reason"])
     
     def get_available_food_groups(self) -> list[str]:
@@ -261,6 +273,11 @@ class Store(Location):
         assert self.stock.loc[idx,"amount"] >= amount # type: ignore
         self.stock.loc[idx,"amount"] -= amount  # type: ignore
         self._track_removed_from_stock(item,amount)
+        
+        if item["discount_effect"] == EnumDiscountEffect.BOGO: 
+            amount *= 2 
+        self.sold_today += amount
+        
         assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
         
     def give_back(self,item: pd.Series,amount:int) -> None: 
@@ -287,11 +304,18 @@ class Store(Location):
             self.stock = pd.concat([self.stock, pd.DataFrame([item])])
             assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
         self._track_removed_from_stock(item,-amount)
+        if item["discount_effect"] == EnumDiscountEffect.BOGO: 
+            amount *= 2 
+        self.sold_today -= amount
     
     def _track_removed_from_stock(self, item:pd.Series, amount:int|None=None)  -> None:
         assert (isinstance(item, pd.Series) and not amount is None) or isinstance(item,pd.DataFrame)
         mask = (self.tracker["product_ID"] == item["product_ID"]) #here product not item 
-        self.tracker.loc[mask, "today"] += amount # type: ignore
+        
+        if item["discount_effect"] == EnumDiscountEffect.BOGO: 
+            amount *= 2 
+            
+        self.tracker.loc[mask, "today"] += amount  
         
     def _update_tracker(self) -> None: 
         self.tracker["purchased"] = self.tracker.apply(lambda row: row["purchased"][1:] + [row["today"]], axis=1)
@@ -299,6 +323,7 @@ class Store(Location):
     def _plan_and_buy_stock(self) -> None:
         if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
+            globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
             for index, row in self.tracker.iterrows():
                 self.buy_stock(self.tracker.loc[index, "planned_restock_amount"], row) # type: ignore
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: 0)
@@ -394,7 +419,8 @@ class Store(Location):
             row["servings"] *= discount_scaler
             row["price_per_serving"] /= discount_scaler
             return [row]
-        else: #split into row that applies bogo for as many items as possible + leftover row
+        elif row["amount"] > 1: #make sure there is not just 1 and it create an empty row
+            #split into row that applies bogo for as many items as possible + leftover row
             no_bogo = row.copy()
             bogo = row.copy()
             
@@ -405,8 +431,9 @@ class Store(Location):
             no_bogo["amount"] = row["amount"] % discount_scaler   
             no_bogo["sale_type"] = EnumSales.NONE
             no_bogo["discount_effect"] = EnumDiscountEffect.NONE
-            
             return [bogo,no_bogo]
+        else:
+            return [row]
     
     def _add_sale_to_item(self,mask, sale_type, discount_effects) -> None:  
         selected_discount_effect = random.choice(discount_effects) # type: ignore

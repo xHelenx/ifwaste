@@ -51,7 +51,7 @@ class Household(Location):
         
         self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
         self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
-        globals.log(self,"Budget: %f", self.budget)
+        #globals.log(self,"Budget: %f", self.budget)
         
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0

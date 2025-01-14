@@ -153,7 +153,7 @@ class HouseholdCookingManager:
         return planned
     
     def cook_and_eat(self, used_time:float) -> tuple[float,float]: 
-        globals.log(self,"------> COOKING")    
+        #globals.log(self,"------> COOKING")    
         cooking_time = 0
         shopping_time = 0
         self._reset_logs()
@@ -161,7 +161,7 @@ class HouseholdCookingManager:
         self.todays_servings = self.req_servings
         
         strategy = self._determine_strategy()
-        globals.log(self,"cooking strategy: %s", strategy)    
+        #globals.log(self,"cooking strategy: %s", strategy)    
         
         #first round of eating
         shopping_time, cooking_time = self._prepare_by_strategy(strategy)
@@ -170,22 +170,22 @@ class HouseholdCookingManager:
         if self.todays_servings > 0: 
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
                 meal,shopping_time,cooking_time = self._cook("EEF", is_quickcook = True)
-                globals.log(self,"quick cook more:")    
+                #globals.log(self,"quick cook more:")    
                 if meal is not None: 
-                    globals.log(self,meal["servings"])
+                    #globals.log(self,meal["servings"])
                     self._eat_meal(meal=meal)
             else: #we already cooked or quick cooked -> so eat left overs now
                 if strategy == "EEFpantry": 
                     strategy = "EEF"
                 if not self.fridge.is_empty(): #else we are just hungry
-                    globals.log(self,"eat leftovers:")    
+                    #globals.log(self,"eat leftovers:")    
                     self._eat_meal(strategy)
                     
         if strategy != "random":
             self.log_today_eef = 1
             
-        globals.log(self,"missing servings: %f", self.todays_servings)    
-        globals.log(self,"req servings: %f", self.req_servings)    
+        #globals.log(self,"missing servings: %f", self.todays_servings)    
+        #globals.log(self,"req servings: %f", self.req_servings)    
                 
         return shopping_time, cooking_time
         
@@ -240,16 +240,16 @@ class HouseholdCookingManager:
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
         self.todays_servings -= consumed["servings"]
         if to_fridge is not None: 
-            globals.log(self,"to fridge:")
-            globals.log(self, to_fridge)
+            #globals.log(self,"to fridge:")
+            #globals.log(self, to_fridge)
             self.fridge.add(to_fridge)
         
-        globals.log(self,"CONSUMED:")
-        globals.log(self, consumed)
+        #globals.log(self,"CONSUMED:")
+        #globals.log(self, consumed)
         self.datalogger.append_log(self.id,"log_eaten",consumed)
         if plate_waste is not None:
-            globals.log(self,"PLATE WASTE:") 
-            globals.log(self, plate_waste)
+            #globals.log(self,"PLATE WASTE:") 
+            #globals.log(self, plate_waste)
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
         
@@ -324,7 +324,7 @@ class HouseholdCookingManager:
         shopping_time = cooking_time = 0
         if strategy == "EEFfridge": #eat from fridge cause it expires soon
             if not self.fridge.is_empty():
-                globals.log(self,"from fridge:")    
+                #globals.log(self,"from fridge:")    
                 self._eat_meal(strategy)
         else: #cook with EEF ingredients or random
             if strategy == "EEFpantry":
@@ -336,7 +336,7 @@ class HouseholdCookingManager:
             if meal is not None: 
                 servings = str(format(meal["servings"], ".2f"))
                 
-            globals.log(self,"is quickcook %s, cooked: %s", str(is_quickcook), servings)
+            #globals.log(self,"is quickcook %s, cooked: %s", str(is_quickcook), servings)
             #globals.log(self,meal)
             if meal is not None:
                 self._eat_meal(meal=meal)   

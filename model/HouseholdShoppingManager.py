@@ -12,11 +12,11 @@ import globals
 from BasketCurator import BasketCurator
 from DealAssessor import DealAssessor
 from FoodGroups import FoodGroups
-
+from EnumDiscountEffect import EnumDiscountEffect 
 class HouseholdShoppingManager: 
     
     def __init__(self, budget:float, pantry:Storage, fridge:Storage, req_servings_per_fg, grid:Grid, household:Household, # type: ignore
-                 shopping_freq, time:list[float], datalogger:DataLogger, id:int, logger:logging.Logger|None) -> None: # type: ignore
+                shopping_freq, time:list[float], datalogger:DataLogger, id:int, logger:logging.Logger|None) -> None: # type: ignore
         from Household import Household
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
@@ -187,7 +187,6 @@ class HouseholdShoppingManager:
         
             self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
 
-        #globals.log(self,basketCurator.basket)    
         #calculated required time for shopping tour (final time for planner, current time for not planner)
         visited_stores = basketCurator.get_visited_stores()
         duration = 0
@@ -196,24 +195,28 @@ class HouseholdShoppingManager:
             duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
         
         basketCurator.impulse_buy(self.impulsivity)
+        globals.log(self,basketCurator.basket)
         
         if len(basketCurator.basket) > 0:
-            globals.log(self,"FINAL BASKET: items %i, cost: %f", basketCurator.basket["amount"].sum(), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals.log(self,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
         else:
             globals.log(self,"FINAL BASKET is empty")
         
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
-            
-        globals.log(self,"BOUGHT: %i", sum(basketCurator.basket["servings"]*basketCurator.basket["amount"]))
-            
+            #globals.log(self,"BOUGHT: %i", sum(basketCurator.basket["servings"]*basketCurator.basket["amount"]))
+            #globls.log(self,basketCurator.basket)
         return duration
-        
+    def _debug_amount(self, df:pd.DataFrame) -> int: 
+        non_bogo = df.loc[df["discount_effect"] != EnumDiscountEffect.BOGO, "amount"].sum()
+        bogo = df.loc[df["discount_effect"] == EnumDiscountEffect.BOGO, "amount"].sum() * 2
+    
+        return non_bogo + bogo
     def _pay(self, basket:pd.DataFrame) -> None: 
         spent = (basket["price_per_serving"] * basket["servings"] * basket["amount"]).sum()
         self.todays_budget -= spent
-        globals.log(self, "spent %s of budget, left: %s", str(spent), str(self.todays_budget) )
+        #globals.log(self, "spent %s of budget, left: %s", str(spent), str(self.todays_budget) )
         
         
     def _handle_basket_adjustment(self,is_planner, basketCurator:BasketCurator, selected_stores:list[Store],

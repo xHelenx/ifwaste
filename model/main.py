@@ -1,4 +1,3 @@
-import logging
 import os
 from Neighborhood import Neighborhood
 import globals
