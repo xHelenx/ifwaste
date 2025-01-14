@@ -17,3 +17,4 @@ analysis/__pycache__/*
 
 #ignore log files
 model/LOGS/*
+model/*.out
