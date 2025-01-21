@@ -21,7 +21,7 @@ class Grid:
         self.grid:list[list[tuple[int,int] | None | Location]] = self.setup_grid(gridsize=gridsize)    
         self.time_per_cell:float = globals.GRID_TRAVEL_TIME_PER_CELL
         self.available_positions:list[tuple[int,int]] =  [(r, c) for r in range(len(self.grid)) for c in range(len(self.grid[0]))]    
-          
+
     def __str__(self) -> str:
         """Returns a string visualization of the grid.
 
@@ -38,13 +38,13 @@ class Grid:
                 if self.grid[i][j] is None:
                     grid_str += "NO,"
                 elif isinstance(self.grid[i][j], Household):
-                    grid_str += "HH-" + str(self.grid[i][j].id) + ","
+                    grid_str += "HH-" + str(self.grid[i][j].id) + "," # type: ignore
                 elif isinstance(self.grid[i][j], StoreDiscounterRetailer):
-                    grid_str += "SD-" + str(self.grid[i][j].id) + ","
+                    grid_str += "SD-" + str(self.grid[i][j].id) + "," # type: ignore
                 elif isinstance(self.grid[i][j], StorePremimumRetailer):
-                    grid_str += "SP-" +  str(self.grid[i][j].id) + ","
+                    grid_str += "SP-" +  str(self.grid[i][j].id) + "," # type: ignore
                 elif isinstance(self.grid[i][j], StoreConvenienceStore):
-                    grid_str += "SC-" + str(self.grid[i][j].id) + ","
+                    grid_str += "SC-" + str(self.grid[i][j].id) + "," # type: ignore
                 else: 
                     print(type(self.grid[i][j]))
                     grid_str += " ??"
@@ -68,7 +68,7 @@ class Grid:
             for y in range(len(self.grid[0])):
                 if self.grid[x][y] == location:
                     return (x,y)
-        raise ValueError(f"Location {location.logger.name} not found in the grid.")
+        raise ValueError(f"Location {location.logger.name} not found in the grid.") # type: ignore
                 
     def setup_grid(self, gridsize:int) -> list[list[None | tuple[int,int] | Location]]: 
         """Creates a grid depending on the gridsize. The grid is planned to be 

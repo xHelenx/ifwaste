@@ -40,11 +40,11 @@ class DataLogger:
         ])
         
         self.logs["log_sim_config"] = pd.DataFrame(columns=
-                                                   ["total_days"])
+                                                    ["total_days"])
         
         self.logs["log_grid"] = ""
-    def log_grid(self,grid:"Grid"): 
-        self.logs["log_grid"] = str(grid)
+    def log_grid(self,grid:"Grid"): # type: ignore
+        self.logs["log_grid"] = str(grid) # type: ignore
     def log_configs(self,houses:list["Household"]) -> None:  # type: ignore
         """Log the household configuration and simulation configurations.
 
@@ -158,12 +158,12 @@ class DataLogger:
                 config_header = True
                 config_path = path + self.foldername + f"//"+ item + ".csv"
                 if os.path.exists(config_path):
-                   config_header = False
+                    config_header = False
                 if isinstance(self.logs[item], pd.DataFrame):
                     self.logs[item].to_csv(config_path, header=config_header, mode="a", index=False)
                 else: 
                     with open( config_path, "w", newline="") as file:
-                        file.write(self.logs[item])
+                        file.write(self.logs[item]) # type: ignore
         else:
             for log_name, log_file in self.logs.items():
                 if not log_name == "log_hh_config" and not log_name == "log_sim_config"\
