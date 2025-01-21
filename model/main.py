@@ -6,9 +6,13 @@ import pandas as pd
 
 def main(name:str) -> None:
     #read configuration file 
-    #os.chdir(r"E:/UF/ifwaste/model")
-    os.chdir(r"/blue/carpena/haasehelen/ifwaste/model")
-    globals.configure_simulation(file=name)     
+    #os.chdir(r"E:/UF/ifwaste/model")z
+    os.chdir(r"/blue/carpena/haasehelen/ifwaste/bash-scripts/experiments")
+    print("ARGS PATH:", name)
+    globals.configure_simulation(file=name) 
+    
+    if name != None:
+        globals.CONFIG_PATH = name     
     pd.set_option("display.max_rows", None)     # Show all rows
     pd.set_option("display.max_columns", None)  # Show all columns
     pd.set_option("display.width", 300)         # Set max characters per line

@@ -19,6 +19,7 @@ CONFIG_PATH=${CONFIG_FILES[$SLURM_ARRAY_TASK_ID]}
 echo "Running Experiment $SLURM_ARRAY_TASK_ID"
 
 date
-python main.py --config_path $CONFIG_PATH
+python ../model/main.py --config_path $CONFIG_PATH
+
 date
 

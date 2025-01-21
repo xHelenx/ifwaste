@@ -1,0 +1,141 @@
+Tue Jan 21 15:45:48 EST 2025
+
+Lmod is automatically replacing "python/3.10" with "conda/24.7.1".
+
+Experiment 1: 0 kids
+pwd
+Tue Jan 21 15:45:51 EST 2025
+/home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_0k.json
+/blue/carpena/haasehelen/ifwaste/model
+Start run 0
+/blue/carpena/haasehelen/ifwaste/model
+Traceback (most recent call last):
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 25, in __init__
+    with open(globals.CONFIG_PATH) as f: 
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/blue/carpena/haasehelen/ifwaste/model/config.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 34, in <module>
+    main(args.config_path)
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 20, in main
+    neighborhood = Neighborhood()
+                   ^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/Neighborhood.py", line 30, in __init__
+    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/StoreDiscounterRetailer.py", line 9, in __init__
+    super().__init__(store_type, grid,id)
+  File "/blue/carpena/haasehelen/ifwaste/model/Store.py", line 50, in __init__
+    self.food_groups:FoodGroups = FoodGroups.get_instance()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 56, in get_instance
+    FoodGroups()
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 42, in __init__
+    raise RuntimeError(f"Configuration file {globals.CONFIG_PATH} not found.")
+RuntimeError: Configuration file /blue/carpena/haasehelen/ifwaste/model/config.json not found.
+Tue Jan 21 15:45:59 EST 2025
+Experiment 2: 2 kids
+Tue Jan 21 15:45:59 EST 2025
+/home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_2k.json
+/blue/carpena/haasehelen/ifwaste/model
+Start run 0
+/blue/carpena/haasehelen/ifwaste/model
+Traceback (most recent call last):
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 25, in __init__
+    with open(globals.CONFIG_PATH) as f: 
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/blue/carpena/haasehelen/ifwaste/model/config.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 34, in <module>
+    main(args.config_path)
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 20, in main
+    neighborhood = Neighborhood()
+                   ^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/Neighborhood.py", line 30, in __init__
+    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/StoreDiscounterRetailer.py", line 9, in __init__
+    super().__init__(store_type, grid,id)
+  File "/blue/carpena/haasehelen/ifwaste/model/Store.py", line 50, in __init__
+    self.food_groups:FoodGroups = FoodGroups.get_instance()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 56, in get_instance
+    FoodGroups()
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 42, in __init__
+    raise RuntimeError(f"Configuration file {globals.CONFIG_PATH} not found.")
+RuntimeError: Configuration file /blue/carpena/haasehelen/ifwaste/model/config.json not found.
+Tue Jan 21 15:46:00 EST 2025
+Experiment 3: 4 kids
+Tue Jan 21 15:46:00 EST 2025
+/home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_4k.json
+/blue/carpena/haasehelen/ifwaste/model
+Start run 0
+/blue/carpena/haasehelen/ifwaste/model
+Traceback (most recent call last):
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 25, in __init__
+    with open(globals.CONFIG_PATH) as f: 
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/blue/carpena/haasehelen/ifwaste/model/config.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 34, in <module>
+    main(args.config_path)
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 20, in main
+    neighborhood = Neighborhood()
+                   ^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/Neighborhood.py", line 30, in __init__
+    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/StoreDiscounterRetailer.py", line 9, in __init__
+    super().__init__(store_type, grid,id)
+  File "/blue/carpena/haasehelen/ifwaste/model/Store.py", line 50, in __init__
+    self.food_groups:FoodGroups = FoodGroups.get_instance()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 56, in get_instance
+    FoodGroups()
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 42, in __init__
+    raise RuntimeError(f"Configuration file {globals.CONFIG_PATH} not found.")
+RuntimeError: Configuration file /blue/carpena/haasehelen/ifwaste/model/config.json not found.
+Tue Jan 21 15:46:00 EST 2025
+Experiment 4: 6 kids
+Tue Jan 21 15:46:00 EST 2025
+/home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_6k.json
+/blue/carpena/haasehelen/ifwaste/model
+Start run 0
+/blue/carpena/haasehelen/ifwaste/model
+Traceback (most recent call last):
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 25, in __init__
+    with open(globals.CONFIG_PATH) as f: 
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/blue/carpena/haasehelen/ifwaste/model/config.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 34, in <module>
+    main(args.config_path)
+  File "/home/haasehelen/haasehelen/ifwaste/model/main.py", line 20, in main
+    neighborhood = Neighborhood()
+                   ^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/Neighborhood.py", line 30, in __init__
+    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/StoreDiscounterRetailer.py", line 9, in __init__
+    super().__init__(store_type, grid,id)
+  File "/blue/carpena/haasehelen/ifwaste/model/Store.py", line 50, in __init__
+    self.food_groups:FoodGroups = FoodGroups.get_instance()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 56, in get_instance
+    FoodGroups()
+  File "/blue/carpena/haasehelen/ifwaste/model/FoodGroups.py", line 42, in __init__
+    raise RuntimeError(f"Configuration file {globals.CONFIG_PATH} not found.")
+RuntimeError: Configuration file /blue/carpena/haasehelen/ifwaste/model/config.json not found.
+Tue Jan 21 15:46:01 EST 2025

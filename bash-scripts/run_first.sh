@@ -13,26 +13,27 @@ module load mamba
 mamba activate ifwaste-env
 
 echo "Experiment 1: 0 kids"
-date
-python main.py --config_path experiments/config_0k.json
-date 
+echo pwd
 
+date
+
+python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_0k.json
+date 
 
 echo "Experiment 2: 2 kids"
 date
-python main.py --config_path experiments/config_2k.json
+python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_2k.json
 date 
-
 
 echo "Experiment 3: 4 kids"
 date
-python main.py --config_path experiments/config_4k.json
+python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_4k.json
 date 
 
 
 echo "Experiment 4: 6 kids"
 date
-python main.py --config_path experiments/config_6k.json
-date 
 
+python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_6k.json
+date 
  
