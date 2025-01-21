@@ -68,7 +68,7 @@ class Grid:
             for y in range(len(self.grid[0])):
                 if self.grid[x][y] == location:
                     return (x,y)
-        raise ValueError(f"Location {location} not found in the grid.")
+        raise ValueError(f"Location {location.logger.name} not found in the grid.")
                 
     def setup_grid(self, gridsize:int) -> list[list[None | tuple[int,int] | Location]]: 
         """Creates a grid depending on the gridsize. The grid is planned to be 

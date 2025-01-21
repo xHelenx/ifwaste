@@ -166,7 +166,6 @@ class HouseholdShoppingManager:
             globals.log(self,"No store found, avail time %f", self.todays_time)
             return 0
         
-        
         if is_quickshop: 
             #build quick basket
             basketCurator = BasketCurator(stores=selected_stores, logger=self.logger, budget=budget)
@@ -178,8 +177,8 @@ class HouseholdShoppingManager:
             #if planner add more stores if necessary because of missing fg
             if is_planner: #planner hh 
                 store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
-            if not store is None and not store in selected_stores: 
-                selected_stores.append(store)     
+                if not store is None and not store in selected_stores: 
+                    selected_stores.append(store)     
 
             #create initial basket with groceries
             basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
@@ -195,7 +194,6 @@ class HouseholdShoppingManager:
             duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
         
         basketCurator.impulse_buy(self.impulsivity)
-        globals.log(self,basketCurator.basket)
         
         if len(basketCurator.basket) > 0:
             globals.log(self,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
@@ -205,8 +203,8 @@ class HouseholdShoppingManager:
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
-            #globals.log(self,"BOUGHT: %i", sum(basketCurator.basket["servings"]*basketCurator.basket["amount"]))
-            #globls.log(self,basketCurator.basket)
+            
+        globals.log(self,basketCurator.basket)
         return duration
     def _debug_amount(self, df:pd.DataFrame) -> int: 
         non_bogo = df.loc[df["discount_effect"] != EnumDiscountEffect.BOGO, "amount"].sum()
@@ -229,8 +227,9 @@ class HouseholdShoppingManager:
                 if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
                     if not basketCurator.is_basket_in_budget(): 
                         store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_price=True)
-                        if store != None and store not in selected_stores:
+                        if not store is None and not store in selected_stores: 
                                 selected_stores.append(store)
+                                assert len(selected_stores) == len(set(selected_stores))
                                 #redo entire basket now with a bonus store
                                 basketCurator.return_basket_to_store() #we are starting over instead
                                 basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
@@ -241,7 +240,9 @@ class HouseholdShoppingManager:
                             store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
                             if store != None and store not in selected_stores:
                                     selected_stores.append(store)
-                                    basketCurator.stores.append(store)
+                                    assert len(selected_stores) == len(set(selected_stores))
+                                    #basketCurator.stores.append(store)
+                                    assert len(basketCurator.stores) == len(set(basketCurator.stores))
                                     #buy missing food items + keep old basket #TODO is this ok?
                                     basketCurator.create_basket()
         if self._is_adjustment_needed(basketCurator): 

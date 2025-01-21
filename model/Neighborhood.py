@@ -81,7 +81,12 @@ class Neighborhood():
             
         self.data_logger.log_households_left_resources(houses=self.houses)
         self.data_logger.data_to_csv(run=run_id, logs_to_write=["log_still_have"])
-        
+
+        #unregister logger
+        for house in self.houses: 
+            house.unregister_logger()
+        for store in self.stores:
+            store.unregister_logger()
         
 
     

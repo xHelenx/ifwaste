@@ -161,6 +161,7 @@ class BasketCurator():
                 #buy random item
                 if not options.empty:
                     item = options.sample(1, weights='impulse_buy_likelihood').iloc[0]
+                    item = item.drop("impulse_buy_likelihood")
                     self._buy(item, 1)
                     options.loc[item.name, "amount"] -= 1 # type: ignore #keep options current
                     options = options[options["amount"] > 0]
@@ -612,6 +613,8 @@ class BasketCurator():
                     take_instead[i] = take_instead[i].drop(["adjustment"])
                 self._buy(item=take_instead[i], amount=amount_take_instead[i])
                 self._add_item(take_instead[i], amount_take_instead[i])
+        
+        self._organize_basket() #when item is returned the item is set 0, which sometimes leads to duplicates
         
     def _add_item(self, item:pd.Series, amount:int) -> None:
         """Adds item to basket
