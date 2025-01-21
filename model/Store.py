@@ -315,9 +315,9 @@ class Store(Location):
         mask = (self.tracker["product_ID"] == item["product_ID"]) #here product not item 
         
         if item["discount_effect"] == EnumDiscountEffect.BOGO: 
-            amount *= 2 
+            amount *= 2  # type: ignore
             
-        self.tracker.loc[mask, "today"] += amount  
+        self.tracker.loc[mask, "today"] += amount   # type: ignore
         
     def _update_tracker(self) -> None: 
         self.tracker["purchased"] = self.tracker.apply(lambda row: row["purchased"][1:] + [row["today"]], axis=1)

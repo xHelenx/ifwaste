@@ -1,16 +1,16 @@
 {
     "Simulation" : { 
         "runs" : 10, 
-        "total_days" : 1000,
+        "total_days" : 100,
         "name": "debug",
         "output_folder": "data",
         "write_to_file_interval": 1,
         "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 5, 
+        "neighborhood_houses" : 100, 
         "neighborhood_store_types": "['Discount_retailer', 'Premium_retailer', 'Convenience_store']",
-        "neighborhood_store_amounts": "[2,2,2]",
+        "neighborhood_store_amounts": "[8,6,5]",
         "neighborhood_pay_day_interval" : 10
     },
     "Grid": {
