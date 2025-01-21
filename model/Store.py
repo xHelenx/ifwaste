@@ -26,9 +26,9 @@ class Store(Location):
         self.sold_today = 0
         self.allowed_cols = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
                                   "deal_value", "sale_timer", "store", "product_ID", "amount"}
-        
-        
-        super().__init__(id,grid)
+        self.id:int = id
+        self.store_type:EnumStoreTier = store_type
+        super().__init__(id,grid,str(self.store_type.name)+ str(self.id))
         #init through subclass
         self.quality:float|None = None 
         self.price:float|None = None 
@@ -48,8 +48,6 @@ class Store(Location):
         
         self.grid:Grid = grid 
         self.food_groups:FoodGroups = FoodGroups.get_instance()
-        self.store_type:EnumStoreTier = store_type
-        self.id:int = id
         self.product_range:pd.DataFrame = pd.DataFrame()
         with open(globals.CONFIG_PATH) as f: 
             config = json.load(f)
@@ -74,7 +72,7 @@ class Store(Location):
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
         self.price = self.product_range["price_per_serving"].mean()
-        self.logger: Logger|None= globals.setup_logger( str(self.store_type.name)+ str(self.id))
+        
         
     def __str__(self) -> str:
         return self.store_type.value + " at " + str(self.grid.get_coordinates(self))
@@ -178,6 +176,7 @@ class Store(Location):
         globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
         
         if globals.DAY == 0:  #on first day stock store with baseline amount
+            globals.log(self,str(self))
             self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
             #globals.log(self,"--- after restocking ---" )
             #globals.log(self,self.stock)
@@ -307,6 +306,9 @@ class Store(Location):
         if item["discount_effect"] == EnumDiscountEffect.BOGO: 
             amount *= 2 
         self.sold_today -= amount
+        
+        self.organize_stock()
+        
     
     def _track_removed_from_stock(self, item:pd.Series, amount:int|None=None)  -> None:
         assert (isinstance(item, pd.Series) and not amount is None) or isinstance(item,pd.DataFrame)

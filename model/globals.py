@@ -532,26 +532,7 @@ def configure_simulation(file) -> None:
     
     BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]
     BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]
-    
-def setup_logger(logger_name) -> logging.Logger|None:
-    if SIMULATION_DEBUG_LOG_ON:
-            log_dir = "LOGS"
-            if not os.path.exists(log_dir):
-                os.makedirs(log_dir)  # Create the directory if it doesn't exist
 
-            logger = logging.getLogger(logger_name)
-            logger.setLevel(logging.DEBUG)
-
-            # Create a file handler
-            handler = logging.FileHandler(f"{log_dir}/{logger_name}.log")
-            handler.setLevel(logging.DEBUG)
-
-            # Add handler to the logger
-            logger.addHandler(handler)
-            logger.setLevel(logging.DEBUG)
-
-            return logger
-            
 
 def log(obj, message, *args) -> None:
     if SIMULATION_DEBUG_LOG_ON:

@@ -21,12 +21,10 @@ class Household(Location):
         Args:
             id (int): unique id of the household
         """        
-        super().__init__(id, grid)
+        super().__init__(id, grid, "HH_"+ str(id))
         self.pantry: Storage  = Storage()
         self.fridge: Storage = Storage()
         self.datalogger: DataLogger = datalogger
-        self.logger: logging.Logger|None= globals.setup_logger( "HH_"+ str(self.id))
-        
         ###HOUSEHOLD MEMBER
         globals.log(self,"HOUSE INFO")
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
@@ -159,7 +157,7 @@ class Household(Location):
         # check if it is payday
         if globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL == 0:  #pay day
             self.shoppingManager.todays_budget += self.budget
-        globals.log(self,"Budget: %f", self.budget)
+        #globals.log(self,"Budget: %f", self.budget)
         shopping_time = 0
         #check if it is time for a big grocery shop
         if globals.DAY % self.shopping_frequency == 0:
