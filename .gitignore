@@ -17,5 +17,5 @@ analysis/__pycache__/*
 analysis/*.ipynb_checkpoints/*
 
 #ignore log files
-model/LOGS/*
+bash-scripts/LOGS/*
 model/*.out

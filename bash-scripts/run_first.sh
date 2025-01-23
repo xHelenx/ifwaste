@@ -1,25 +1,3 @@
-#!/bin/sh
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=5gb
-#SBATCH --time=96:00:00
-
-#SBATCH --job-name=ifwaste
-#SBATCH --mail-type=END
-#SBATCH --output=run_log.out
-
-date 
-module load python 
-module load mamba 
-mamba activate ifwaste-env
-
-echo "Experiment 1: 0 kids"
-echo pwd
-
-date
-
-python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_0k.json
-date 
-
 echo "Experiment 2: 2 kids"
 date
 python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_2k.json
@@ -36,4 +14,3 @@ date
 
 python /home/haasehelen/haasehelen/ifwaste/model/main.py --config_path /home/haasehelen/haasehelen/ifwaste/bash-scripts/experiments/config_6k.json
 date 
- 

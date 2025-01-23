@@ -2,10 +2,10 @@
     "Simulation" : { 
         "runs" : 10, 
         "total_days" : 100,
-        "name": "debug",
+        "name": "22_Jan_0k_wdh",
         "output_folder": "data",
         "write_to_file_interval": 1,
-        "debug_log_on": "True"
+        "debug_log_on": "False"
     },
     "Neighborhood" : {
         "neighborhood_houses" : 100, 
