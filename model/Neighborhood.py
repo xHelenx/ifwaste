@@ -27,11 +27,11 @@ class Neighborhood():
         for i in range(len(globals.NEIGHBORHOOD_STORE_TYPES)):
             for j in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
                 if globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.DISCOUNTRETAILER.value:
-                    store = StoreDiscounterRetailer(store_type=EnumStoreTier.DISCOUNTRETAILER, grid=self.grid,id=i*j+j)
+                    store = StoreDiscounterRetailer(grid=self.grid,id=i*j+j)
                 elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.PREMIUMTIER.value:
-                    store = StorePremimumRetailer(store_type=EnumStoreTier.PREMIUMTIER, grid=self.grid,id=i*j+j)
+                    store = StorePremimumRetailer(grid=self.grid,id=i*j+j)
                 elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.CONVENIENCETIER.value:
-                    store = StoreConvenienceStore(store_type=EnumStoreTier.CONVENIENCETIER, grid=self.grid,id=i*j+j)
+                    store = StoreConvenienceStore(grid=self.grid,id=i*j+j)
                 else: 
                     raise ValueError("store type does not exist")
                 self.grid.assign_location(object=store)

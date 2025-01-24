@@ -19,13 +19,19 @@ from EnumDiscountEffect import EnumDiscountEffect
 
 class Store(Location):
     def __init__(self, store_type:EnumStoreTier, grid:Grid, id:int) -> None: # type: ignore
+        """Initialized the general part of a store
+
+        Args:
+            store_type (EnumStoreTier): Store type (discount, convenience, prem)
+            grid (Grid): _description_
+            id (int): _description_
+        """        
         from Grid import Grid 
         
         
         #debug
-        self.sold_today = 0
         self.allowed_cols = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
-                                  "deal_value", "sale_timer", "store", "product_ID", "amount"}
+                                "deal_value", "sale_timer", "store", "product_ID", "amount"}
         self.id:int = id
         self.store_type:EnumStoreTier = store_type
         super().__init__(id,grid,str(self.store_type.name)+ str(self.id))
@@ -171,7 +177,6 @@ class Store(Location):
     
         return non_bogo + bogo
     def do_before_day(self) -> None:    
-        self.sold_today = 0
         globals.log(self,"---- DAY %i ----",  globals.DAY )
         globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
         
@@ -191,16 +196,11 @@ class Store(Location):
     def do_after_day(self) -> None: 
         self._decay()
         self._throw_out()
-        self._update_tracker() #shift todays purchase value into memory
+        self._shift_tracker_to_memory() #shift todays purchase value into memory
         
         mask  = self.stock["sale_type"] == EnumSales.SEASONAL #all seasonal items      
         self.stock.loc[mask,"sale_timer"] -= 1 #a day passed -> reduce time till sales ends        
         self.organize_stock()
-        globals.log(self, "ITEMS SOLD: %i", self.sold_today)
-        globals.log(self, "Tracker:")
-        globals.log(self, self.tracker)
-
-        
         
     def _decay(self) -> None:
         self.stock["days_till_expiry"] -= 1
@@ -275,7 +275,6 @@ class Store(Location):
         
         if item["discount_effect"] == EnumDiscountEffect.BOGO: 
             amount *= 2 
-        self.sold_today += amount
         
         assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
         
@@ -304,14 +303,18 @@ class Store(Location):
             assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
         self._track_removed_from_stock(item,-amount)
         if item["discount_effect"] == EnumDiscountEffect.BOGO: 
-            amount *= 2 
-        self.sold_today -= amount
+            amount *= 2
         
         self.organize_stock()
         
     
-    def _track_removed_from_stock(self, item:pd.Series, amount:int|None=None)  -> None:
-        assert (isinstance(item, pd.Series) and not amount is None) or isinstance(item,pd.DataFrame)
+    def _track_removed_from_stock(self, item:pd.Series, amount:int)  -> None:
+        """Updates the tracker when an item is returned (amount <0) or bought from the store (amount>0)
+
+        Args:
+            item (pd.Series): item that will be added or removed from store (used to identify the food group)
+            amount (int): amount of items that will be added or removed.
+        """        
         mask = (self.tracker["product_ID"] == item["product_ID"]) #here product not item 
         
         if item["discount_effect"] == EnumDiscountEffect.BOGO: 
@@ -319,10 +322,15 @@ class Store(Location):
             
         self.tracker.loc[mask, "today"] += amount   # type: ignore
         
-    def _update_tracker(self) -> None: 
+    def _shift_tracker_to_memory(self) -> None: 
+        """Moves todays number of purchased items to the memory for later restocking reference
+        """        
         self.tracker["purchased"] = self.tracker.apply(lambda row: row["purchased"][1:] + [row["today"]], axis=1)
 
     def _plan_and_buy_stock(self) -> None:
+        """Calculates how much of each item in the product range the store should restock on and then 
+        refills the stock accordingly. Restocking is currently free and instantaneous
+        """        
         if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
             globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
@@ -331,6 +339,10 @@ class Store(Location):
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: 0)
             
     def _manage_sales(self,) -> None: 
+        """Updates the sales daily. Therefore current sales are updated/removed according to their strategy. 
+        New sales are added afterwards.
+        """        
+        
         #remove finished sales (clearance automatically when food is bad/bought)
         self._update_seaonsal_sales()
         self._update_high_stock_sales()
@@ -338,6 +350,9 @@ class Store(Location):
         self._add_new_sales()
         
     def _update_clearance_sales(self) -> None: 
+        """Clearance sales get updated. Depending on the clearance intervals the associated 
+        sales is applied to the food item
+        """        
         mask = (self.stock["sale_type"] == EnumSales.EXPIRING)
 
         for idx,row in self.stock[mask].iterrows(): 
@@ -360,14 +375,16 @@ class Store(Location):
     
                             
     def _update_seaonsal_sales(self) -> None: 
+        """ Seasonal sales get updated. Seasonal sales are randomly started and then run for 
+        a predefined amount of time (parameterized thorugh: STORE_***_SAL_SEASONAL_DURATION)
+        """        
         #remove seasonal sales, that timed out
         mask = (self.stock["sale_timer"] == 0) & (self.stock["sale_type"] == EnumSales.SEASONAL)
         self._change_sale(mask, new_sale_options=None) #remove item
         
         
     def _change_sale(self, mask_or_index: Union[pd.Series, Hashable], new_sale_options: Optional[list] = None, all_same_sale_type: bool = True) -> None:
-        """
-        Change sale options for items in stock.
+        """ Helper function to adjust sale type and its configuration for a set of items:
         
         Parameters:
             mask_or_index (Union[pd.Series, int]): Boolean mask or row index specifying which rows to update.
@@ -414,33 +431,53 @@ class Store(Location):
         self._update_deal_value()
 
     
-    def handle_bogo_per_row(self,row:pd.Series, discount_scaler) -> list[pd.Series]:
-        ##Important pass a copy of the item?
-        if row["amount"] % discount_scaler == 0: #even number -> easy - apply bogo rules
-            row["amount"] //= discount_scaler
-            row["servings"] *= discount_scaler
-            row["price_per_serving"] /= discount_scaler
-            return [row]
-        elif row["amount"] > 1: #make sure there is not just 1 and it create an empty row
-            #split into row that applies bogo for as many items as possible + leftover row
-            no_bogo = row.copy()
-            bogo = row.copy()
+    def _handle_bogo_per_row(self,item:pd.Series, discount_scaler:int) -> list[pd.Series]:
+        """Helper function that ensures the correct update of an item, that is on BOGO. 
+        if an item is set to be sold as a BOGO, it has to be ensured, that it is possible to be all items as a BOGO,
+        So if there is an uneven number, the last item has to be sold for the original price
+
+        Args:
+            item (pd.Series): item to be set on BOGO
+            discount_scaler (int): defines whether it is a BOGO, or buy 3 pay 1 ...
+
+        Returns:
+            list[pd.Series]: Returns adjusted items, either all on bogo for an even number of items, or as many as possible on 
+            bogo and single item for the normal price
+        """        
+        
+        if item["amount"] % discount_scaler == 0: #even number -> easy - apply bogo rules
+            item["amount"] //= discount_scaler
+            item["servings"] *= discount_scaler
+            item["price_per_serving"] /= discount_scaler
+            return [item]
+        elif item["amount"] > 1: #make sure there is not just 1 and it create an empty item
+            #split into item that applies bogo for as many items as possible + leftover item
+            no_bogo = item.copy()
+            bogo = item.copy()
             
             bogo["amount"] //= discount_scaler
             bogo["servings"] *= discount_scaler
             bogo["price_per_serving"] /= discount_scaler
             
-            no_bogo["amount"] = row["amount"] % discount_scaler   
+            no_bogo["amount"] = item["amount"] % discount_scaler   
             no_bogo["sale_type"] = EnumSales.NONE
             no_bogo["discount_effect"] = EnumDiscountEffect.NONE
             return [bogo,no_bogo]
         else:
-            return [row]
+            return [item]
     
-    def _add_sale_to_item(self,mask, sale_type, discount_effects) -> None:  
+    
+    def _add_sale_to_item(self,mask, sale_type:EnumSales, discount_effects:list[EnumDiscountEffect]) -> None: 
+        """Manages the application of a new sale to a group of items
+
+        Args:
+            mask (): mask that defines which items of the stock should receive the sale
+            sale_type (EnumSales): sale type the items should receive
+            discount_effects (list[EnumDiscountEffects]): list of options of discounts to apply to the agent
+        """
         selected_discount_effect = random.choice(discount_effects) # type: ignore
-        self.stock.loc[mask, "sale_type"] = sale_type
-        self.stock.loc[mask, "discount_effect"] = selected_discount_effect
+        self.stock.loc[mask, "sale_type"] = sale_type # type: ignore
+        self.stock.loc[mask, "discount_effect"] = selected_discount_effect # type: ignore
         if selected_discount_effect == EnumDiscountEffect.BOGO: 
             result_rows = []
             if not isinstance(mask, int): #more than 1 row     
@@ -448,19 +485,21 @@ class Store(Location):
                 result_rows = [
                             processed_row
                             for _, row in self.stock.loc[mask].iterrows()
-                            for processed_row in self.handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
+                            for processed_row in self._handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
                 ]
                 self.stock = self.stock[~mask]
             else: 
-                result_rows = self.handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                result_rows = self._handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
                 self.stock = self.stock[~self.stock.index.isin([mask])]
-                         
             self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
             self.stock = self.stock.reset_index(drop=True)
         else: 
-            self.stock.loc[mask, "price_per_serving"]  *= selected_discount_effect.scaler
+            self.stock.loc[mask, "price_per_serving"]  *= selected_discount_effect.scaler # type: ignore
             
-    def _update_high_stock_sales(self): 
+    def _update_high_stock_sales(self) -> None: 
+        """ High stock sales get updated. High stock sales are applied if the current stock level are above 
+        different levels (parameterized through STORE_***_SAL_HIGH_STOCK_INTERVAL_*) and last until the stock level reach a normal level again
+        """  
         #update high stock items that are already on sale
         for _, row in self.product_range.iterrows():
             # Select the actual product from the product range (all items that match)
@@ -487,8 +526,11 @@ class Store(Location):
                     # Ignore if BOGO, if sales, revert old discount, apply new discount
                     self._change_sale(mask & (high_stock_mask), new_sale_options=self.high_stock_discount_2)
 
-   
-    def _add_new_sales(self):
+    def _add_new_sales(self) -> None:
+        """This method manages the check for applying new sales. For all items that are not currently on 
+        sale it checks whether they should be on sale and collects all possible sale options. Then a sale 
+        is randomly select for each of those items and is applied accordingly (in apply_sales())
+        """        
         ## determine all possible sales for each item
         self.stock["sale_option"] = [[] for _ in range(len(self.stock))]
         for _,row in self.product_range.iterrows(): 
@@ -501,8 +543,8 @@ class Store(Location):
                 self._add_sales_options(mask_no_sale_applied,[(EnumSales.HIGHSTOCK, self.high_stock_discount_2)])                
             elif current_product["amount"].sum()  >= globals.STORE_BASELINE_STOCK * self.high_stock_interval_1:
                 self._add_sales_options(mask_no_sale_applied, [(EnumSales.HIGHSTOCK, self.high_stock_discount_1)])
-           
-           #now we look at each item of this product type (could vary by e.g. expiry date)
+
+            #now we look at each item of this product type (could vary by e.g. expiry date)
             for _,row_by_exp in self.stock[mask_no_sale_applied].iterrows():
                 ## clearance sales ## 
                 #select all item of 1 expiry date
@@ -512,26 +554,26 @@ class Store(Location):
                     self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_2)])
                 elif row_by_exp["days_till_expiry"] <= self.clearance_interval_1: 
                     self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_1)])
-                              
+
                 ## seasonal sales (random sales)
                 if random.uniform(0,1) < self.seasonal_likelihood:  # type: ignore
                     self._add_sales_options(mask,[(EnumSales.SEASONAL,self.seasonal_discount)])        
-          
+
         #all items that are empty are set to NONE:         
         self.stock['sale_option'] = self.stock['sale_option'].apply(lambda x: [(EnumSales.NONE,[EnumDiscountEffect.NONE])] if len(x) == 0 else x)
 
         ## select a random sale and apply it  
         self._apply_sales()   
 
-    def _apply_sales(self): 
+    def _apply_sales(self) -> None: 
+        """Gets called from _add_new_sales() and manages the selection of the possible sales and applies them to the stock.
+        """        
         #all sale options have been slected in sale_options -> now we choose one
         #choose sale and apply it
         
         mask = (self.stock["sale_type"] == EnumSales.NONE) & ~self.stock["sale_option"].apply( \
             lambda x: x == [(EnumSales.NONE, [EnumDiscountEffect.NONE])])
-
         idx = self.stock.loc[mask].index
-         
         if self.stock["sale_option"].apply(lambda x: x != [(EnumSales.NONE, [EnumDiscountEffect.NONE])]).any():  
             self.stock.loc[idx,'sale_option'] = self.stock.loc[idx,'sale_option'].apply(lambda x: random.choice(x) if x else (EnumSales.NONE, [EnumDiscountEffect.NONE]))
             self.stock.loc[idx,"sale_type"] = self.stock.loc[idx,"sale_option"].apply(lambda x: x[0])
@@ -548,11 +590,11 @@ class Store(Location):
                     result_rows = [
                                 processed_row
                                 for _, row in self.stock.loc[mask].iterrows()
-                                for processed_row in self.handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
+                                for processed_row in self._handle_bogo_per_row(row.copy(deep=True), row["discount_effect"].scaler)
                     ]
                     self.stock = self.stock[~mask]
                 else: 
-                    result_rows = self.handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
+                    result_rows = self._handle_bogo_per_row(self.stock.iloc[mask].copy(deep=True), self.stock.loc[mask,"discount_effect"].scaler)  # type: ignore
                     self.stock = self.stock[~self.stock.index.isin([mask])]
                 self.stock = pd.concat([self.stock, pd.DataFrame(result_rows)], ignore_index=True)
                 self.stock = self.stock.reset_index(drop=True)
@@ -566,13 +608,22 @@ class Store(Location):
         self.stock = self.stock.drop(columns=["sale_option"])   
         
     def _update_deal_value(self) -> None: 
+        """Gets called whenever a sale is applied to a stock item in order to update the 
+        deal value accordingly 
+        """        
         #update deal value because servings size or price has changed
         a_1 =  globals.DEALASSESSOR_WEIGHT_SERVING_PRICE
         a_2 = 1- a_1
         self.stock["deal_value"] = a_1 * self.stock["price_per_serving"] + a_2 *\
                             self.stock["price_per_serving"] * self.stock["servings"]
         
- 
     def _add_sales_options(self, item_mask: pd.Series, sale_option: list[tuple[EnumSales, list[EnumDiscountEffect]]]) -> None:
+        """Helper function: When a possible sale is selected in _add_new_sales(), this method adds them to the options of 
+        sales to choose from in apply_sales()
+
+        Args:
+            item_mask (pd.Series): _description_
+            sale_option (list[tuple[EnumSales, list[EnumDiscountEffect]]]): _description_
+        """        
         #add item to the temporary list of possible sales to apply to the item 
         self.stock.loc[item_mask, 'sale_option'] = self.stock.loc[item_mask, 'sale_option'].apply(lambda x: x + sale_option)

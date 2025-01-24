@@ -20,6 +20,25 @@ class Household(Location):
 
         Args:
             id (int): unique id of the household
+            
+        Class Variables: 
+            pantry (Storage) : Storage for all unprepared items 
+            fridge (Storage) : Storage for all prepared and preprepared items
+            datalogger (DataLogger): datalogger for writing data files
+            amount_children (int): Number of children in the house 
+            amount_adults (int): Number of adults in the house 
+            ppl (list[Person]): list of all members of the household
+            household_concern (float, 0-1): aggregated level of concern of the household regarding avoidable waste during cooking and consumption
+            req_servings_per_fg (list(float)): aggregated requiredment of servings of each food group of the entire household
+            req_servings (float): required total servings aggregated over people and food groups
+            hh_preference (dict[str,float]): aggregated preference list of each food group
+            shopping_frequency (int, 1-7): amount of times the family goes for a normal shopping trip in a week
+            budget (float): generally available budget within one pay day range
+            log_shopping_time (float) : time spent shopping today
+            log_cooking_time (float) : time spent cooking today
+            shoppingManager (HouseholdShoppingManager): object that manages everything regarding the shopping process
+            cookingManager (HouseholdCookingManager): object that manages everything regarding the cooking process
+            
         """        
         super().__init__(id, grid, "HH_"+ str(id))
         self.pantry: Storage  = Storage()
@@ -90,6 +109,8 @@ class Household(Location):
         )
         
     def _reset_logs(self) -> None: 
+        """Resets logs after information has been written to datalogger
+        """        
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
 

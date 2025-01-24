@@ -119,7 +119,7 @@ class Grid:
             2 * globals.GRID_TIME_PER_STORE
         else:
             return self.get_travel_time_one_way(coords, first_stop) * 2 + globals.GRID_TIME_PER_STORE
-  
+
     def get_stores_within_time_constraint(self,start:Location, avail_time:float) -> list[Store]: #assuming up to single travel 
         '''
         Returns a list of store options, that meet different criteria: 
@@ -131,11 +131,8 @@ class Grid:
         avail_time: available traveling time 
         Returns: 
             (list[Store]) : a list of store options, for which all criteria are matching
-        
-        
         '''
         relevant_stores = []
-      
         number_grids = int(avail_time/self.time_per_cell*2) #both ways included
         (x,y) = self.get_coordinates(location=start)
         
@@ -193,7 +190,7 @@ class Grid:
                         if traveling_time <= avail_time:
                             if not((fg != None and not
                                     set(fg).issubset(set(self.grid[x_tmp][y_tmp].get_available_food_groups()))) #type: ignore
-                                   or (needs_lower_price and not self.grid[x_tmp][y_tmp].price < price)): #type: ignore
+                                or (needs_lower_price and not self.grid[x_tmp][y_tmp].price < price)): #type: ignore
                                 relevant_stores.append(self.grid[x_tmp][y_tmp])
                         
         return relevant_stores

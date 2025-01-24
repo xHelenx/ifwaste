@@ -15,7 +15,9 @@ class Person():
         within the household
         - concern = list of concern [env,eco,health], value between 0-1, 1 indicating a high concern
         - req_serving = requried servings per food type 
-        - plate waste ratio 
+        - plate waste ratio: percentage of food that is left on the place (0-1)
+        - fg_preference: indicates the preference (0-1) for each food group
+        
         """                
         self.age:int 
         self.gender:int = random.randint(globals.MALE, globals.FEMALE) #1 is female

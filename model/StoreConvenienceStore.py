@@ -6,8 +6,15 @@ from EnumDiscountEffect import EnumDiscountEffect
 
 
 class StoreConvenienceStore(Store): 
-    def __init__(self, store_type:EnumStoreTier, grid:Grid, id) -> None:
-        super().__init__(store_type, grid,id)
+    def __init__(self, grid:Grid, id:int) -> None:
+        """Initializes premimum retailer store. Here all information regarding the sales are set
+
+        Args:
+            store_type (EnumStoreTier): type of store
+            grid (Grid): grid of the neighborhood
+            id (int): store id 
+        """   
+        super().__init__(EnumStoreTier.CONVENIENCETIER, grid,id)
         
         self.quality:float = globals.STORE_CON_QUALITY  # type: ignore        
         self.high_stock_interval_1:float|None = globals.STORE_CON_SAL_HIGH_STOCK_INTERVAL_1

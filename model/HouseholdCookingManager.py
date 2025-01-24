@@ -16,6 +16,21 @@ class HouseholdCookingManager:
                 datalogger:DataLogger, household_concern:float,  preference_vector:dict[str,float],
                 household_plate_waste_ratio:float, time:list[float], id:int, req_servings:float, 
                 logger:logging.Logger|None) -> None:
+        """Initializes the HouseholdCookingManager
+
+        Args:
+            pantry (Storage): pantry of the household (unprepared food)
+            fridge (Storage): fridge of the household (preprepared and prepared food)
+            shoppingManager (HouseholdShoppingManager): shopping manager for quickshops
+            datalogger (DataLogger): data logger 
+            household_concern (float): aggregated level of concern impacting ingredients to cook with it and order of eating leftover
+            preference_vector (dict[str,float]): maps the food groups to the level of preference (0-1)
+            household_plate_waste_ratio (float): aggregated household plate waste ratio (0-1)
+            time (list[float]): available time for each day of the week
+            id (int): id of the household (for debug logging)
+            req_servings (float): aggregated required serving of the household
+            logger (logging.Logger | None): logger for debugging purposes
+        """        
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
         self.shoppingManager: HouseholdShoppingManager = shoppingManager
@@ -40,18 +55,44 @@ class HouseholdCookingManager:
         
         
     def _has_enough_ingredients(self) -> bool: 
+        """Returns whether the household has enough ingredients to match the required servings
+
+        Returns:
+            bool: has enough ingredients
+        """        
         return self.pantry.get_total_servings() > self.todays_servings
     
     def _has_enough_time(self) -> bool:
+        """Returns whether the household has enough time to cook a full meal
+
+        Returns:
+            bool: has enough time
+        """        
         return self.todays_time < globals.HH_MIN_TIME_TO_COOK
     
     def _reset_logs(self) -> None: 
+        """Resets variables tracking infos for data logger
+        """        
         self.log_today_eef = 0
         self.log_today_cooked = 0
         self.log_today_leftovers = 0
         self.log_today_quickcook = 0
     
     def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  tuple[Union[pd.Series, None], float,float]:
+        """Encapsulates the cooking process 
+
+        Args:
+            strategy (Literal[&quot;random&quot;,&quot;EEF&quot;]): strategy that is applied during the cooking process
+            - random: random ingredient selection
+            - EEF: earliest expiring food first
+            is_quickcook (bool): indicates whether this is a quick cook (vs. a normal full cook)
+
+        Returns:
+            tuple[Union[pd.Series, None], float,float]: meal, shopping_time, cooking_time
+            meal = the meal that has been cooked
+            shopping_time = in case a quick shop was necessary, time spent shoppig, else = 0
+            cooking_time = time spent cooking
+        """        
         shopping_time = 0
         cooking_time = 0
         if not self._has_enough_ingredients(): 
@@ -88,6 +129,14 @@ class HouseholdCookingManager:
         return meal, shopping_time, cooking_time
     
     def _combine_to_meal(self,items:pd.DataFrame) -> pd.Series: 
+        """Helper function: combines all food items (inedible parts removed) to a meal
+
+        Args:
+            items (pd.DataFrame): food items of the meal, inedible parts have to be removed beforehand
+
+        Returns:
+            pd.Series: resulting meal
+        """        
         meal = pd.Series()
         fgs = FoodGroups.get_instance()
         for fg in fgs.get_all_food_groups():
@@ -102,6 +151,18 @@ class HouseholdCookingManager:
         return meal
         
     def _get_ingredients(self,is_quickcook:bool, strategy:Literal["random","EEF"]) -> list[pd.Series]: 
+        """Selects required ingredients depending on the strategy (random, EEF) and whether the meal 
+        will be quickcook
+
+        Args:
+            is_quickcook (bool): is a quick cook, impacting the number of ingredients of the meal
+            strategy (Literal[&quot;random&quot;,&quot;EEF&quot;]): strategy impacting how 
+            the food items are chosen (random = random selection, EEF = earliest expiration first, items
+            are selected based on their expiration date)
+
+        Returns:
+            list[pd.Series]: list of selected food items
+        """        
         #how much do we want to cook:
         planned_servings = self._choose_how_much_to_cook()
         ingredients = []
@@ -122,6 +183,20 @@ class HouseholdCookingManager:
         return ingredients
                     
     def _get_ingredient(self, strategy:Literal["EEF","random"], is_quickcook:bool) -> pd.Series: 
+        """Helper function of "get_ingredients", includes selecting a single item from the pantry.
+
+        Args:
+            is_quickcook (bool): is a quick cook, impacting the number of ingredients of the meal
+            strategy (Literal[&quot;random&quot;,&quot;EEF&quot;]): strategy impacting how 
+            the food items are chosen (random = random selection, EEF = earliest expiration first, items
+            are selected based on their expiration date)
+
+        Raises:
+            ValueError: Trying to select an item from an empty pantry
+
+        Returns:
+            pd.Series: individual food item that has been selected
+        """        
         
         to_eat = pd.Series()
         item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
@@ -139,6 +214,14 @@ class HouseholdCookingManager:
         return to_eat
 
     def _choose_how_much_to_cook(self) -> float: 
+        """Calculates the amount of servings that will be cooked. Generally 
+        the household tries to cook at least enough food to satisfies the required_servings 
+        (if enough food is in the pantry). However household can choose to cook more to have 
+        food for other days. The produced servings can be up to required_servings * COOK_MAX_SCALER_COOKING_AMOUNT
+
+        Returns:
+            float: number of servings to be cooked
+        """        
         available = self.pantry.get_total_servings() 
         ratio_avail_req  = available/self.todays_servings 
         if ratio_avail_req > 1: 
@@ -153,6 +236,14 @@ class HouseholdCookingManager:
         return planned
     
     def cook_and_eat(self, used_time:float) -> tuple[float,float]: 
+        """Method managing the cooking and eating process
+
+        Args:
+            used_time (float): time that has already been spent for shopping
+
+        Returns:
+            tuple[float,float]: [time spent shopping, time spent cooking] in min
+        """        
         #globals.log(self,"------> COOKING")    
         cooking_time = 0
         shopping_time = 0
@@ -179,7 +270,7 @@ class HouseholdCookingManager:
                     strategy = "EEF"
                 if not self.fridge.is_empty(): #else we are just hungry
                     #globals.log(self,"eat leftovers:")    
-                    self._eat_meal(strategy)
+                    self._eat_meal(strategy=strategy)
                     
         if strategy != "random":
             self.log_today_eef = 1
@@ -190,6 +281,11 @@ class HouseholdCookingManager:
         return shopping_time, cooking_time
         
     def _determine_strategy(self) -> Literal['EEFfridge', 'EEFpantry','random']: 
+        """Helper function: Determines which strategy should be applied for selecting food/ingredients
+
+        Returns:
+            str: selected strategy
+        """        
         strategy = "random"      
         is_eef = (random.uniform(0,1) < self.household_concern)  
         #EEF 
@@ -211,14 +307,16 @@ class HouseholdCookingManager:
         return strategy
         
     def _eat_meal(self,strategy:str|None = None, meal:pd.Series|None = None)  -> None:
+        """Encapsulates the entire eating process, from eating a given meal and/or choosing leftovers from the fridge,
+        to tracking the consumption of the meal + created waste
+
+        Args:
+            Either the strategy for selecting a meal or a meal has to be passed
+            strategy (str | None, optional): Strategy for selecting a meal. Defaults to None.
+            meal (pd.Series | None, optional): Meal to consume. Defaults to None.
+        """        
         assert not (strategy == None and meal is None)
         assert not (strategy != None and meal is not None)   
-                
-        servings = 0
-        if meal is not None: 
-            servings = str(format(meal["servings"], ".2f"))
-            #msg = "eat meal: " + str(strategy) + " servings: " + str(servings)
-            #globals.log(self, msg)    
         needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
         
         if meal is None and needed_serv > 0.001:  
@@ -235,27 +333,34 @@ class HouseholdCookingManager:
 
         
     def _consume(self,meal:pd.Series,needed_serv:float) -> None: 
+        """Function that is called by _eat_meal to manage the food consumption part.
+        Here the food is eaten and tracked, plate waste is calculated and tracked in data logger
+
+        Args:
+            meal (pd.Series): _description_
+            needed_serv (float): _description_
+        """        
 
         (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
         (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
         self.todays_servings -= consumed["servings"]
         if to_fridge is not None: 
-            #globals.log(self,"to fridge:")
-            #globals.log(self, to_fridge)
             self.fridge.add(to_fridge)
-        
-        #globals.log(self,"CONSUMED:")
-        #globals.log(self, consumed)
         self.datalogger.append_log(self.id,"log_eaten",consumed)
         if plate_waste is not None:
-            #globals.log(self,"PLATE WASTE:") 
-            #globals.log(self, plate_waste)
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
         
-        
-        
-    
     def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None]]:
+        """Methods that facilitates splitting a specific waste type from a meal and then returns 
+        both portions individually
+
+        Args:
+            meal (pd.Series): meal to take waste from
+            waste_type (str): waste type to split, can be FW_PLATE_WASTE, FW_INEDIBLE, FW_SPOILED
+
+        Returns:
+            tuple[pd.Series , Union[pd.Series, None]]: meal to consume, waste
+        """        
         fgs = FoodGroups.get_instance() # type: ignore
         consumed = meal.copy(deep=True)
         waste = meal.copy(deep=True)
@@ -266,10 +371,8 @@ class HouseholdCookingManager:
                 portion = fgs.food_groups.loc[ fgs.food_groups["type"] == fg,  "inedible_percentage"].values[0]
             elif waste_type == globals.FW_PLATE_WASTE: 
                 portion = self.household_plate_waste_ratio
-
             else: #spoiled is all will be removed 
-                portion = 1
-                
+                portion = 1                
             serv_this_fg = consumed[fg] - (consumed[fg] * portion)
             consumed[fg] = serv_this_fg
             waste[fg] = waste[fg] * portion
@@ -288,11 +391,20 @@ class HouseholdCookingManager:
         
         if waste["servings"] == 0:
             waste = None 
-            
         
         return (consumed, waste)  
         
     def _split(self,meal:pd.Series,servings:float) -> tuple[pd.Series , Union[pd.Series, None]]: 
+        """Helper function to split a specific amount of servings from a meal (take equal portions of each 
+        food item)
+
+        Args:
+            meal (pd.Series): meal to split
+            servings (float): number of servings to split from the meal
+
+        Returns:
+            tuple[pd.Series , Union[pd.Series, None]]: meal consisting of "servings" amount of servings (to_eat), rest of the meal (to_fridge)
+        """        
         serv_to_eat = meal["servings"]
         
         to_fridge = meal.copy(deep=True)
@@ -315,29 +427,30 @@ class HouseholdCookingManager:
             to_fridge["price"] = (to_fridge["servings"]/meal["servings"]) * to_fridge["price"]
             
         to_eat["price"] = (to_eat["servings"]/meal["servings"]) * to_eat["price"]
-        
             
         return (to_eat, to_fridge)
         
         
     def _prepare_by_strategy(self,strategy) -> tuple[float,float]:
+        """Helper function for cook_and_eat() to manage eating and cooking. This is the first round food is 
+        prepared and consumed.
+
+        Args:
+            strategy (_type_): strategy used for cooking a meal (EEF=earliest expiration first, random)
+
+        Returns:
+            tuple[float,float]: [shopping time, cooking time] in min
+        """        
         shopping_time = cooking_time = 0
         if strategy == "EEFfridge": #eat from fridge cause it expires soon
             if not self.fridge.is_empty():
                 #globals.log(self,"from fridge:")    
-                self._eat_meal(strategy)
+                self._eat_meal(strategy=strategy)
         else: #cook with EEF ingredients or random
             if strategy == "EEFpantry":
                 strategy = "EEF"
             is_quickcook = not self._has_enough_time()
             meal,shopping_time,cooking_time = self._cook(strategy=strategy,is_quickcook=is_quickcook)
-
-            servings = 0
-            if meal is not None: 
-                servings = str(format(meal["servings"], ".2f"))
-                
-            #globals.log(self,"is quickcook %s, cooked: %s", str(is_quickcook), servings)
-            #globals.log(self,meal)
             if meal is not None:
                 self._eat_meal(meal=meal)   
         return shopping_time, cooking_time

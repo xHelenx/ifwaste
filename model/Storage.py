@@ -6,6 +6,12 @@ import globals
 class Storage: 
 
     def __init__(self) -> None:
+        """Initializes a Storage
+        
+        Class Variables: 
+            current_items (pd.DataFrame): Items that are currently held in the storage space
+            
+        """    
         self.current_items: pd.DataFrame = pd.DataFrame(
             columns=[
                 globals.FGMEAT, 
@@ -36,9 +42,12 @@ class Storage:
         self.current_items['days_till_expiry'] = self.current_items['days_till_expiry'].astype(int)  
         self.current_items['inedible_percentage'] = self.current_items['inedible_percentage'].astype(float)  
 
-        self.fg: FoodGroups = FoodGroups.get_instance()  # type: ignore
-
     def add(self, item: pd.Series) -> None: 
+        """Adds the item to the storage
+
+        Args:
+            item (pd.Series): item to be added
+        """        
         if self.current_items.empty:
             self.current_items = pd.DataFrame(columns=list(item.keys()))
 
@@ -52,7 +61,12 @@ class Storage:
         self.current_items.reset_index(drop=True, inplace=True)
 
 
-    def remove(self, item: pd.Series) -> None:            
+    def remove(self, item: pd.Series) -> None:    
+        """Removes item from storage 
+
+        Args:
+            item (pd.Series): item to be removed
+        """                
         mask = np.all([
             np.isclose(self.current_items[col], item[col], equal_nan=True) if pd.api.types.is_float_dtype(self.current_items[col]) 
             else (self.current_items[col] == item[col])
@@ -65,14 +79,22 @@ class Storage:
                 self.current_items = self.current_items.drop(matching_indices[0])
     
     def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float]) -> pd.Series|None: 
-       #default random
-       #random" = choose random ingredients to cook wit
-       #"EEF"    = choose "Earliest Expiration First" 
-       
+        """Retrieves an item from storage depending on the strategy. The likelihood of an item being of a specific food group 
+        furthermore depends on the the given preference vector
+
+        Args:
+            strategy (str): Strategy that is used to select an item from the storage, either "random" or "EEF" (earliest expiration first)
+            preference_vector (dict[str,float]): dictionary mapping the food groups (str) to their preference (0-1), defines the likelihood
+            to select an item given a food group
+
+        Returns:
+            pd.Series|None: item selected for return
+        """        
+
         if self.is_empty(): 
             return None 
         
-        if strategy == None or strategy == "random": 
+        if strategy == "random": 
             #random grab 
             fgs = list(preference_vector.keys())
             weights = self.current_items[fgs].dot(pd.Series(preference_vector))
@@ -89,25 +111,45 @@ class Storage:
         self.remove(item) # type: ignore
         return item      # type: ignore
     
-    def get_number_of_items(self) -> int:
-        return len(self.current_items)
     
     def get_total_servings(self) -> float: 
+        """Returns the total amount of servings, that is held in this storage
+
+        Returns:
+            float: _description_
+        """        
         if len(self.current_items) == 0:
             return 0
             
         return self.current_items["servings"].sum()
     
     def get_servings_per_fg(self) -> pd.Series:
-        fgs = self.fg.get_all_food_groups()
+        """Returns the total amount of servings per food group, that is held
+        in this storage
+
+        Returns:
+            pd.Series: Series that maps food group to number of servings
+        """        
+        fg = FoodGroups.get_instance()  # type: ignore
+        fgs = fg.get_all_food_groups()
         result = pd.Series(dict(zip(fgs, [0]*len(fgs))))
         
         return self.current_items[fgs].sum()
             
     
     def is_empty(self) -> bool: 
+        """Returns whether the storage is empty
+
+        Returns:
+            bool: indicates if the storage is empty
+        """        
         return self.current_items.empty
     def get_earliest_expiry_date(self) -> int: 
+        """Returns the earliest expiry date in the storage space
+
+        Returns:
+            int: earliest expiry date in days
+        """        
         return self.current_items["days_till_expiry"].min()
     
     def debug_get_content(self) -> str: 

@@ -16,10 +16,11 @@ class BasketCurator():
         """initalizes BasketCurator.
 
         Args:
-            stores (list[Store]): _description_
-            servings_to_buy_fg (pd.Series | None, optional): _description_. Defaults to None.
-            budget (float | None, optional): _description_. Defaults to None.
-            
+            stores (list[Store]): list of stores the basket can be curated from
+            servings_to_buy_fg (pd.Series | None, optional): amount of servings that are aimed to be bought (can be less depending
+            on time and money and availability). Defaults to None.
+            budget (float | None, optional): available budget to spend, can be overshot by HH_OVER_BUDGET_FACTOR. Defaults to None.
+            logger (logging.Logger|None, optional): logger to write debug files to
         Class variables: 
             basket (pd.DataFrame) : selected items to buy
             stores (list[Stores]) : selected store options to buy from 
@@ -57,12 +58,11 @@ class BasketCurator():
             'is_replacing_other_fg': 'float'
         }) 
         
-
-    def _remove_item_without_replacement(self) -> bool: 
-        """Removes a random item item from the basket
+    def _remove_item_without_replacement(self): 
+        """Removes a random item item from the basket and returns it back to the store
 
         Returns:
-            bool: An item has been replaced
+            bool: Indicates whether there was still an item in the basket that could be replaced
         """        
         if len(self.basket) > 0:
             item_to_replace = self.basket.sample(1,replace=True).iloc[0]
@@ -72,7 +72,7 @@ class BasketCurator():
             return False
         
     def create_basket(self, is_quickshop:bool=False) -> None:
-        """Creates a shopping basket 
+        """Creates a shopping basket for either a quick shop or a normal shopping. 
         Args:
             is_quickshop (bool, optional): Toggles between quickshop and shopping. Defaults to False.
         """        
@@ -146,8 +146,14 @@ class BasketCurator():
                         needed_servings -= purchased["servings"]
                     else:
                         break
-    def impulse_buy(self,  impulsivity:float): 
-        ##adds random item to basket
+    def impulse_buy(self,  impulsivity:float) -> None: 
+        """Manages the impulse buying process, based on the level of impulsivity of the 
+        household agent. Therefore random items will be bought (number depends on HH_IMPULSE_BUY_PERCENTAGE)
+        and directly added to the basket
+
+        Args:
+            impulsivity (float): value between 0-1 indicating the level of impulsivity of the household
+        """        
         
         ##determine amount of items bought
         ##n% of that can be bought max, check each time
@@ -167,7 +173,16 @@ class BasketCurator():
                     options = options[options["amount"] > 0]
                     self._add_item(item, 1)
                     
-    def _add_impulse_buy_likelihood_column(self,options): 
+    def _add_impulse_buy_likelihood_column(self,options:pd.DataFrame) -> pd.DataFrame: 
+        """Helper function, that adds a column to the options to buy for impulse 
+        purchases. The likelihood depends on the food group
+
+        Args:
+            options (pd.DataFrame): options for the impulse purchase
+
+        Returns:
+            pd.DataFrame: edited options
+        """        
         # Convert food_groups to a DataFrame for merging
         food_groups_df = pd.DataFrame(FoodGroups._instance.food_groups) # type: ignore
         
@@ -183,14 +198,12 @@ class BasketCurator():
         
                     
     def _create_quickshop_basket(self) -> None: 
-        """Creates a shopping basket (quickshop) based on self.stores as store options and
-        self.budget.
-        
-        In this case only a single store can be visited. If available if it will one item 
+        """
+        Selects and purchases items for the basket in the quick shop scenarios. This allows 
+        visiting one items and in this case only a single store can be visited. If available if it will one item 
         of the FGSTOREPREPARED food group and 1-n random other food items.
         
         """ 
-        #only allow 1 store to be visited! 
         
         options = self._get_stock_options(fgs=[globals.FGSTOREPREPARED]) 
         #options = options.dropna()
@@ -209,7 +222,7 @@ class BasketCurator():
         
     def is_basket_in_budget(self)-> bool: 
         '''
-        Returns whether the current curate basket meets the defined budget.
+        Returns whether the current curated basket meets the defined budget.
         
         Returns: bool: basket is in budget        
         '''
@@ -229,12 +242,14 @@ class BasketCurator():
     
     
     def adjust_basket(self) -> None:   
-        """Method to adjust the basket, if it is not in budget or it does not cover 
-        the servings of the required food groups. 3 strategies will over time be applied 
-        including (1. replace items with cheaper items of same food group, 2. replace items 
-        with a cheaper item of any food group, 3. remove item without replacement). 
-        There is a increasing likelihood for the adjusting process to be interrupted early as well
-        as an increasing likelihood to move on to a more strict replacement strategy.
+        """Method to adjust the curted basket, if it is not in budget or it does not cover 
+        the servings of the required food groups. 
+        3 strategies will over time be applied including a) replace items with cheaper items of same food group, b) replace items 
+        with a cheaper item of any food group, c) remove item without replacement). 
+        There is an increasing likelihood for the adjusting process to be interrupted early as well
+        as an increasing likelihood (incremented by BASKETCURATOR_INCREMENT_LIKELIHOOD after each executing each strategy)
+        to move on to a more strict replacement strategy. Besides moving on to a more restrictive strategy, it is also possible
+        to stop the replacement strategy (depedning on the likelihood_to_stop) and buy the keep the basket as is.
         
         Important: Intentionally does not guarantee, that the basket is in budget and does cover all food groups 
         as initially defined
@@ -288,7 +303,7 @@ class BasketCurator():
             tuple[bool,bool]: The first value indicates whether the whole adjustment is done, 
             the second indicates, whether to move on to the next replacement strategy
         """
-                     
+
         done_adjusting = False 
         #we are a) in budget, b) have an empty basket or c) tried to replace every items but it is the cheapest combo
         if (self.is_basket_in_budget() or len(self.basket) == 0 or \
@@ -381,7 +396,7 @@ class BasketCurator():
             diff (int): servings to assign in another fg
 
         Returns:
-            float: _description_
+            float: remaining servings that need to be covered through another food group 
         """        
         #update servings in is_in_other_fg -> this is the fg that is replaced by another one
         
@@ -399,7 +414,7 @@ class BasketCurator():
                 servings = max_servings
             
             self.serv_track.loc[self.serv_track["type"] == selected_fg, "is_in_other_fg"] += servings # type: ignore
-           # self.serv_track.loc[self.serv_track["type"] == selected_fg, "got"] += servings # type: ignore
+            # self.serv_track.loc[self.serv_track["type"] == selected_fg, "got"] += servings # type: ignore
             
             assigned_servings += servings
             fgs_missing_servings = self.serv_track[self.serv_track['required'] > self._get_purchased_servings_from_serv_track()]["type"].tolist()
@@ -430,7 +445,7 @@ class BasketCurator():
         #update got value of item
         self.serv_track.loc[row.index[0],"got"] += item["servings"]
         
-        #b) we are not matching, but we buy to meet serving requirements
+        #b) we are not matching, but we buy anything to meet serving requirements
         required = row["required"].values[0]
         got = self._get_purchased_servings_from_serv_track()
         if row["required"].values[0] < got.loc[row.index[0]] :
@@ -487,14 +502,14 @@ class BasketCurator():
                 
             
     def _replace_item_with_cheaper_option(self, is_same_fg:bool=False) -> bool:
-        """Performs the adjustment method to replace as single item with a cheaper optoin
+        """Performs the adjustment method to replace as single item with a cheaper option
 
         Args:
             is_same_fg (bool, optional): Toggles whether the replacement item has to
             be of the same food groups (true) or any food group. Defaults to False.
 
         Returns:
-            bool: was an replacement found
+            bool: a replacement for the item was found
         """        
         
         found_replaceable_item = False #might have to try every item in self.basket
@@ -575,8 +590,8 @@ class BasketCurator():
         return found_replaceable_item
     def _set_replacement_status(self, item:pd.Series, df:pd.DataFrame, status:str) -> None: 
         """Helper function that updates whether 
-            - an option cannot replace the item (e.g. its more expensive): replacement_failed
-            - the item itself could not be replaced by any item: not_replaceable
+            - an option cannot replace the item (e.g. it is more expensive): replacement_failed
+            - the item itself could not be replaced by any item: not_replaceable (all options failed the replacement)
 
         Args:
             item (pd.Series): item to replace
@@ -588,7 +603,7 @@ class BasketCurator():
         df.loc[idx, "adjustment"] = status
         
     def _handle_item_exchange(self,give_back: Optional[List] = None, take_instead: Optional[List] = None,
-                              amount_give_back: Optional[List[int]] = None, amount_take_instead: Optional[List[int]] = None ) -> None:
+                                amount_give_back: Optional[List[int]] = None, amount_take_instead: Optional[List[int]] = None ) -> None:
         """Handles the replacement of on item (give_back) for another (take_instead). Handles 
         the return/purchase from a store and removes/add the item to the basket and tracker
 
@@ -598,8 +613,6 @@ class BasketCurator():
             amount_give_back (Optional[List[int]], optional): how many items to give back of each type. Defaults to None.
             amount_take_instead (Optional[List[int]], optional): how many items to take instead of each type. Defaults to None.
         """       
-        
-         
         if give_back != None and amount_give_back != None: 
             for i in range(len(give_back)): 
                 if "adjustment" in give_back[i]:
@@ -650,10 +663,8 @@ class BasketCurator():
         # Perform grouping and aggregation
         self.basket = (
             self.basket.groupby(
-                
                     columns
-                ,
-                as_index=False
+                ,as_index=False
             )
             .agg({
                 "amount": "sum"  # Sum up the amounts
@@ -667,7 +678,7 @@ class BasketCurator():
             self.basket["discount_effect"] = self.basket["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
         
     def _remove_item(self, item:pd.Series, amount:int) -> None: 
-        """Removes item from the basket
+        """Helper function the manages the removement  of the given item from the basket (not store side)
 
         Args:
             item (pd.Series): item to remove
@@ -704,10 +715,10 @@ class BasketCurator():
 
         Returns:
             tuple[bool,float,pd.Series,int]: (has_enough,missing_servings, replacement, rep_amount)
-            1. bool: would the chosen item (+ amount) be enough to cover the missing servings
-            2. float: how many servings are missing after adding this item 
-            3. pd.Series: item chosen for being the replacement
-            4. int: amount of replacement item
+            1. has_enough:  bool: would the chosen item (+ amount) be enough to cover the missing servings
+            2. missing_servings: float: how many servings are missing after adding this item 
+            3. replacement: pd.Series: item chosen for being the replacement
+            4. rep_amount: int: amount of replacement item
         """        
         #sample a possible option
         assert replace_options is not None 
@@ -738,18 +749,11 @@ class BasketCurator():
         """        
 
         store = item["store"] #take replacement from store
-        #globals.log(store, "buying: ")
-        #globals.log(store, message=item)
-        #globals.log(store, "stock before purchase")
-        #globals.log(store,store.stock)
         store.buy(item, amount)
-        
-        #globals.log(store, message="stock after purchase")
-        #globals.log(store,store.stock)
         store.organize_stock()
         
     def _give_back(self,item:pd.Series,amount:int) -> None:
-        """Return item in amount from store
+        """Return item to the store
 
         Args:
             item (pd.Series): Item to be returned
@@ -763,19 +767,18 @@ class BasketCurator():
         
     
     def _get_stock_options(self, fgs:list[str] | None =None, focus_on_sales:bool=False) -> pd.DataFrame: 
-        """_summary_
+        """Helper function to retrieve all possible options for a current purchase based on the stock 
+        of the visitable stores. The options can be filtered by their food group and whether the options should only include items on sale
 
         Args:
-            stores (_type_): _description_
-            fgs (_type_, optional): _description_. Defaults to None.
-            focus_on_sales (bool, optional): _description_. Defaults to False.
-            cheaper_than (float, optional): _description_. Defaults to None.
+            fgs (list[str], optional): Filter option to include a list of specific food groups. Defaults to None.
+            focus_on_sales (bool, optional): Filter option to include only items that are on sale. Defaults to False.
 
         Returns:
-            _type_: _description_
+            pd.Dataframe: All options matching the filters
         """
         predefined_columns_set = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
-                                  "deal_value", "sale_timer", "store", "product_ID", "amount"}
+                                "deal_value", "sale_timer", "store", "product_ID", "amount"}
         options = pd.DataFrame()
         #go over required food groups
         if fgs == None: 
@@ -806,7 +809,7 @@ class BasketCurator():
         return options  # type: ignore
     
     def return_basket_to_store(self) -> None: 
-        """Returns the entire basket to the store(s)
+        """Clears the entire basket and returns all items back to the store(s)
         """        
         for _,row in self.basket.iterrows(): 
             self._remove_item(item=row, amount=row["amount"])
@@ -821,7 +824,7 @@ class BasketCurator():
         """        
         return self.serv_track[self.serv_track["got"] >= self.serv_track["required"]]["type"].tolist()
     
-    def get_visited_stores(self) -> list[Store] | None:
+    def get_visited_stores(self) -> list[Store]:
         """Returns the stores visited based on the items in the basket
 
         Returns:
@@ -829,6 +832,8 @@ class BasketCurator():
         """        
         if len(self.basket) > 0:
             return self.basket["store"].unique().tolist()
+        else:
+            return []
         
     
     def get_idx_of_identical_item_df(self,item:pd.Series, df:pd.DataFrame) -> None | int :

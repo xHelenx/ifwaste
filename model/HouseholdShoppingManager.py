@@ -15,8 +15,22 @@ from FoodGroups import FoodGroups
 from EnumDiscountEffect import EnumDiscountEffect 
 class HouseholdShoppingManager: 
     
-    def __init__(self, budget:float, pantry:Storage, fridge:Storage, req_servings_per_fg, grid:Grid, household:Household, # type: ignore
+    def __init__(self, budget:float, pantry:Storage, fridge:Storage, req_servings_per_fg:collections.Counter, grid:Grid, household:Household, # type: ignore
                 shopping_freq, time:list[float], datalogger:DataLogger, id:int, logger:logging.Logger|None) -> None: # type: ignore
+        """_summary_
+
+        Args:
+            budget (float): overall budget between 2 payday intervals
+            pantry (Storage): storage for unprepared foods
+            fridge (Storage): storage for prepared and preprepared foods
+            req_servings_per_fg (collections.Counter): number of servings the household required per food group
+            grid (Grid): grid of neighborhood of the household
+            household (Household): associated household
+            time (list[float]): available time for each day of the week for cooking and shopping
+            datalogger (DataLogger): data logger for later analysis
+            id (int): identifier number of the household
+            logger (logging.Logger | None): debug logger
+        """        
         from Household import Household
         self.pantry:Storage = pantry
         self.fridge:Storage = fridge
@@ -53,7 +67,13 @@ class HouseholdShoppingManager:
         self.req_servings_per_fg = req_servings_per_fg
         self.req_servings:float = sum(self.req_servings_per_fg.values())
     
-    def _get_what_to_buy(self) -> pd.Series: 
+    def _get_what_to_buy(self) -> pd.Series:
+        """Indicates how many servings of which food group are required to be bought depending on what 
+        the household still holds in its fridge and pantry.
+
+        Returns:
+            pd.Series: Series showing the number of servings for each food group
+        """         
         required_servings = dict()
         required_servings.update((x, y*self.shopping_frequency) for x, y in self.req_servings_per_fg.items())
         required_servings = pd.Series(required_servings)
@@ -61,8 +81,13 @@ class HouseholdShoppingManager:
         pantry_content = pd.Series(self.pantry.get_servings_per_fg())
     
         return required_servings - (fridge_content + pantry_content)
-   
     def _get_budget_for_this_purchase(self) -> float: #estimate budget for current shopping tour
+        """Estimates how much money can be spend on this routinary shopping trip depending on 
+        the left budget and the next pay day time.
+
+        Returns:
+            float: available budget for the current shopping trip
+        """        
         days_till_payday = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL - (globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL)   
         if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
             if self.todays_budget <= 0: #no money to buy anything
@@ -88,6 +113,16 @@ class HouseholdShoppingManager:
             return price_per_serving * req_daily_servings * days_till_payday
 
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> pd.Series:
+        """Helper function that formats the food item (store properties) to the form that is used 
+        inside the household
+
+        Args:
+            item (pd.Series): Item to adjust
+            status (str): status of food item, choose from: STATUS_PREPARED,STATUS_UNPREPARED,STATUS_PREPREPARED
+
+        Returns:
+            pd.Series: formatted item
+        """        
         price = 0.0
         inedible = 0
         for fg in FoodGroups.get_instance().get_all_food_groups():
@@ -112,6 +147,12 @@ class HouseholdShoppingManager:
         
         
     def _store_groceries(self, basket:pd.DataFrame) -> None: 
+        """Puts aways the groceries to the pantry and the fridge.
+        prepared and prepared food items go in the fridge. Unprepared item go to the pantry
+
+        Args:
+            basket (pd.DataFrame): Purchased items
+        """        
         #put groceries away
         for idx in basket.index:
             self.datalogger.append_log(self.id,"log_bought", basket.loc[idx])
@@ -131,6 +172,17 @@ class HouseholdShoppingManager:
                 storage.add(item=item)
             
     def _choose_second_store(self, is_planner:bool, selected_stores:list[Store], servings_to_buy_fg:pd.Series) -> Store | None: 
+        """Chooses a second store depending on whether the HH is a planner, which stores are already going to be visited and which 
+        item still have to be purchased (available time and distance is also considered)
+
+        Args:
+            is_planner (bool): indicates whether the HH is a planner (impacts if HH looks into deals when choosing a store)
+            selected_stores (list[Store]): store that were already selected to be visited (avoid duplicates, but consider for fg)
+            servings_to_buy_fg (pd.Series): series mapping food groups to required servings, informing which store to visit
+
+        Returns:
+            Store | None: selected store, None is noone matches the criteria
+        """        
         store = None
         avail_fgs = selected_stores[0].get_available_food_groups()
         relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
@@ -142,7 +194,13 @@ class HouseholdShoppingManager:
         
     def shop(self, is_quickshop:bool=False) -> float:
         """Shops for groceries and stores them in the correct location in the house
-        """ 
+
+        Args:
+            is_quickshop (bool, optional): indicates whether the household does a quick shop (vs a normal shop). Defaults to False.
+
+        Returns:
+            float: shopping time
+        """        
         if is_quickshop:
             globals.log(self,"------> QUICK SHOPPING")    
         else:
@@ -184,12 +242,12 @@ class HouseholdShoppingManager:
             basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
             basketCurator.create_basket()
         
-            self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
+            basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
 
         #calculated required time for shopping tour (final time for planner, current time for not planner)
-        visited_stores = basketCurator.get_visited_stores()
+        visited_stores = basketCurator.get_visited_stores() # type: ignore
         duration = 0
-        if visited_stores != None:
+        if visited_stores != []:
             coords = [store.get_coordinates() for store in visited_stores]
             duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
         
@@ -207,11 +265,25 @@ class HouseholdShoppingManager:
         globals.log(self,basketCurator.basket)
         return duration
     def _debug_amount(self, df:pd.DataFrame) -> int: 
+        """Debug function to print how many items are in the df (basket)
+
+        Args:
+            df (pd.DataFrame): df to count the number of items from
+
+        Returns:
+            int: number of items
+        """        
         non_bogo = df.loc[df["discount_effect"] != EnumDiscountEffect.BOGO, "amount"].sum()
         bogo = df.loc[df["discount_effect"] == EnumDiscountEffect.BOGO, "amount"].sum() * 2
     
         return non_bogo + bogo
     def _pay(self, basket:pd.DataFrame) -> None: 
+        """Manages the payment for the items. Deducts spent money. Currently the store is not paid, 
+        as it is out of scope
+
+        Args:
+            basket (pd.DataFrame): basket full of items that will be bought
+        """        
         spent = (basket["price_per_serving"] * basket["servings"] * basket["amount"]).sum()
         self.todays_budget -= spent
         #globals.log(self, "spent %s of budget, left: %s", str(spent), str(self.todays_budget) )
@@ -219,6 +291,20 @@ class HouseholdShoppingManager:
         
     def _handle_basket_adjustment(self,is_planner, basketCurator:BasketCurator, selected_stores:list[Store],
         budget:float, servings_to_buy_fg:pd.Series) -> BasketCurator: 
+        """Function managing the adjustment of a basket. This depends on whether the basket exceeds the budget or is missing food items.
+        The basket then will either be adjusted or completely recreated, in case another store has to be visited. 
+        There are 3 types of adjustment being (replacement with same food group, replacement with any food group, drop without any replacement)
+
+        Args:
+            is_planner (bool): indicates whether HH is a planner, which impacts how a another store will be chosen, if necessary
+            basketCurator (BasketCurator): current basketCurator
+            selected_stores (list[Store]): stores that have already been selected for a visit
+            budget (float): left available budget for the basket
+            servings_to_buy_fg (pd.Series): servings per fg that are still required
+
+        Returns:
+            BasketCurator: resulting basketCurator, that includes the basket
+        """        
 
         if self._is_adjustment_needed(basketCurator): 
             if is_planner: 
@@ -251,10 +337,32 @@ class HouseholdShoppingManager:
         return basketCurator
 
     def _is_adjustment_needed(self, basketCurator:BasketCurator) -> bool:
+        """Returns whether the basket needs to be adjustment, because it is a) more expensive than
+        it can be afforded or b) does not cover all food groups that the HH wanted to buy
+
+        Args:
+            basketCurator (BasketCurator): cureent basketCurator object, that holds the current shopping basket
+
+        Returns:
+            bool: indicates whether an adjustment is needed
+        """        
         return not basketCurator.is_basket_in_budget()  or not basketCurator.does_basket_cover_all_fg()
 
     
     def choose_a_store(self,is_planner,selected_store:list[Store], required_fgs:List[str] | None =None, needs_lower_price: bool=False) -> None | Store:
+        """selects a single store that the household could visit. this is based on whether the HH is planning HH, which store
+        will already be visited, required food groups and whether the stores needs to offer generally lower prices than the other
+
+        Args:
+            is_planner (bool): is household a planning this grocery tour in more depth (e.g. assessing deals)
+            selected_store (list[Store]): stores to be visisted, [] is noone is selected yet
+            required_fgs (List[str] | None, optional): Food groups that are required and that the store should offer. Defaults to None.
+            needs_lower_price (bool, optional): Only viable if another store is passed in selected_store. Indicates whether 
+            the next store selection has to be cheaper. Defaults to False.
+
+        Returns:
+            None | Store: _description_
+        """        
         assert not (required_fgs == None and needs_lower_price == None) #TODO technically ok now
         selection = None 
         if len(selected_store) == 0: #no store is selected
@@ -273,19 +381,38 @@ class HouseholdShoppingManager:
                     return None
         return selection
         
-    def _wheel_selection(self, item:pd.Series, num_selections=1): 
+    def _wheel_selection(self, item:pd.Series): 
+        """Helper function: Implements the concept of a roulette selection mechanism. Is used to 
+        select a store based on the preference value it generated for a household
+
+        Args:
+            item (pd.Series): series that maps stores to their preference value
+            num_selections (int, optional): number if item to select. Defaults to 1.
+
+        Returns:
+            Any: store
+        """        
         maxVal = item.sum()
         probabilities = item / maxVal
         cumulative_probabilities = probabilities.cumsum()
         
-        indices = []
-        for _ in range(num_selections):
-            rand = np.random.random()
-            selected_index = cumulative_probabilities[cumulative_probabilities >= rand].index[0]
-            indices.append(selected_index)
-        return indices[0]
-        
-    def _get_store_order(self, is_planner, relevant_fg,stores): 
+        rand = np.random.random()
+        selected_index = cumulative_probabilities[cumulative_probabilities >= rand].index[0]
+        return selected_index
+    
+    def _get_store_order(self, is_planner, relevant_fg,stores) -> pd.Series[float]: 
+        """Helper function: calculates the preference value for each store for a single household. 
+        Therefore it necessary to know which stores are considered, whether the household is planner 
+        and what the required food groups, the store should offer, are.
+
+        Args:
+            is_planner (bool): indicates whether the household is planning this shopping tour
+            relevant_fg (_type_): food groups the household wants to purchase
+            stores (_type_): options of stores to visit (match time-distance criteria)
+
+        Returns:
+            pd.Series[float]: mapping of shop to preference value
+        """        
         store_preference = pd.Series({store:0.0 for store in stores})
         
         if not is_planner: 

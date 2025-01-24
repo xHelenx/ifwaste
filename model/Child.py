@@ -8,7 +8,7 @@ from FoodGroups import FoodGroups
 class Child(Person):
     def __init__(self) -> None:
         """
-        initalizes Child.
+        initalizes a child.
         
         Class variables:
         

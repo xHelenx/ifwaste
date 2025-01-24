@@ -44,6 +44,11 @@ class DataLogger:
         
         self.logs["log_grid"] = ""
     def log_grid(self,grid:"Grid"): # type: ignore
+        """Write the current grid to the log_grid
+
+        Args:
+            grid (Grid): grid to log
+        """        
         self.logs["log_grid"] = str(grid) # type: ignore
     def log_configs(self,houses:list["Household"]) -> None:  # type: ignore
         """Log the household configuration and simulation configurations.
@@ -75,7 +80,7 @@ class DataLogger:
     }
             
     def log_households_daily(self,houses:list["Household"]) -> None: # type: ignore
-        """Collects the daily data from each house
+        """Collects the daily data from each house passed in houses
 
         Args:
             houses (list[Household]): houses to log the information for
@@ -174,7 +179,6 @@ class DataLogger:
                         log_header = False
                     log_file.to_csv(file_path, header=log_header, mode="a", index=False)
                     self.reset_logs()
-       
     
     def _create_folder(self, run:int)  -> str:
         """creates the folder name and returns it. Will be used for 
@@ -218,23 +222,22 @@ class DataLogger:
                     "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"]),
         "log_eaten" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
-                     globals.FGSTOREPREPARED]),
+                    globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
+                    globals.FGSTOREPREPARED]),
         "log_still_have" : pd.DataFrame(
             columns=["household","price","servings","days_till_expiry","status",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
-                     globals.FGSTOREPREPARED]),
+                    globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
+                    globals.FGSTOREPREPARED]),
         "log_wasted" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status","reason",
-                     globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
-                     globals.FGSTOREPREPARED]),
+                    globals.FGMEAT,globals.FGDAIRY,globals.FGVEGETABLE,globals.FGDRYFOOD,globals.FGSNACKS,globals.FGBAKED,
+                    globals.FGSTOREPREPARED]),
         "log_store_daily" : pd.DataFrame(
             columns=(["store","day","type","servings",
                     "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "product_ID"])),
         "log_hh_daily" : pd.DataFrame(
             columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time", "cooking_time"])
         }
-               
         
     def append_log(self, id:int, log_key:str, data:pd.DataFrame | pd.Series  | None ) -> None:
         """Adds new data to the log in self.log, defined by log_key
@@ -246,7 +249,7 @@ class DataLogger:
             data (pd.DataFrame | pd.Series | None): data to be added
 
         Raises:
-            ValueError: _description_
+            ValueError: Wrong logging key has been passed
         """        
         if not data is None: 
             data_copy = data.copy()
@@ -259,7 +262,6 @@ class DataLogger:
                 data_copy["household"] = id
                 data_copy["day"] = globals.DAY
             data_copy = pd.DataFrame(data_copy)
-           
         
             if log_key == "log_wasted": 
                 self._log_waste(data=data_copy)
