@@ -95,7 +95,7 @@ class HouseholdShoppingManager:
             req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
             req_daily_servings = req_servings_till_payday/days_till_payday
             price_per_serving = self.todays_budget/req_servings_till_payday
-            return price_per_serving * (req_daily_servings * self.shopping_frequency) * globals.HH_OVER_BUDGET_FACTOR
+            return price_per_serving * (req_daily_servings * self.shopping_frequency)
 
         else: #hh will receive new money, so the budget estimate has to consider it
             #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
@@ -110,7 +110,7 @@ class HouseholdShoppingManager:
             
             price_per_serving = total_budget/(req_daily_servings*days)
             
-            return price_per_serving * req_daily_servings * days_till_payday
+            return price_per_serving * req_daily_servings * self.shopping_frequency
 
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> pd.Series:
         """Helper function that formats the food item (store properties) to the form that is used 

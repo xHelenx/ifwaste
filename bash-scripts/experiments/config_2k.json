@@ -26,7 +26,6 @@
     "Household" : {
         "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2,
-        "hh_over_budget_factor" : 1.2,
         "hh_max_avail_time_per_day": 4,
         "hh_impulse_buy_likelihood": 0.2,
         "hh_shopping_frequency": 4, 
