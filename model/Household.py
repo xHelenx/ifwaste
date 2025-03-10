@@ -45,10 +45,8 @@ class Household(Location):
         self.fridge: Storage = Storage()
         self.datalogger: DataLogger = datalogger
         ###HOUSEHOLD MEMBER
-        globals.log(self,"HOUSE INFO")
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children: int = globals.HH_AMOUNT_CHILDREN
-        globals.log(self,"Amount of adults: %i, children: %i", self.amount_adults, self.amount_children)
         self.adult_influence: float = 0.75 #not used atm
         self.child_influence: float = 1 - self.adult_influence #not used atm
         self.ppl: list = self.gen_ppl()
@@ -67,7 +65,8 @@ class Household(Location):
         todays_time: list = [random.random()*globals.HH_MAX_AVAIL_TIME_PER_DAY for i in range(7)]  
         
         self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
-        self.budget:float = random.randint(5, 15)*self.amount_adults * 30 # per month GAK Addition
+        self.budget:float = random.randint(5, 15)*self.amount_adults * 1000 #TODO
+        print(self.budget)
         #globals.log(self,"Budget: %f", self.budget)
         
         self.log_shopping_time: float = 0
@@ -170,11 +169,12 @@ class Household(Location):
         Return:
             
         """  
-        self._reset_logs()      
-        globals.log(self,"###########################################")
-        globals.log(self,"Day %i:", globals.DAY)
-        globals.log(self,"###########################################")
         
+        self._reset_logs()      
+        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"###########################################")
+        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"Day %i:", globals.DAY)
+        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"###########################################")
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "before:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         # check if it is payday
         if globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL == 0:  #pay day
             self.shoppingManager.todays_budget += self.budget
@@ -183,16 +183,20 @@ class Household(Location):
         #check if it is time for a big grocery shop
         if globals.DAY % self.shopping_frequency == 0:
             shopping_time = self.shoppingManager.shop(is_quickshop=False)
+            
+            globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after shopping: fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         #cook and eat
         cooking_time = 0 
         quick_shopping_time, cooking_time = self.cookingManager.cook_and_eat(used_time=shopping_time)
         shopping_time += quick_shopping_time
         #decay food and throw spoiled food out
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after eating:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         self.decay_food()
         self.throw_food_out()    
         
         self.log_shopping_time = shopping_time
         self.log_cooking_time = cooking_time
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after throw out:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
 
     
     def decay_food(self) -> None:
@@ -208,11 +212,18 @@ class Household(Location):
         for location in [self.fridge.current_items, self.pantry.current_items]:
             spoiled_food = location[location["days_till_expiry"] <= 0.0] #selected spoiled food to track it
             if len(spoiled_food) > 0:
+                debug_spoiled = 0
+
                 for i in spoiled_food.index: 
                     (edible,inedible) = self.cookingManager._split_waste_from_food(meal=spoiled_food.loc[i],waste_type=globals.FW_INEDIBLE)
                     edible["reason"] = globals.FW_SPOILED
                     self.datalogger.append_log(self.id, "log_wasted", edible)   
-                    self.datalogger.append_log(self.id, "log_wasted", inedible)   
+                    self.datalogger.append_log(self.id, "log_wasted", inedible)  
+                    if edible is not None: 
+                        debug_spoiled += edible["servings"] 
+                    if inedible is not None: 
+                        debug_spoiled += inedible["servings"]
+                    
                 location.drop(spoiled_food.index, inplace=True)  # remove expired 
-
+                globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "spoiled : %s", debug_spoiled)      
                 

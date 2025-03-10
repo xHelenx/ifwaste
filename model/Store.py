@@ -136,7 +136,7 @@ class Store(Location):
                 new_item = new_item.reindex(self.stock.columns, fill_value=None) 
                 self.stock = pd.concat([self.stock, pd.DataFrame([new_item])], ignore_index=True)                  
                 assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
-            globals.log(self,new_item.to_frame().T)
+            #globals.log(self,new_item.to_frame().T)
             self.organize_stock()
 
     def get_item_index(self, item:pd.Series) -> int | None: 
@@ -177,11 +177,11 @@ class Store(Location):
     
         return non_bogo + bogo
     def do_before_day(self) -> None:    
-        globals.log(self,"---- DAY %i ----",  globals.DAY )
-        globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
+        #globals.log(self,"---- DAY %i ----",  globals.DAY )
+        #globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
         
         if globals.DAY == 0:  #on first day stock store with baseline amount
-            globals.log(self,str(self))
+            #globals.log(self,str(self))
             self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
             #globals.log(self,"--- after restocking ---" )
             #globals.log(self,self.stock)
@@ -207,7 +207,7 @@ class Store(Location):
         
     def _throw_out(self) -> None:    
         spoiled_food =  self.stock[self.stock["days_till_expiry"] <= 0.0] #selected spoiled food to track it
-        globals.log(self, "ITEMS THROWN OUT: %i", self._debug_amount(spoiled_food))
+        #globals.log(self, "ITEMS THROWN OUT: %i", self._debug_amount(spoiled_food))
 
         if len(spoiled_food) > 0:
             self.stock.loc[self.stock["days_till_expiry"] <= 0.0, "reason"] = globals.FW_SPOILED  
@@ -333,7 +333,7 @@ class Store(Location):
         """        
         if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
-            globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
+            #globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
             for index, row in self.tracker.iterrows():
                 self.buy_stock(self.tracker.loc[index, "planned_restock_amount"], row) # type: ignore
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: 0)

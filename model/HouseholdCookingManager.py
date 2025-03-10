@@ -105,15 +105,19 @@ class HouseholdCookingManager:
         ingredients = self._get_ingredients(is_quickcook,strategy)
         
         prepped = []
+        debug_total_inedible = 0
         for ingredient in ingredients: 
             (edible,inedible) = self._split_waste_from_food(ingredient, waste_type=globals.FW_INEDIBLE)
             prepped.append(edible)
             if not inedible is None:
+                debug_total_inedible += inedible["servings"]
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
+                
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "inedible: %s", debug_total_inedible)        
         prepped = pd.DataFrame(prepped)
         
         meal = None 
-        if not prepped.empty: #TODO undo    
+        if not prepped.empty:
             meal = self._combine_to_meal(prepped)
         
         if not is_quickcook: 
@@ -275,8 +279,10 @@ class HouseholdCookingManager:
         if strategy != "random":
             self.log_today_eef = 1
             
-        #globals.log(self,"missing servings: %f", self.todays_servings)    
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV,"consumed today: %f", self.req_servings - self.todays_servings)    
         #globals.log(self,"req servings: %f", self.req_servings)    
+                
+                
                 
         return shopping_time, cooking_time
         
@@ -349,6 +355,8 @@ class HouseholdCookingManager:
         self.datalogger.append_log(self.id,"log_eaten",consumed)
         if plate_waste is not None:
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
+            
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "plate_waste: %s", plate_waste["servings"])      
         
     def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None]]:
         """Methods that facilitates splitting a specific waste type from a meal and then returns 

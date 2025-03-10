@@ -141,7 +141,7 @@ class HouseholdShoppingManager:
                         "product_ID", "amount"])
         item["status"] = status
         item["price"] = price
-        item["inedible_percentage"] = inedible #assuming item is exactly on fg
+        item["inedible_percentage"] = inedible #assuming item is exactly one fg
         
         return item
         
@@ -202,9 +202,9 @@ class HouseholdShoppingManager:
             float: shopping time
         """        
         if is_quickshop:
-            globals.log(self,"------> QUICK SHOPPING")    
+            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"------> QUICK SHOPPING")    
         else:
-            globals.log(self,"------> SHOPPING")
+            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"------> SHOPPING")
             
         self.todays_time = self.time[globals.DAY%7] 
         budget = self._get_budget_for_this_purchase() 
@@ -221,7 +221,7 @@ class HouseholdShoppingManager:
         if store != None and not store in selected_stores: 
             selected_stores.append(store)
         else:
-            globals.log(self,"No store found, avail time %f", self.todays_time)
+            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"No store found, avail time %f", self.todays_time)
             return 0
         
         if is_quickshop: 
@@ -254,15 +254,17 @@ class HouseholdShoppingManager:
         basketCurator.impulse_buy(self.impulsivity)
         
         if len(basketCurator.basket) > 0:
-            globals.log(self,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
         else:
-            globals.log(self,"FINAL BASKET is empty")
+            globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
+        
+        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
         
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
             
-        globals.log(self,basketCurator.basket)
+        globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
         return duration
     def _debug_amount(self, df:pd.DataFrame) -> int: 
         """Debug function to print how many items are in the df (basket)

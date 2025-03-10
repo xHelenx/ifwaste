@@ -10,10 +10,22 @@ DAY = 0
 SALES_TIMER_PLACEHOLDER = 1000
 
 ## Constants - DONT CHANGE
-CONFIG_PATH = '/blue/carpena/haasehelen/ifwaste/model/config.json'
+CONFIG_PATH = '/blue/carpena/haasehelen/ifwaste/bash-scripts/experiments/config_trial.json'
 ### Food types
 logger_hh = None 
 logger_store = None 
+
+LOG_TYPE_ACTIVE_DAY_SEPARATOR =True
+LOG_TYPE_ACTIVE_TOTAL_SERV = True #TODO move to config
+LOG_TYPE_ACTIVE_BASKET_ADJUSTMENT = False
+LOG_TYPE_ACTIVE_STORE_TYPE = False
+LOG_TYPE_ACTIVE_BASKET_COMPOSITION = False
+
+LOG_TYPE_DAY_SEPARATOR = "day_separator"
+LOG_TYPE_TOTAL_SERV = "total_serv"
+LOG_TYPE_BASKET_ADJUSTMENT = "basket_adjustment" 
+LOG_TYPE_STORE_TYPE = "store_type"
+LOG_TYPE_BASKET_COMPOSITION = "basket_composition"
 
 FGMEAT = "FGMEAT"
 FGDAIRY = "FGDAIRY"
@@ -534,10 +546,22 @@ def configure_simulation(file) -> None:
     BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]
 
 
-def log(obj, message, *args) -> None:
+def log(obj, log_type=None, message="", *args) -> None:
     if SIMULATION_DEBUG_LOG_ON:
-        if isinstance(message, str) and args:  # Format if message is a string and args are provided
+        if log_type == LOG_TYPE_TOTAL_SERV and LOG_TYPE_ACTIVE_TOTAL_SERV: 
+            _write(obj, message,*args)
+        elif log_type == LOG_TYPE_BASKET_ADJUSTMENT and LOG_TYPE_ACTIVE_BASKET_ADJUSTMENT: 
+            _write(obj, message,*args)
+        elif log_type == LOG_TYPE_DAY_SEPARATOR and LOG_TYPE_ACTIVE_DAY_SEPARATOR: 
+            _write(obj, message,*args)
+        elif log_type == LOG_TYPE_STORE_TYPE and LOG_TYPE_ACTIVE_STORE_TYPE: 
+            _write(obj, message,*args)
+        elif log_type == LOG_TYPE_BASKET_COMPOSITION and LOG_TYPE_ACTIVE_BASKET_COMPOSITION: 
+            _write(obj, message,*args)
+        
+def _write(obj, message, *args): 
+    if isinstance(message, str) and args:  # Format if message is a string and args are provided
             message = message % args
-        else:  # Convert non-string objects to string representation
-            message = str(message)
-        obj.logger.debug(message)
+    else:  # Convert non-string objects to string representation
+        message = str(message)
+    obj.logger.debug(message)

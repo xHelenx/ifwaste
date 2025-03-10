@@ -88,9 +88,9 @@ class BasketCurator():
 
         if len(self.basket) > 0: 
             self._organize_basket()        
-            globals.log(self,"is_quickshop: %s, basket: #items:%i, cost %f",is_quickshop, self.basket["amount"].sum(), (self.basket["price_per_serving"] * self.basket["servings"] *  self.basket["amount"]).sum())
-        else:
-            globals.log(self,"is_quickshop: %s basket: #items: 0", is_quickshop)
+            #globals.log(self,"is_quickshop: %s, basket: #items:%i, cost %f",is_quickshop, self.basket["amount"].sum(), (self.basket["price_per_serving"] * self.basket["servings"] *  self.basket["amount"]).sum())
+        #else:
+            #globals.log(self,"is_quickshop: %s basket: #items: 0", is_quickshop)
         #globals.log(self,self.basket)    
 
     def _get_purchased_servings_from_serv_track(self) -> pd.Series: 
@@ -260,7 +260,7 @@ class BasketCurator():
         self._organize_basket()
         
         if not self.does_basket_cover_all_fg():
-            globals.log(self,"BASKET DOES NOT COVER ALL FG")
+            globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"BASKET DOES NOT COVER ALL FG")
             self._add_items_from_another_fg()
             #now has_all_req_fg is still false, but we replaced it with other fgs
         
@@ -268,28 +268,28 @@ class BasketCurator():
             #from now on we track if items have been adjusted
             self.basket["adjustment"] = "None"   
 
-            globals.log(self,"BASKET IS NOT IN BUDGET")
-            globals.log(self,"#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
+            globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"BASKET IS NOT IN BUDGET")
+            globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
             self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
             (done,next_phase) = self._check_phase_status()
             while not done and not next_phase: 
-                globals.log(self,"#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
+                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING: FIND CHEAPER OPTION; SAME FG######")
                 self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,False)
                 (done,next_phase) = self._check_phase_status()
             if not done and next_phase: 
-                globals.log(self,"#####REPLACING: FIND CHEAPER OPTION; ANY######")
+                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING: FIND CHEAPER OPTION; ANY######")
                 self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,True)
                 (done,next_phase) = self._check_phase_status()
                 while not done and not next_phase: 
-                    globals.log(self,"#####REPLACING: FIND CHEAPER OPTION; ANY######")
+                    globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING: FIND CHEAPER OPTION; ANY######")
                     self._apply_adjusting_strategy(self._replace_item_with_cheaper_option,True)
                     (done,next_phase) = self._check_phase_status()
             if not done and next_phase: 
-                globals.log(self,"#####REPLACING:DROP ITEMS ######")
+                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING:DROP ITEMS ######")
                 self._apply_adjusting_strategy(self._remove_item_without_replacement)
                 (done,next_phase) = self._check_phase_status()
                 while not done and not next_phase: 
-                    globals.log(self,"#####REPLACING:DROP ITEMS ######")
+                    globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT,"#####REPLACING:DROP ITEMS ######")
                     self._apply_adjusting_strategy(self._remove_item_without_replacement)
                     (done,next_phase) = self._check_phase_status()       
             if "adjustment" in self.basket.columns: 
@@ -549,11 +549,11 @@ class BasketCurator():
                                 amount_take_instead=[rep_amount])
                         is_replaced = True 
                         found_replaceable_item = True
-                        globals.log(self,"ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
-                        globals.log(self,item_to_replace.tolist())
+                        globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, "ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
+                        globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, item_to_replace.tolist())
                     
-                        globals.log(self,"REPLACEMENT, Q:%i", rep_amount)
-                        globals.log(self,replacement.tolist())
+                        globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, "REPLACEMENT, Q:%i", rep_amount)
+                        globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, replacement.tolist())
                     elif cost < max_price and not has_sufficient_serv: #insufficient servings but cheaper -> find 1 more item type to fill gap
                         if len(replace_with) > 1: #at least 2 items 
                             idx = self.get_idx_of_identical_item_df(replacement, replace_with)
@@ -568,12 +568,12 @@ class BasketCurator():
                                     amount_take_instead=[rep_amount, rep_amount2])
                                 is_replaced = True 
                                 found_replaceable_item = True
-                                globals.log(self,"ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
-                                globals.log(self,item_to_replace.tolist())
+                                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, "ITEM TO REPLACE, Q:%i", item_to_replace["amount"])
+                                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, item_to_replace.tolist())
                             
-                                globals.log(self,"REPLACEMENT, Q1:%i, Q2:%i", rep_amount, rep_amount2)
-                                globals.log(self,replacement.tolist())
-                                globals.log(self,replacement2.tolist())
+                                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, "REPLACEMENT, Q1:%i, Q2:%i", rep_amount, rep_amount2)
+                                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, replacement.tolist())
+                                globals.log(self,globals.LOG_TYPE_BASKET_ADJUSTMENT, replacement2.tolist())
                             else: #could repress optimal solution, but we dont want optimal solution
                                 self._set_replacement_status(replacement, replace_with, "replacement_failed")
                                 self._set_replacement_status(replacement2, replace_with, "replacement_failed")
@@ -861,3 +861,10 @@ class BasketCurator():
         else: 
             return None
         return indices[0] if not indices.empty else None
+    
+    def _get_total_servings_in_basket(self): 
+        """
+        returns the total number of servings currently in the basket
+        """
+        serv = self.basket["servings"] * self.basket["amount"]
+        return serv.sum()
