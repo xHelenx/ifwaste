@@ -1,16 +1,16 @@
 {
     "Simulation" : { 
-        "runs" : 10, 
+        "runs" : 2, 
         "total_days" : 100,
-        "name": "22_Jan_0k_wdh",
+        "name": "debug",
         "output_folder": "data",
         "write_to_file_interval": 1,
-        "debug_log_on": "False"
+        "debug_log_on": "True"
     },
     "Neighborhood" : {
-        "neighborhood_houses" : 100, 
+        "neighborhood_houses" : 10, 
         "neighborhood_store_types": "['Discount_retailer', 'Premium_retailer', 'Convenience_store']",
-        "neighborhood_store_amounts": "[8,6,5]",
+        "neighborhood_store_amounts": "[1,1,1]",
         "neighborhood_pay_day_interval" : 10
     },
     "Grid": {
@@ -24,8 +24,9 @@
         "cook_expiration_threshold": 4
     },
     "Household" : {
-        "hh_amount_children" : 0, 
+        "hh_amount_children" : 2, 
         "hh_amount_adults"  : 2,
+        "hh_over_budget_factor" : 1.2,
         "hh_max_avail_time_per_day": 4,
         "hh_impulse_buy_likelihood": 0.2,
         "hh_shopping_frequency": 4, 

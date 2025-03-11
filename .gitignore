@@ -19,3 +19,5 @@ analysis/*.ipynb_checkpoints/*
 #ignore log files
 bash-scripts/LOGS/*
 model/*.out
+
+misc/*

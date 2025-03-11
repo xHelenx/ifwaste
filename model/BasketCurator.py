@@ -19,7 +19,7 @@ class BasketCurator():
             stores (list[Store]): list of stores the basket can be curated from
             servings_to_buy_fg (pd.Series | None, optional): amount of servings that are aimed to be bought (can be less depending
             on time and money and availability). Defaults to None.
-            budget (float | None, optional): available budget to spend, can be overshot by HH_OVER_BUDGET_FACTOR. Defaults to None.
+            budget (float | None, optional): available budget to spend
             logger (logging.Logger|None, optional): logger to write debug files to
         Class variables: 
             basket (pd.DataFrame) : selected items to buy

@@ -77,7 +77,6 @@ COOK_EXPIRATION_THRESHOLD = None
 
 HH_AMOUNT_CHILDREN = None
 HH_AMOUNT_ADULTS = None
-HH_OVER_BUDGET_FACTOR = None
 HH_MAX_AVAIL_TIME_PER_DAY = None
 HH_IMPULSE_BUY_PERCENTAGE = None
 HH_SHOPPING_FREQUENCY = None
@@ -237,7 +236,6 @@ def configure_simulation(file) -> None:
     
     global HH_AMOUNT_CHILDREN
     global HH_AMOUNT_ADULTS
-    global HH_OVER_BUDGET_FACTOR
     global HH_MAX_AVAIL_TIME_PER_DAY
     global HH_IMPULSE_BUY_PERCENTAGE
     global HH_SHOPPING_FREQUENCY
@@ -410,7 +408,6 @@ def configure_simulation(file) -> None:
     
     HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
     HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
-    HH_OVER_BUDGET_FACTOR = config["Household"]["hh_over_budget_factor"]
     HH_MAX_AVAIL_TIME_PER_DAY = config["Household"]["hh_max_avail_time_per_day"]
     HH_IMPULSE_BUY_PERCENTAGE = config["Household"]["hh_impulse_buy_likelihood"]
     HH_SHOPPING_FREQUENCY = config["Household"]["hh_shopping_frequency"]

@@ -1,0 +1,2311 @@
+###########################################
+Day 0:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 1:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 20: servings
+inedible: 0
+plate_waste: 2.0256652075973136
+consumed today: 17.974335
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 2:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 12: servings
+inedible: 0.5999999999999996
+plate_waste: 0.5469296060512754
+plate_waste: 0.607699562279195
+consumed today: 10.245371
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 3:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 128.0: servings
+inedible: 0.5999999999999996
+plate_waste: 2.5725948136485854
+plate_waste: 2.0256652075973136
+plate_waste: 3.319329069117167
+plate_waste: 0.03405066951665098
+plate_waste: 0.00034930194337151003
+consumed today: 70.560383
+after eating:fridge + pantry hold: 48.88762755070352
+after throw out:fridge + pantry hold: 48.88762755070352
+###########################################
+Day 4:
+###########################################
+before:fridge + pantry hold: 48.88762755070352
+basket holds 276: servings
+after shopping: fridge + pantry hold: 324.88762755070354
+inedible: 2.0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 244.37530411108983
+spoiled : 24.0
+after throw out:fridge + pantry hold: 220.37530411108983
+###########################################
+Day 5:
+###########################################
+before:fridge + pantry hold: 220.37530411108983
+inedible: 6.799999999999997
+plate_waste: 7.8704187649524755
+plate_waste: 0.08073710763311515
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 135.06298067147617
+spoiled : 12.88762755070352
+after throw out:fridge + pantry hold: 122.17535312077264
+###########################################
+Day 6:
+###########################################
+before:fridge + pantry hold: 122.17535312077264
+plate_waste: 1.21539912455839
+plate_waste: 4.728141376890321
+plate_waste: 1.9878488780947272
+plate_waste: 0.020391947826688545
+plate_waste: 0.00020918669459669905
+inedible: 0
+plate_waste: 2.1458996250971723e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 43.662945145948704
+after throw out:fridge + pantry hold: 43.662945145948704
+###########################################
+Day 7:
+###########################################
+before:fridge + pantry hold: 43.662945145948704
+plate_waste: 0.7761302143933753
+plate_waste: 2.430796103217155
+inedible: 0
+plate_waste: 1.21539912455839
+consumed today: 39.240620
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 8:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 321: servings
+after shopping: fridge + pantry hold: 321
+plate_waste: 2.0256652075973136
+plate_waste: 2.0256652075973136
+plate_waste: 1.21539912455839
+inedible: 5.9999999999999964
+plate_waste: 2.657716910691768
+consumed today: 70.315990
+after eating:fridge + pantry hold: 236.75956401162517
+after throw out:fridge + pantry hold: 236.75956401162517
+###########################################
+Day 9:
+###########################################
+before:fridge + pantry hold: 236.75956401162517
+inedible: 2.0
+plate_waste: 7.49496126811006
+plate_waste: 0.4523430492737708
+plate_waste: 0.004640270174560285
+consumed today: 70.559989
+after eating:fridge + pantry hold: 156.24763067007987
+after throw out:fridge + pantry hold: 156.24763067007987
+###########################################
+Day 10:
+###########################################
+before:fridge + pantry hold: 156.24763067007987
+inedible: 3.599999999999998
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 74.1353072304662
+after throw out:fridge + pantry hold: 74.1353072304662
+###########################################
+Day 11:
+###########################################
+before:fridge + pantry hold: 74.1353072304662
+basket holds 18: servings
+inedible: 0
+plate_waste: 1.8230986868375822
+plate_waste: 2.273030497362509
+plate_waste: 1.21539912455839
+plate_waste: 1.8932875356665733
+consumed today: 63.930491
+after eating:fridge + pantry hold: 21
+after throw out:fridge + pantry hold: 21
+###########################################
+Day 12:
+###########################################
+before:fridge + pantry hold: 21
+basket holds 286: servings
+after shopping: fridge + pantry hold: 307
+inedible: 1.799999999999999
+plate_waste: 5.286986191828987
+plate_waste: 1.21539912455839
+plate_waste: 1.21539912455839
+plate_waste: 0.2318056631319716
+plate_waste: 0.0023779317636302144
+consumed today: 70.560197
+after eating:fridge + pantry hold: 226.6878351465258
+after throw out:fridge + pantry hold: 226.6878351465258
+###########################################
+Day 13:
+###########################################
+before:fridge + pantry hold: 226.6878351465258
+inedible: 0
+plate_waste: 5.064163018993291
+plate_waste: 1.21539912455839
+plate_waste: 1.2130211927947592
+plate_waste: 0.45469658750276576
+plate_waste: 0.004664413473028532
+consumed today: 70.559987
+after eating:fridge + pantry hold: 148.1759042756372
+after throw out:fridge + pantry hold: 148.1759042756372
+###########################################
+Day 14:
+###########################################
+before:fridge + pantry hold: 148.1759042756372
+plate_waste: 0.7607025370556233
+plate_waste: 0.9789290479533896
+inedible: 1.1999999999999993
+plate_waste: 3.524657461219327
+consumed today: 46.711615
+after eating:fridge + pantry hold: 95
+after throw out:fridge + pantry hold: 95
+###########################################
+Day 15:
+###########################################
+before:fridge + pantry hold: 95
+inedible: 0
+plate_waste: 4.760313237853694
+consumed today: 42.239687
+after eating:fridge + pantry hold: 48
+after throw out:fridge + pantry hold: 48
+###########################################
+Day 16:
+###########################################
+before:fridge + pantry hold: 48
+basket holds 258: servings
+after shopping: fridge + pantry hold: 306
+inedible: 8.399999999999999
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311626
+plate_waste: 0.0008282253770267511
+consumed today: 70.560339
+after eating:fridge + pantry hold: 219.0876765603863
+after throw out:fridge + pantry hold: 219.0876765603863
+###########################################
+Day 17:
+###########################################
+before:fridge + pantry hold: 219.0876765603863
+inedible: 2.3999999999999986
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267771
+consumed today: 70.560339
+after eating:fridge + pantry hold: 138.17535312077263
+after throw out:fridge + pantry hold: 138.17535312077263
+###########################################
+Day 18:
+###########################################
+before:fridge + pantry hold: 138.17535312077263
+plate_waste: 4.079928510459169
+plate_waste: 0.19172876128482708
+inedible: 2.3999999999999986
+plate_waste: 3.6425814300149497
+consumed today: 70.225413
+after eating:fridge + pantry hold: 57.63570129601534
+after throw out:fridge + pantry hold: 57.63570129601534
+###########################################
+Day 19:
+###########################################
+before:fridge + pantry hold: 57.63570129601534
+basket holds 126: servings
+inedible: 2.3999999999999986
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 102.72337785640165
+spoiled : 10.0
+after throw out:fridge + pantry hold: 92.72337785640165
+###########################################
+Day 20:
+###########################################
+before:fridge + pantry hold: 92.72337785640165
+basket holds 216: servings
+after shopping: fridge + pantry hold: 308.72337785640167
+inedible: 2.3999999999999986
+plate_waste: 4.618516673321878
+plate_waste: 0.7733687225472003
+plate_waste: 2.3500611414836605
+plate_waste: 0.20789142873038036
+plate_waste: 0.0021326124007721055
+consumed today: 70.560219
+after eating:fridge + pantry hold: 227.81118789865542
+after throw out:fridge + pantry hold: 227.81118789865542
+###########################################
+Day 21:
+###########################################
+before:fridge + pantry hold: 227.81118789865542
+inedible: 4.399999999999999
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311659
+plate_waste: 0.000828225377026791
+consumed today: 70.560339
+after eating:fridge + pantry hold: 144.89886445904173
+spoiled : 4.0
+after throw out:fridge + pantry hold: 140.89886445904173
+###########################################
+Day 22:
+###########################################
+before:fridge + pantry hold: 140.89886445904173
+basket holds 54: servings
+inedible: 2.7999999999999985
+plate_waste: 3.9703038068907404
+plate_waste: 1.710977666982803
+plate_waste: 1.21539912455839
+plate_waste: 1.0444863770562254
+plate_waste: 0.010714653383023659
+plate_waste: 0.00010991411629695288
+consumed today: 70.560405
+after eating:fridge + pantry hold: 113.58646751246522
+spoiled : 21.91819234770512
+after throw out:fridge + pantry hold: 91.6682751647601
+###########################################
+Day 23:
+###########################################
+before:fridge + pantry hold: 91.6682751647601
+plate_waste: 0.607699562279195
+plate_waste: 7.2689531663839375
+plate_waste: 0.07456709378512394
+plate_waste: 0.0007649315311692379
+basket holds 76: servings
+inedible: 0
+plate_waste: 7.846896233652592e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 89.1558677733364
+spoiled : 40.0
+after throw out:fridge + pantry hold: 49.1558677733364
+###########################################
+Day 24:
+###########################################
+before:fridge + pantry hold: 49.1558677733364
+basket holds 254: servings
+after shopping: fridge + pantry hold: 303.1558677733364
+inedible: 4.799999999999999
+plate_waste: 7.8704187649524755
+plate_waste: 0.08073710763311492
+plate_waste: 0.000828225377026752
+consumed today: 70.560339
+after eating:fridge + pantry hold: 219.84354433372272
+after throw out:fridge + pantry hold: 219.84354433372272
+###########################################
+Day 25:
+###########################################
+before:fridge + pantry hold: 219.84354433372272
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267763
+consumed today: 70.560339
+after eating:fridge + pantry hold: 141.33122089410904
+spoiled : 12.350626257531866
+after throw out:fridge + pantry hold: 128.98059463657717
+###########################################
+Day 26:
+###########################################
+before:fridge + pantry hold: 128.98059463657717
+plate_waste: 4.051330415194627
+plate_waste: 0.9320876492693078
+plate_waste: 1.4468129646181342
+plate_waste: 1.5061509673330935
+plate_waste: 0.01545054671077925
+plate_waste: 0.00015849632529510807
+inedible: 0
+plate_waste: 1.6259026688373928e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 50.468186608540385
+after throw out:fridge + pantry hold: 50.468186608540385
+###########################################
+Day 27:
+###########################################
+before:fridge + pantry hold: 50.468186608540385
+plate_waste: 2.07308629967914
+plate_waste: 0.6076979363765256
+basket holds 94: servings
+inedible: 4.799999999999997
+plate_waste: 5.217134814697545
+consumed today: 70.080604
+after eating:fridge + pantry hold: 61.68966359168803
+after throw out:fridge + pantry hold: 61.68966359168803
+###########################################
+Day 28:
+###########################################
+before:fridge + pantry hold: 61.68966359168803
+after shopping: fridge + pantry hold: 61.68966359168803
+inedible: 0
+plate_waste: 4.45646345671409
+plate_waste: 1.791666803589166
+consumed today: 55.441533
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 29:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 56: servings
+inedible: 0
+plate_waste: 4.45646345671409
+plate_waste: 1.21539912455839
+consumed today: 50.328137
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 30:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 114: servings
+inedible: 2.9999999999999982
+plate_waste: 2.734648030256377
+plate_waste: 2.0256652075973136
+plate_waste: 3.158938242832221
+plate_waste: 0.03240533249051969
+plate_waste: 0.0003324235844761724
+consumed today: 70.560385
+after eating:fridge + pantry hold: 32.48762582349002
+spoiled : 11.996717882271666
+after throw out:fridge + pantry hold: 20.490907941218357
+###########################################
+Day 31:
+###########################################
+before:fridge + pantry hold: 20.490907941218357
+basket holds 132: servings
+inedible: 0
+plate_waste: 5.266729539753015
+plate_waste: 2.0256652075973136
+plate_waste: 0.6528315821299522
+plate_waste: 0.006696941457223909
+consumed today: 70.559800
+after eating:fridge + pantry hold: 73.97918506506295
+spoiled : 41.97918506506295
+after throw out:fridge + pantry hold: 32.0
+###########################################
+Day 32:
+###########################################
+before:fridge + pantry hold: 32.0
+basket holds 266: servings
+after shopping: fridge + pantry hold: 298.0
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311659
+plate_waste: 0.0008282253770267919
+consumed today: 70.560339
+after eating:fridge + pantry hold: 219.48767656038632
+spoiled : 12.0
+spoiled : 20.0
+after throw out:fridge + pantry hold: 187.48767656038632
+###########################################
+Day 33:
+###########################################
+before:fridge + pantry hold: 187.48767656038632
+inedible: 7.199999999999996
+plate_waste: 7.8704187649524755
+plate_waste: 0.08073710763311492
+plate_waste: 0.0008282253770267537
+consumed today: 70.560339
+after eating:fridge + pantry hold: 101.77535312077265
+after throw out:fridge + pantry hold: 101.77535312077265
+###########################################
+Day 34:
+###########################################
+before:fridge + pantry hold: 101.77535312077265
+plate_waste: 0.9209682360198617
+plate_waste: 1.9449280999642014
+plate_waste: 1.2137426738043366
+plate_waste: 1.772037123881507
+inedible: 2.0
+plate_waste: 2.0787708737367296
+consumed today: 70.369234
+after eating:fridge + pantry hold: 21.475671834217827
+after throw out:fridge + pantry hold: 21.475671834217827
+###########################################
+Day 35:
+###########################################
+before:fridge + pantry hold: 21.475671834217827
+inedible: 0
+plate_waste: 1.21539912455839
+plate_waste: 0.9597269376592443
+consumed today: 19.300546
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 36:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 298: servings
+after shopping: fridge + pantry hold: 298
+inedible: 0
+plate_waste: 5.064163018993284
+consumed today: 44.935837
+after eating:fridge + pantry hold: 248
+after throw out:fridge + pantry hold: 248
+###########################################
+Day 37:
+###########################################
+before:fridge + pantry hold: 248
+inedible: 1.1999999999999993
+plate_waste: 2.309258336660939
+consumed today: 20.490742
+after eating:fridge + pantry hold: 224
+after throw out:fridge + pantry hold: 224
+###########################################
+Day 38:
+###########################################
+before:fridge + pantry hold: 224
+inedible: 2.9999999999999982
+plate_waste: 7.393678007730202
+consumed today: 65.606322
+after eating:fridge + pantry hold: 148
+after throw out:fridge + pantry hold: 148
+###########################################
+Day 39:
+###########################################
+before:fridge + pantry hold: 148
+inedible: 1.1999999999999993
+plate_waste: 5.246472887677051
+consumed today: 46.553527
+after eating:fridge + pantry hold: 95
+after throw out:fridge + pantry hold: 95
+###########################################
+Day 40:
+###########################################
+before:fridge + pantry hold: 95
+basket holds 222: servings
+after shopping: fridge + pantry hold: 317
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 238.48767656038632
+after throw out:fridge + pantry hold: 238.48767656038632
+###########################################
+Day 41:
+###########################################
+before:fridge + pantry hold: 238.48767656038632
+plate_waste: 0.5269624546460783
+plate_waste: 2.0248369822202896
+plate_waste: 0.6373751069562399
+inedible: 3.599999999999998
+plate_waste: 4.713959726631565
+consumed today: 70.126880
+after eating:fridge + pantry hold: 156.85766211561779
+after throw out:fridge + pantry hold: 156.85766211561779
+###########################################
+Day 42:
+###########################################
+before:fridge + pantry hold: 156.85766211561779
+inedible: 1.1999999999999997
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311714
+plate_waste: 0.0008282253770268595
+consumed today: 70.560339
+after eating:fridge + pantry hold: 77.1453386760041
+after throw out:fridge + pantry hold: 77.1453386760041
+###########################################
+Day 43:
+###########################################
+before:fridge + pantry hold: 77.1453386760041
+basket holds 44: servings
+inedible: 0
+plate_waste: 6.178278883171814
+plate_waste: 0.9984161587928515
+plate_waste: 0.607699562279195
+plate_waste: 0.165878806794322
+plate_waste: 0.0017016343701869233
+consumed today: 70.560259
+after eating:fridge + pantry hold: 42.63310461497311
+after throw out:fridge + pantry hold: 42.63310461497311
+###########################################
+Day 44:
+###########################################
+before:fridge + pantry hold: 42.63310461497311
+basket holds 272.0: servings
+after shopping: fridge + pantry hold: 314.6331046149731
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 236.1207811753594
+spoiled : 12.0
+after throw out:fridge + pantry hold: 224.1207811753594
+###########################################
+Day 45:
+###########################################
+before:fridge + pantry hold: 224.1207811753594
+plate_waste: 0.16540615994588226
+plate_waste: 4.051330415194627
+plate_waste: 1.3660758569850202
+inedible: 1.1999999999999993
+plate_waste: 2.344876491085266
+consumed today: 70.344761
+after eating:fridge + pantry hold: 144.6483312810948
+after throw out:fridge + pantry hold: 144.6483312810948
+###########################################
+Day 46:
+###########################################
+before:fridge + pantry hold: 144.6483312810948
+inedible: 0.5999999999999996
+plate_waste: 5.003393062765369
+plate_waste: 0.7746479286145966
+consumed today: 51.270290
+after eating:fridge + pantry hold: 87.0
+after throw out:fridge + pantry hold: 87.0
+###########################################
+Day 47:
+###########################################
+before:fridge + pantry hold: 87.0
+inedible: 2.3999999999999986
+plate_waste: 4.618516673321878
+consumed today: 40.981483
+after eating:fridge + pantry hold: 39.0
+after throw out:fridge + pantry hold: 39.0
+###########################################
+Day 48:
+###########################################
+before:fridge + pantry hold: 39.0
+basket holds 278: servings
+after shopping: fridge + pantry hold: 317.0
+plate_waste: 4.051330415194627
+inedible: 5.9999999999999964
+plate_waste: 3.860648107828858
+consumed today: 70.205358
+after eating:fridge + pantry hold: 232.8826635976233
+after throw out:fridge + pantry hold: 232.8826635976233
+###########################################
+Day 49:
+###########################################
+before:fridge + pantry hold: 232.8826635976233
+inedible: 2.999999999999999
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311659
+plate_waste: 0.0008282253770267919
+consumed today: 70.560339
+after eating:fridge + pantry hold: 151.3703401580096
+after throw out:fridge + pantry hold: 151.3703401580096
+###########################################
+Day 50:
+###########################################
+before:fridge + pantry hold: 151.3703401580096
+plate_waste: 2.8240470772422768
+plate_waste: 5.075341606547511
+plate_waste: 0.052064370880414046
+plate_waste: 0.0005340918750525664
+basket holds 28: servings
+inedible: 0
+plate_waste: 5.478874058660401e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 100.85793252425903
+after throw out:fridge + pantry hold: 100.85793252425903
+###########################################
+Day 51:
+###########################################
+before:fridge + pantry hold: 100.85793252425903
+basket holds 18: servings
+inedible: 1.1999999999999993
+plate_waste: 1.7015587743817449
+plate_waste: 6.186315088960555
+plate_waste: 0.06346106885873992
+plate_waste: 0.000651002608625691
+consumed today: 70.560356
+after eating:fridge + pantry hold: 39.14559094890371
+spoiled : 17.373429838052928
+after throw out:fridge + pantry hold: 21.77216111085078
+###########################################
+Day 52:
+###########################################
+before:fridge + pantry hold: 21.77216111085078
+basket holds 296: servings
+after shopping: fridge + pantry hold: 317.7721611108508
+plate_waste: 2.43079824911678
+plate_waste: 1.1923283378980951
+plate_waste: 1.0128271249245984
+plate_waste: 0.607699562279195
+inedible: 4.799999999999997
+plate_waste: 2.6805564529983243
+consumed today: 70.313889
+after eating:fridge + pantry hold: 234.73406236188666
+after throw out:fridge + pantry hold: 234.73406236188666
+###########################################
+Day 53:
+###########################################
+before:fridge + pantry hold: 234.73406236188666
+inedible: 0.5999999999999996
+plate_waste: 4.193126979726436
+plate_waste: 3.720306134829528
+plate_waste: 0.03816401208197817
+plate_waste: 0.0003914978406098801
+consumed today: 70.560380
+after eating:fridge + pantry hold: 155.62169423062392
+after throw out:fridge + pantry hold: 155.62169423062392
+###########################################
+Day 54:
+###########################################
+before:fridge + pantry hold: 155.62169423062392
+inedible: 3.599999999999998
+plate_waste: 6.117508926943891
+plate_waste: 0.5693835205362721
+consumed today: 59.334802
+after eating:fridge + pantry hold: 86
+after throw out:fridge + pantry hold: 86
+###########################################
+Day 55:
+###########################################
+before:fridge + pantry hold: 86
+inedible: 0
+plate_waste: 5.671862581272478
+consumed today: 50.328137
+after eating:fridge + pantry hold: 30
+after throw out:fridge + pantry hold: 30
+###########################################
+Day 56:
+###########################################
+before:fridge + pantry hold: 30
+after shopping: fridge + pantry hold: 30
+inedible: 0
+plate_waste: 3.038497811395974
+consumed today: 26.961502
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 57:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 32: servings
+inedible: 0
+plate_waste: 3.2410643321557053
+consumed today: 28.758936
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 58:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 58: servings
+inedible: 1.1999999999999993
+plate_waste: 1.7015587743817449
+plate_waste: 4.051330415194627
+consumed today: 51.047111
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 59:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 48: servings
+inedible: 1.1999999999999993
+plate_waste: 4.132357023498521
+plate_waste: 0.607699562279195
+consumed today: 42.059943
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 60:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 347.0: servings
+after shopping: fridge + pantry hold: 347.0
+plate_waste: 4.051330415194627
+plate_waste: 3.860648107828858
+plate_waste: 0.039603681979842986
+plate_waste: 0.00040626640464328607
+inedible: 0
+plate_waste: 4.167602184710702e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 268.487592232063
+spoiled : 1.48763338004905
+after throw out:fridge + pantry hold: 266.99995885201395
+###########################################
+Day 61:
+###########################################
+before:fridge + pantry hold: 266.99995885201395
+plate_waste: 2.43079824911678
+plate_waste: 2.025661039995132
+inedible: 3.6999999999999993
+plate_waste: 3.459675166966168
+consumed today: 70.242235
+after eating:fridge + pantry hold: 185.14158967641288
+after throw out:fridge + pantry hold: 185.14158967641288
+###########################################
+Day 62:
+###########################################
+before:fridge + pantry hold: 185.14158967641288
+inedible: 4.799999999999997
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.000828225377026778
+consumed today: 70.560339
+after eating:fridge + pantry hold: 101.82926623679919
+after throw out:fridge + pantry hold: 101.82926623679919
+###########################################
+Day 63:
+###########################################
+before:fridge + pantry hold: 101.82926623679919
+inedible: 0
+plate_waste: 7.8704187649524755
+plate_waste: 0.08073710763311492
+plate_waste: 0.0008282253770267554
+consumed today: 70.560339
+after eating:fridge + pantry hold: 23.316942797185515
+after throw out:fridge + pantry hold: 23.316942797185515
+###########################################
+Day 64:
+###########################################
+before:fridge + pantry hold: 23.316942797185515
+basket holds 323: servings
+after shopping: fridge + pantry hold: 346.3169427971855
+inedible: 4.799999999999997
+plate_waste: 5.590835972968591
+plate_waste: 2.3369352581218763
+plate_waste: 0.023972980231598495
+plate_waste: 0.00024592199513754926
+consumed today: 70.560393
+after eating:fridge + pantry hold: 263.0045597687064
+after throw out:fridge + pantry hold: 263.0045597687064
+###########################################
+Day 65:
+###########################################
+before:fridge + pantry hold: 263.0045597687064
+plate_waste: 4.0273574349630366
+plate_waste: 1.7141492350776169
+plate_waste: 0.27221664488247166
+plate_waste: 1.9183860208938839
+plate_waste: 0.019679377079718202
+plate_waste: 0.00020187693093471227
+inedible: 1.1999999999999993
+plate_waste: 2.0709138850527187e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 183.29215178620896
+after throw out:fridge + pantry hold: 183.29215178620896
+###########################################
+Day 66:
+###########################################
+before:fridge + pantry hold: 183.29215178620896
+inedible: 0
+plate_waste: 5.975712362412075
+plate_waste: 1.093857141188666
+plate_waste: 0.1411359012054425
+plate_waste: 0.009996167597327354
+consumed today: 64.071450
+after eating:fridge + pantry hold: 112
+after throw out:fridge + pantry hold: 112
+###########################################
+Day 67:
+###########################################
+before:fridge + pantry hold: 112
+inedible: 1.1999999999999993
+plate_waste: 3.524657461219327
+consumed today: 31.275343
+after eating:fridge + pantry hold: 76
+after throw out:fridge + pantry hold: 76
+###########################################
+Day 68:
+###########################################
+before:fridge + pantry hold: 76
+basket holds 232: servings
+after shopping: fridge + pantry hold: 308
+inedible: 1.1999999999999993
+plate_waste: 6.765721793375036
+plate_waste: 1.1741017675560261
+plate_waste: 0.012044286792149611
+plate_waste: 0.00012355389314634203
+consumed today: 70.560404
+after eating:fridge + pantry hold: 228.28760444922307
+spoiled : 3.0
+after throw out:fridge + pantry hold: 225.28760444922307
+###########################################
+Day 69:
+###########################################
+before:fridge + pantry hold: 225.28760444922307
+plate_waste: 0.04129735700236381
+plate_waste: 1.2033548377662395
+plate_waste: 2.0255416537041704
+inedible: 1.1999999999999993
+plate_waste: 4.0310737631186555
+consumed today: 64.786337
+after eating:fridge + pantry hold: 152
+after throw out:fridge + pantry hold: 152
+###########################################
+Day 70:
+###########################################
+before:fridge + pantry hold: 152
+inedible: 0.5999999999999996
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311692
+plate_waste: 0.0008282253770268318
+consumed today: 70.560339
+after eating:fridge + pantry hold: 72.88767656038632
+after throw out:fridge + pantry hold: 72.88767656038632
+###########################################
+Day 71:
+###########################################
+before:fridge + pantry hold: 72.88767656038632
+basket holds 136: servings
+inedible: 0
+plate_waste: 5.8744291020322095
+plate_waste: 2.056251312123223
+plate_waste: 0.02109364043586981
+plate_waste: 0.00021638486707071798
+consumed today: 70.560396
+after eating:fridge + pantry hold: 130.37529050928362
+after throw out:fridge + pantry hold: 130.37529050928362
+###########################################
+Day 72:
+###########################################
+before:fridge + pantry hold: 130.37529050928362
+basket holds 234: servings
+after shopping: fridge + pantry hold: 364.3752905092836
+inedible: 1.1999999999999993
+plate_waste: 6.765721793375036
+plate_waste: 1.1741017675560261
+plate_waste: 0.012044286792149611
+plate_waste: 0.00012355389314634203
+consumed today: 70.560404
+after eating:fridge + pantry hold: 284.6628949585067
+spoiled : 10.0
+after throw out:fridge + pantry hold: 274.6628949585067
+###########################################
+Day 73:
+###########################################
+before:fridge + pantry hold: 274.6628949585067
+inedible: 0.5999999999999996
+plate_waste: 7.87041876495249
+plate_waste: 0.0807371076331167
+plate_waste: 0.000828225377026804
+consumed today: 70.560339
+after eating:fridge + pantry hold: 195.55057151889298
+spoiled : 3.698014218626124
+after throw out:fridge + pantry hold: 191.85255730026688
+###########################################
+Day 74:
+###########################################
+before:fridge + pantry hold: 191.85255730026688
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.0807371076331167
+plate_waste: 0.000828225377026804
+consumed today: 70.560339
+after eating:fridge + pantry hold: 113.34023386065319
+spoiled : 12.406521304258908
+after throw out:fridge + pantry hold: 100.93371255639428
+###########################################
+Day 75:
+###########################################
+before:fridge + pantry hold: 100.93371255639428
+basket holds 70: servings
+inedible: 1.1999999999999993
+plate_waste: 5.3477561480569165
+plate_waste: 1.608391809340512
+plate_waste: 0.9856290520298376
+plate_waste: 0.010110877354381806
+plate_waste: 0.00010372040136683925
+consumed today: 70.560406
+after eating:fridge + pantry hold: 91.22131497599617
+after throw out:fridge + pantry hold: 91.22131497599617
+###########################################
+Day 76:
+###########################################
+before:fridge + pantry hold: 91.22131497599617
+basket holds 228: servings
+after shopping: fridge + pantry hold: 319.22131497599617
+inedible: 2.3999999999999986
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267823
+consumed today: 70.560339
+after eating:fridge + pantry hold: 238.30899153638248
+spoiled : 12.0
+after throw out:fridge + pantry hold: 226.30899153638248
+###########################################
+Day 77:
+###########################################
+before:fridge + pantry hold: 226.30899153638248
+plate_waste: 2.1054611064416484
+plate_waste: 1.0270599229969353
+plate_waste: 4.051330415194627
+plate_waste: 0.760261415211466
+plate_waste: 0.007798988788572284
+inedible: 0
+plate_waste: 8.000435758976146e-05
+consumed today: 70.560408
+after eating:fridge + pantry hold: 147.79659152904992
+after throw out:fridge + pantry hold: 147.79659152904992
+###########################################
+Day 78:
+###########################################
+before:fridge + pantry hold: 147.79659152904992
+plate_waste: 1.1346620169252724
+plate_waste: 0.4551377093469231
+plate_waste: 0.599900573490622
+plate_waste: 0.7994283235640154
+plate_waste: 0.8391134023389455
+plate_waste: 2.025585203239725
+inedible: 0
+plate_waste: 2.0766418450788713
+consumed today: 70.369430
+after eating:fridge + pantry hold: 69.49669237255625
+after throw out:fridge + pantry hold: 69.49669237255625
+###########################################
+Day 79:
+###########################################
+before:fridge + pantry hold: 69.49669237255625
+basket holds 138: servings
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.000828225377026778
+consumed today: 70.560339
+after eating:fridge + pantry hold: 128.98436893294257
+after throw out:fridge + pantry hold: 128.98436893294257
+###########################################
+Day 80:
+###########################################
+before:fridge + pantry hold: 128.98436893294257
+basket holds 164: servings
+after shopping: fridge + pantry hold: 292.9843689329426
+inedible: 8.399999999999999
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 206.0720454933289
+after throw out:fridge + pantry hold: 206.0720454933289
+###########################################
+Day 81:
+###########################################
+before:fridge + pantry hold: 206.0720454933289
+plate_waste: 0.607699562279195
+plate_waste: 0.607699562279195
+plate_waste: 0.5269624546460783
+plate_waste: 0.6068713369021683
+plate_waste: 4.405401893758025
+plate_waste: 1.1850750174763967
+plate_waste: 0.012156853669003806
+plate_waste: 0.00012470863780782897
+inedible: 0
+plate_waste: 1.2792984737109762e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 127.55963742982304
+after throw out:fridge + pantry hold: 127.55963742982304
+###########################################
+Day 82:
+###########################################
+before:fridge + pantry hold: 127.55963742982304
+basket holds 84: servings
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 133.04731399020935
+after throw out:fridge + pantry hold: 133.04731399020935
+###########################################
+Day 83:
+###########################################
+before:fridge + pantry hold: 133.04731399020935
+plate_waste: 0.8405901901209196
+plate_waste: 2.7719695741086525
+plate_waste: 2.0247122735824803
+plate_waste: 2.2909755483082144
+plate_waste: 0.023501511794044277
+plate_waste: 0.0002410855310147047
+inedible: 0
+plate_waste: 2.4731274215036648e-06
+consumed today: 70.560415
+after eating:fridge + pantry hold: 54.53490604887163
+after throw out:fridge + pantry hold: 54.53490604887163
+###########################################
+Day 84:
+###########################################
+before:fridge + pantry hold: 54.53490604887163
+after shopping: fridge + pantry hold: 54.53490604887163
+plate_waste: 1.928341030846184
+plate_waste: 0.02967554467704875
+plate_waste: 0.6076982829807207
+plate_waste: 2.3500611414836605
+plate_waste: 0.607697089151773
+inedible: 0
+consumed today: 49.011433
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 85:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 88: servings
+inedible: 0
+plate_waste: 5.874429102032217
+plate_waste: 1.21539912455839
+plate_waste: 0.8533201149861345
+plate_waste: 0.008753612739887631
+consumed today: 70.559610
+after eating:fridge + pantry hold: 9.488487589234488
+spoiled : 3.488487589234489
+after throw out:fridge + pantry hold: 6.0
+###########################################
+Day 86:
+###########################################
+before:fridge + pantry hold: 6.0
+basket holds 12: servings
+inedible: 0
+plate_waste: 1.21539912455839
+plate_waste: 0.607699562279195
+consumed today: 16.176901
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 87:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 48: servings
+inedible: 0
+plate_waste: 3.6461973736751645
+plate_waste: 0.607699562279195
+plate_waste: 0.607699562279195
+consumed today: 43.138404
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 88:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 309: servings
+after shopping: fridge + pantry hold: 309
+inedible: 2.0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267789
+consumed today: 70.560339
+after eating:fridge + pantry hold: 228.48767656038632
+after throw out:fridge + pantry hold: 228.48767656038632
+###########################################
+Day 89:
+###########################################
+before:fridge + pantry hold: 228.48767656038632
+plate_waste: 1.9440998745871703
+plate_waste: 2.43079824911678
+plate_waste: 3.2707398768327423
+inedible: 0
+plate_waste: 0.3032120037955792
+consumed today: 70.532530
+after eating:fridge + pantry hold: 150.00629696695808
+after throw out:fridge + pantry hold: 150.00629696695808
+###########################################
+Day 90:
+###########################################
+before:fridge + pantry hold: 150.00629696695808
+inedible: 3.599999999999998
+plate_waste: 4.4969767608660405
+plate_waste: 1.7224532038017362
+consumed today: 55.186867
+after eating:fridge + pantry hold: 85
+after throw out:fridge + pantry hold: 85
+###########################################
+Day 91:
+###########################################
+before:fridge + pantry hold: 85
+inedible: 0
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311615
+plate_waste: 0.0008282253770267372
+consumed today: 70.560339
+after eating:fridge + pantry hold: 6.487676560386319
+after throw out:fridge + pantry hold: 6.487676560386319
+###########################################
+Day 92:
+###########################################
+before:fridge + pantry hold: 6.487676560386319
+basket holds 322: servings
+after shopping: fridge + pantry hold: 328.4876765603863
+inedible: 2.9999999999999982
+plate_waste: 7.87041876495249
+plate_waste: 0.08073710763311648
+plate_waste: 0.0008282253770267754
+consumed today: 70.560339
+after eating:fridge + pantry hold: 246.97535312077264
+spoiled : 12.0
+after throw out:fridge + pantry hold: 234.97535312077264
+###########################################
+Day 93:
+###########################################
+before:fridge + pantry hold: 234.97535312077264
+plate_waste: 1.21539912455839
+plate_waste: 1.21539912455839
+plate_waste: 1.21539912455839
+plate_waste: 1.21539912455839
+plate_waste: 0.6562648089489302
+plate_waste: 0.13095880505690505
+plate_waste: 0.5269624546460783
+inedible: 0
+plate_waste: 1.7579892211668398
+consumed today: 70.398736
+after eating:fridge + pantry hold: 156.64284527795166
+after throw out:fridge + pantry hold: 156.64284527795166
+###########################################
+Day 94:
+###########################################
+before:fridge + pantry hold: 156.64284527795166
+inedible: 4.799999999999997
+plate_waste: 6.198535535247785
+plate_waste: 0.8753755487096706
+consumed today: 62.768934
+after eating:fridge + pantry hold: 82
+after throw out:fridge + pantry hold: 82
+###########################################
+Day 95:
+###########################################
+before:fridge + pantry hold: 82
+inedible: 2.3999999999999986
+plate_waste: 7.758297745097707
+consumed today: 68.841702
+after eating:fridge + pantry hold: 3
+after throw out:fridge + pantry hold: 3
+###########################################
+Day 96:
+###########################################
+before:fridge + pantry hold: 3
+basket holds 338: servings
+after shopping: fridge + pantry hold: 341
+inedible: 0
+plate_waste: 7.8704187649524755
+plate_waste: 0.08073710763311492
+plate_waste: 0.0008282253770267537
+consumed today: 70.560339
+after eating:fridge + pantry hold: 262.4876765603863
+spoiled : 23.194681009436028
+spoiled : 24.0
+after throw out:fridge + pantry hold: 215.2929955509503
+###########################################
+Day 97:
+###########################################
+before:fridge + pantry hold: 215.2929955509503
+inedible: 1.1999999999999993
+plate_waste: 5.550322668816641
+plate_waste: 1.21539912455839
+plate_waste: 1.1741017675560244
+plate_waste: 0.012044286792149403
+plate_waste: 0.00012355389314636545
+consumed today: 70.560404
+after eating:fridge + pantry hold: 135.58060000017338
+after throw out:fridge + pantry hold: 135.58060000017338
+###########################################
+Day 98:
+###########################################
+before:fridge + pantry hold: 135.58060000017338
+plate_waste: 0.041297357002364365
+plate_waste: 2.0136209208051667
+plate_waste: 0.029551990783902415
+inedible: 2.3999999999999986
+plate_waste: 5.807331615285143
+consumed today: 70.026325
+after eating:fridge + pantry hold: 55.262473606155844
+after throw out:fridge + pantry hold: 55.262473606155844
+###########################################
+Day 99:
+###########################################
+before:fridge + pantry hold: 55.262473606155844
+basket holds 32: servings
+inedible: 0
+plate_waste: 5.064163018993284
+plate_waste: 0.22915070335485632
+plate_waste: 2.0256652075973136
+consumed today: 64.943495
+after eating:fridge + pantry hold: 15
+after throw out:fridge + pantry hold: 15
+###########################################
+Day 0:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 296: servings
+after shopping: fridge + pantry hold: 296
+inedible: 2.1999999999999993
+plate_waste: 6.523229563748949
+plate_waste: 1.2666465172328056
+plate_waste: 0.4018879852436137
+plate_waste: 0.004477683547990503
+consumed today: 69.453600
+after eating:fridge + pantry hold: 216.15015873872017
+after throw out:fridge + pantry hold: 216.15015873872017
+###########################################
+Day 1:
+###########################################
+before:fridge + pantry hold: 216.15015873872017
+inedible: 3.1999999999999993
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 135.2999469113766
+after throw out:fridge + pantry hold: 135.2999469113766
+###########################################
+Day 2:
+###########################################
+before:fridge + pantry hold: 135.2999469113766
+plate_waste: 0.8602808484412021
+plate_waste: 2.9570740298867477
+plate_waste: 1.055538764360671
+plate_waste: 1.055538764360671
+plate_waste: 1.055538764360671
+plate_waste: 0.9652362370354037
+plate_waste: 0.24433186701704557
+plate_waste: 0.002722253019156212
+inedible: 0
+plate_waste: 3.033031094461377e-05
+consumed today: 69.454024
+after eating:fridge + pantry hold: 57.64963092552151
+after throw out:fridge + pantry hold: 57.64963092552151
+###########################################
+Day 3:
+###########################################
+before:fridge + pantry hold: 57.64963092552151
+basket holds 42: servings
+inedible: 1.1999999999999993
+plate_waste: 2.8288438884866025
+plate_waste: 2.5332930344656113
+plate_waste: 0.8074785278049594
+plate_waste: 1.0555084340497274
+consumed today: 61.224507
+after eating:fridge + pantry hold: 30
+after throw out:fridge + pantry hold: 30
+###########################################
+Day 4:
+###########################################
+before:fridge + pantry hold: 30
+after shopping: fridge + pantry hold: 30
+inedible: 1.7999999999999994
+plate_waste: 2.9766193154970964
+consumed today: 25.223381
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 5:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 39: servings
+inedible: 3.599999999999998
+plate_waste: 3.736607225836778
+consumed today: 31.663393
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 6:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 7:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 100: servings
+inedible: 1.1999999999999993
+plate_waste: 5.99546018156861
+plate_waste: 1.2666465172328056
+plate_waste: 0.9237771610816532
+plate_waste: 0.010292374860814205
+plate_waste: 0.00011467373814642054
+consumed today: 69.454016
+after eating:fridge + pantry hold: 21.149693017229556
+spoiled : 15.150779417293847
+after throw out:fridge + pantry hold: 5.998913599935708
+###########################################
+Day 8:
+###########################################
+before:fridge + pantry hold: 5.998913599935708
+after shopping: fridge + pantry hold: 5.998913599935708
+plate_waste: 0.6332085848782567
+inedible: 0
+consumed today: 5.365705
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 9:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 10:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 20: servings
+inedible: 0
+plate_waste: 2.111077528721342
+consumed today: 17.888922
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 11:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 12:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 294: servings
+after shopping: fridge + pantry hold: 294
+inedible: 2.3999999999999986
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 213.94978817265644
+spoiled : 71.1349569818965
+spoiled : 12.0
+after throw out:fridge + pantry hold: 130.81483119075995
+###########################################
+Day 13:
+###########################################
+before:fridge + pantry hold: 130.81483119075995
+inedible: 2.3999999999999986
+plate_waste: 6.924334294205991
+plate_waste: 1.2577862336179972
+plate_waste: 0.014013777301020533
+plate_waste: 0.00015613619309346014
+consumed today: 69.454012
+after eating:fridge + pantry hold: 50.7645286338233
+after throw out:fridge + pantry hold: 50.7645286338233
+###########################################
+Day 14:
+###########################################
+before:fridge + pantry hold: 50.7645286338233
+basket holds 30: servings
+inedible: 1.799999999999999
+plate_waste: 5.087696844218435
+plate_waste: 0.008860283614807979
+plate_waste: 0.07183867733160787
+plate_waste: 0.6333232586164028
+consumed today: 49.162810
+after eating:fridge + pantry hold: 24
+after throw out:fridge + pantry hold: 24
+###########################################
+Day 15:
+###########################################
+before:fridge + pantry hold: 24
+inedible: 1.1999999999999993
+plate_waste: 2.4066283827423334
+consumed today: 20.393372
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 16:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 17:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 18: servings
+inedible: 1.1999999999999993
+plate_waste: 1.139981865509526
+plate_waste: 0.6333232586164028
+consumed today: 15.026695
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 18:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 19:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 44: servings
+inedible: 1.1999999999999993
+plate_waste: 3.8843826528472647
+plate_waste: 0.6333232586164028
+consumed today: 38.282294
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 20:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 21:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 36: servings
+inedible: 0
+plate_waste: 3.799939551698415
+consumed today: 32.200060
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 22:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 23:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 24:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 286: servings
+after shopping: fridge + pantry hold: 286
+plate_waste: 1.2666465172328056
+plate_waste: 2.111077528721342
+inedible: 0
+plate_waste: 4.764881495249632
+consumed today: 68.999095
+after eating:fridge + pantry hold: 208.85829932417815
+after throw out:fridge + pantry hold: 208.85829932417815
+###########################################
+Day 25:
+###########################################
+before:fridge + pantry hold: 208.85829932417815
+inedible: 3.999999999999999
+plate_waste: 8.104972220613092
+plate_waste: 0.09030252732527055
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 127.2080874968346
+after throw out:fridge + pantry hold: 127.2080874968346
+###########################################
+Day 26:
+###########################################
+before:fridge + pantry hold: 127.2080874968346
+basket holds 36: servings
+inedible: 1.1999999999999993
+plate_waste: 3.039951641358737
+plate_waste: 4.365636547953642
+plate_waste: 0.7818942869341949
+plate_waste: 0.008711569674696051
+consumed today: 69.453195
+after eating:fridge + pantry hold: 84.35869817397433
+spoiled : 12.0
+after throw out:fridge + pantry hold: 72.35869817397433
+###########################################
+Day 27:
+###########################################
+before:fridge + pantry hold: 72.35869817397433
+inedible: 1.5999999999999996
+plate_waste: 1.8366374499875668
+plate_waste: 3.880818686313674
+plate_waste: 1.7513987475314163
+consumed today: 63.289843
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 28:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 286: servings
+after shopping: fridge + pantry hold: 286
+plate_waste: 2.111077528721342
+plate_waste: 2.5332930344656113
+inedible: 1.0
+plate_waste: 3.512347473238332
+consumed today: 69.118682
+after eating:fridge + pantry hold: 207.72459987421
+after throw out:fridge + pantry hold: 207.72459987421
+###########################################
+Day 29:
+###########################################
+before:fridge + pantry hold: 207.72459987421
+plate_waste: 5.881947529571647
+inedible: 4.799999999999997
+plate_waste: 2.2885591201618816
+consumed today: 69.235525
+after eating:fridge + pantry hold: 125.51856870223011
+after throw out:fridge + pantry hold: 125.51856870223011
+###########################################
+Day 30:
+###########################################
+before:fridge + pantry hold: 125.51856870223011
+plate_waste: 4.382445870597564
+inedible: 2.0
+plate_waste: 3.771353900216706
+consumed today: 69.093953
+after eating:fridge + pantry hold: 46.270815743077236
+after throw out:fridge + pantry hold: 46.270815743077236
+###########################################
+Day 31:
+###########################################
+before:fridge + pantry hold: 46.270815743077236
+basket holds 144: servings
+inedible: 2.0
+plate_waste: 8.104972220613078
+plate_waste: 0.09030252732526889
+plate_waste: 0.0010061165195103076
+consumed today: 69.453931
+after eating:fridge + pantry hold: 110.62060391573368
+after throw out:fridge + pantry hold: 110.62060391573368
+###########################################
+Day 32:
+###########################################
+before:fridge + pantry hold: 110.62060391573368
+after shopping: fridge + pantry hold: 110.62060391573368
+inedible: 0
+plate_waste: 4.644370563186953
+plate_waste: 3.5123474732383286
+plate_waste: 0.03913324377242022
+plate_waste: 0.00043600776398689586
+consumed today: 69.453985
+after eating:fridge + pantry hold: 32.970331233175244
+spoiled : 12.0
+after throw out:fridge + pantry hold: 20.970331233175248
+###########################################
+Day 33:
+###########################################
+before:fridge + pantry hold: 20.970331233175248
+basket holds 52: servings
+inedible: 1.1999999999999993
+plate_waste: 5.362136922952203
+plate_waste: 0.23969340435384723
+plate_waste: 1.9738063474561258
+consumed today: 64.194695
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 34:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 35:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 58: servings
+inedible: 3.3999999999999986
+plate_waste: 4.49659513617646
+plate_waste: 1.2666465172328056
+consumed today: 48.836758
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 36:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 37:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 38:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 42: servings
+inedible: 1.0
+plate_waste: 3.061062416645946
+plate_waste: 1.2666465172328056
+consumed today: 36.672291
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 39:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 40:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 288: servings
+after shopping: fridge + pantry hold: 288
+plate_waste: 2.111077528721342
+plate_waste: 2.111077528721342
+plate_waste: 1.055538764360671
+inedible: 6.799999999999997
+plate_waste: 2.886080462232684
+consumed today: 69.178476
+after eating:fridge + pantry hold: 203.85775014922592
+after throw out:fridge + pantry hold: 203.85775014922592
+###########################################
+Day 41:
+###########################################
+before:fridge + pantry hold: 203.85775014922592
+plate_waste: 4.629355540015304
+inedible: 1.1999999999999993
+plate_waste: 3.5271952047150457
+consumed today: 69.117264
+after eating:fridge + pantry hold: 125.38393491733646
+after throw out:fridge + pantry hold: 125.38393491733646
+###########################################
+Day 42:
+###########################################
+before:fridge + pantry hold: 125.38393491733646
+inedible: 0
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103215
+consumed today: 69.453931
+after eating:fridge + pantry hold: 47.7337230899929
+after throw out:fridge + pantry hold: 47.7337230899929
+###########################################
+Day 43:
+###########################################
+before:fridge + pantry hold: 47.7337230899929
+plate_waste: 1.183768905760827
+plate_waste: 3.8547106031137304
+inedible: 0
+consumed today: 42.695244
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 44:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 45:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 62: servings
+inedible: 0
+plate_waste: 5.488801574675492
+plate_waste: 1.055538764360671
+consumed today: 55.455660
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 46:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 47:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 6: servings
+inedible: 0
+plate_waste: 0.6333232586164028
+consumed today: 5.366677
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 48:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 49:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 88: servings
+inedible: 0
+plate_waste: 4.222155057442684
+plate_waste: 2.5332930344656113
+plate_waste: 1.4247907698861741
+plate_waste: 0.01587447852112539
+plate_waste: 0.0001768674205671586
+consumed today: 69.454010
+after eating:fridge + pantry hold: 10.349699655980267
+after throw out:fridge + pantry hold: 10.349699655980267
+###########################################
+Day 50:
+###########################################
+before:fridge + pantry hold: 10.349699655980267
+plate_waste: 1.0924509186377467
+inedible: 0
+consumed today: 9.257249
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 51:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 52:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 289: servings
+after shopping: fridge + pantry hold: 289
+inedible: 1.1999999999999993
+plate_waste: 4.834367540771865
+plate_waste: 1.2666465172328056
+plate_waste: 1.2666465172328056
+plate_waste: 0.8193993259140449
+plate_waste: 0.009129436598249524
+consumed today: 69.453155
+after eating:fridge + pantry hold: 210.15065528157913
+spoiled : 6.0
+after throw out:fridge + pantry hold: 204.15065528157913
+###########################################
+Day 53:
+###########################################
+before:fridge + pantry hold: 204.15065528157913
+plate_waste: 0.44724719131876123
+plate_waste: 1.2575170806345568
+inedible: 1.1999999999999993
+plate_waste: 4.834367540771865
+consumed today: 55.411523
+after eating:fridge + pantry hold: 141
+after throw out:fridge + pantry hold: 141
+###########################################
+Day 54:
+###########################################
+before:fridge + pantry hold: 141
+inedible: 0.5999999999999996
+plate_waste: 6.0587925074302476
+consumed today: 51.341207
+after eating:fridge + pantry hold: 83
+after throw out:fridge + pantry hold: 83
+###########################################
+Day 55:
+###########################################
+before:fridge + pantry hold: 83
+inedible: 0
+plate_waste: 2.849954663773815
+consumed today: 24.150045
+after eating:fridge + pantry hold: 56
+after throw out:fridge + pantry hold: 56
+###########################################
+Day 56:
+###########################################
+before:fridge + pantry hold: 56
+basket holds 230: servings
+after shopping: fridge + pantry hold: 286
+inedible: 5.9999999999999964
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 202.34978817265645
+after throw out:fridge + pantry hold: 202.34978817265645
+###########################################
+Day 57:
+###########################################
+before:fridge + pantry hold: 202.34978817265645
+inedible: 1.1999999999999993
+plate_waste: 8.104972220613092
+plate_waste: 0.09030252732527067
+plate_waste: 0.0010061165195103354
+consumed today: 69.453931
+after eating:fridge + pantry hold: 123.49957634531287
+spoiled : 18.279445745604143
+after throw out:fridge + pantry hold: 105.22013059970874
+###########################################
+Day 58:
+###########################################
+before:fridge + pantry hold: 105.22013059970874
+plate_waste: 2.111077528721342
+plate_waste: 2.028199917249367
+plate_waste: 4.011813034458363
+plate_waste: 0.04469809967351618
+plate_waste: 0.0004980092784142775
+inedible: 0
+plate_waste: 5.548630550252625e-06
+consumed today: 69.454026
+after eating:fridge + pantry hold: 27.569811968578563
+after throw out:fridge + pantry hold: 27.569811968578563
+###########################################
+Day 59:
+###########################################
+before:fridge + pantry hold: 27.569811968578563
+plate_waste: 0.2111022042415842
+plate_waste: 2.276782815911094
+basket holds 52: servings
+inedible: 0
+plate_waste: 3.799939551698415
+consumed today: 53.281987
+after eating:fridge + pantry hold: 20
+after throw out:fridge + pantry hold: 20
+###########################################
+Day 60:
+###########################################
+before:fridge + pantry hold: 20
+after shopping: fridge + pantry hold: 20
+inedible: 0
+plate_waste: 2.111077528721342
+consumed today: 17.888922
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 61:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 130: servings
+inedible: 1.1999999999999993
+plate_waste: 8.104972220613078
+plate_waste: 0.09030252732526911
+plate_waste: 0.0010061165195103371
+consumed today: 69.453931
+after eating:fridge + pantry hold: 51.149788172656436
+spoiled : 12.0
+after throw out:fridge + pantry hold: 39.149788172656436
+###########################################
+Day 62:
+###########################################
+before:fridge + pantry hold: 39.149788172656436
+plate_waste: 2.111077528721342
+plate_waste: 2.0213343745534402
+inedible: 0
+consumed today: 35.017376
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 63:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 26: servings
+inedible: 0
+plate_waste: 2.111077528721342
+plate_waste: 0.6333232586164028
+consumed today: 23.255599
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 64:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 65:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 66:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 58: servings
+inedible: 0
+plate_waste: 4.855478316059084
+plate_waste: 1.2666465172328056
+consumed today: 51.877875
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 67:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 68:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 283: servings
+after shopping: fridge + pantry hold: 283
+inedible: 4.1999999999999975
+plate_waste: 7.156552822365356
+consumed today: 60.643447
+after eating:fridge + pantry hold: 211
+after throw out:fridge + pantry hold: 211
+###########################################
+Day 69:
+###########################################
+before:fridge + pantry hold: 211
+inedible: 0
+plate_waste: 3.166616293082015
+consumed today: 26.833384
+after eating:fridge + pantry hold: 181
+after throw out:fridge + pantry hold: 181
+###########################################
+Day 70:
+###########################################
+before:fridge + pantry hold: 181
+inedible: 1.1999999999999993
+plate_waste: 3.4621671471030027
+consumed today: 29.337833
+after eating:fridge + pantry hold: 147
+after throw out:fridge + pantry hold: 147
+###########################################
+Day 71:
+###########################################
+before:fridge + pantry hold: 147
+inedible: 0.7999999999999998
+plate_waste: 8.104972220613092
+plate_waste: 0.09030252732527078
+plate_waste: 0.0010061165195103493
+consumed today: 69.453931
+after eating:fridge + pantry hold: 68.54978817265642
+after throw out:fridge + pantry hold: 68.54978817265642
+###########################################
+Day 72:
+###########################################
+before:fridge + pantry hold: 68.54978817265642
+after shopping: fridge + pantry hold: 68.54978817265642
+inedible: 1.5999999999999992
+plate_waste: 4.15882273158104
+plate_waste: 1.6413404193835959
+consumed today: 49.149625
+after eating:fridge + pantry hold: 12
+after throw out:fridge + pantry hold: 12
+###########################################
+Day 73:
+###########################################
+before:fridge + pantry hold: 12
+basket holds 12: servings
+inedible: 0
+plate_waste: 2.5332930344656113
+consumed today: 21.466707
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 74:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 75:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 10: servings
+inedible: 0
+plate_waste: 1.055538764360671
+consumed today: 8.944461
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 76:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 77:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 84: servings
+inedible: 0
+plate_waste: 2.744400787337746
+plate_waste: 1.2666465172328056
+plate_waste: 2.111077528721342
+plate_waste: 2.0510577808918207
+plate_waste: 0.022852108096513696
+plate_waste: 0.0002546095235930789
+consumed today: 69.454003
+after eating:fridge + pantry hold: 6.349707954418655
+after throw out:fridge + pantry hold: 6.349707954418655
+###########################################
+Day 78:
+###########################################
+before:fridge + pantry hold: 6.349707954418655
+plate_waste: 0.6102165409962961
+plate_waste: 0.06001974782952335
+inedible: 0
+consumed today: 5.679472
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 79:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 80:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 300: servings
+after shopping: fridge + pantry hold: 300
+plate_waste: 4.222155057442684
+plate_waste: 1.2666465172328056
+plate_waste: 2.111077528721342
+inedible: 0
+plate_waste: 0.5897680885453074
+consumed today: 69.397718
+after eating:fridge + pantry hold: 222.41263449095095
+after throw out:fridge + pantry hold: 222.41263449095095
+###########################################
+Day 81:
+###########################################
+before:fridge + pantry hold: 222.41263449095095
+inedible: 4.199999999999999
+plate_waste: 8.104972220613078
+plate_waste: 0.09030252732526889
+plate_waste: 0.0010061165195103094
+consumed today: 69.453931
+after eating:fridge + pantry hold: 140.56242266360735
+after throw out:fridge + pantry hold: 140.56242266360735
+###########################################
+Day 82:
+###########################################
+before:fridge + pantry hold: 140.56242266360735
+basket holds 66: servings
+inedible: 0
+plate_waste: 7.388771350524699
+plate_waste: 0.7985237588805214
+plate_waste: 0.008896848945736321
+consumed today: 69.453178
+after eating:fridge + pantry hold: 128.91305311804354
+after throw out:fridge + pantry hold: 128.91305311804354
+###########################################
+Day 83:
+###########################################
+before:fridge + pantry hold: 128.91305311804354
+inedible: 0
+plate_waste: 0.6333232586164028
+plate_waste: 7.478705209607426
+plate_waste: 0.08332489774987972
+plate_waste: 0.0009283744164843705
+consumed today: 69.453938
+after eating:fridge + pantry hold: 51.26283299226158
+spoiled : 12.0
+after throw out:fridge + pantry hold: 39.26283299226158
+###########################################
+Day 84:
+###########################################
+before:fridge + pantry hold: 39.26283299226158
+basket holds 240: servings
+after shopping: fridge + pantry hold: 279.26283299226156
+inedible: 6.799999999999997
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 194.81262116491803
+after throw out:fridge + pantry hold: 194.81262116491803
+###########################################
+Day 85:
+###########################################
+before:fridge + pantry hold: 194.81262116491803
+plate_waste: 1.4310069128507674
+plate_waste: 2.622028665499574
+plate_waste: 2.5332930344656113
+plate_waste: 1.592025983867389
+plate_waste: 0.017737749864841695
+plate_waste: 0.000197627283383521
+inedible: 0
+plate_waste: 2.201888257256653e-06
+consumed today: 69.454027
+after eating:fridge + pantry hold: 117.16230217654596
+after throw out:fridge + pantry hold: 117.16230217654596
+###########################################
+Day 86:
+###########################################
+before:fridge + pantry hold: 117.16230217654596
+plate_waste: 0.31665942741994435
+plate_waste: 1.1782264665734345
+inedible: 0
+plate_waste: 6.626741778435715
+consumed today: 68.821332
+after eating:fridge + pantry hold: 40.21934236636531
+after throw out:fridge + pantry hold: 40.21934236636531
+###########################################
+Day 87:
+###########################################
+before:fridge + pantry hold: 40.21934236636531
+basket holds 29: servings
+inedible: 0.5999999999999996
+plate_waste: 5.108807619505647
+plate_waste: 2.1342299657578607
+consumed today: 61.376305
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 88:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 89:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 24: servings
+inedible: 0
+plate_waste: 1.2666465172328056
+plate_waste: 1.2666465172328056
+consumed today: 21.466707
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 90:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 91:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 52: servings
+inedible: 0
+plate_waste: 1.2666465172328056
+plate_waste: 4.222155057442684
+consumed today: 46.511198
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 92:
+###########################################
+before:fridge + pantry hold: 0
+after shopping: fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 93:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 94:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 46: servings
+inedible: 0
+plate_waste: 4.855478316059084
+consumed today: 41.144522
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 95:
+###########################################
+before:fridge + pantry hold: 0
+inedible: 0
+consumed today: 0.000000
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
+###########################################
+Day 96:
+###########################################
+before:fridge + pantry hold: 0
+basket holds 308: servings
+after shopping: fridge + pantry hold: 308
+plate_waste: 4.222155057442684
+plate_waste: 3.9298588139087656
+plate_waste: 0.043784996822679334
+plate_waste: 0.0004878358326708427
+inedible: 0
+plate_waste: 5.43528187523783e-06
+consumed today: 69.454027
+after eating:fridge + pantry hold: 230.34968135677062
+spoiled : 12.0
+after throw out:fridge + pantry hold: 218.34968135677062
+###########################################
+Day 97:
+###########################################
+before:fridge + pantry hold: 218.34968135677062
+plate_waste: 0.24802341087857238
+plate_waste: 0.6333232586164028
+plate_waste: 1.2666410819509313
+inedible: 3.599999999999998
+plate_waste: 5.980916534242731
+consumed today: 68.882993
+after eating:fridge + pantry hold: 137.73778411382827
+after throw out:fridge + pantry hold: 137.73778411382827
+###########################################
+Day 98:
+###########################################
+before:fridge + pantry hold: 137.73778411382827
+inedible: 0
+plate_waste: 8.104972220613078
+plate_waste: 0.090302527325269
+plate_waste: 0.0010061165195103233
+consumed today: 69.453931
+after eating:fridge + pantry hold: 60.0875722864847
+after throw out:fridge + pantry hold: 60.0875722864847
+###########################################
+Day 99:
+###########################################
+before:fridge + pantry hold: 60.0875722864847
+inedible: 1.1999999999999993
+plate_waste: 3.462167147102999
+plate_waste: 1.1486660866589915
+plate_waste: 1.6049782949855853
+consumed today: 52.671761
+after eating:fridge + pantry hold: 0
+after throw out:fridge + pantry hold: 0
