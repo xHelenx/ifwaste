@@ -178,7 +178,7 @@ class HouseholdCookingManager:
                 ingredients.append(to_eat)
         else: #quickcook
             used_ingredients = 0
-            while planned_servings > 0 and used_ingredients <= globals.COOK_INGREDIENTS_PER_QC and not self.pantry.is_empty(): 
+            while planned_servings > 0 and used_ingredients <= globals.NH_COOK_INGREDIENTS_PER_QC and not self.pantry.is_empty(): 
                 to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
                 used_ingredients += 1
                 ingredients.append(to_eat)
@@ -204,12 +204,12 @@ class HouseholdCookingManager:
         
         to_eat = pd.Series()
         item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
-        if not item is None:
+        if item is not None:
             servings = item["servings"]
             
         
-            if not is_quickcook and servings > globals.COOK_SERVINGS_PER_GRAB: 
-                servings = globals.COOK_SERVINGS_PER_GRAB
+            if not is_quickcook and servings > globals.NH_COOK_SERVINGS_PER_GRAB: 
+                servings = globals.NH_COOK_SERVINGS_PER_GRAB
             (to_eat, to_pantry) = self._split(item, servings)
             if not to_pantry is None: 
                 self.pantry.add(to_pantry)
@@ -221,7 +221,7 @@ class HouseholdCookingManager:
         """Calculates the amount of servings that will be cooked. Generally 
         the household tries to cook at least enough food to satisfies the required_servings 
         (if enough food is in the pantry). However household can choose to cook more to have 
-        food for other days. The produced servings can be up to required_servings * COOK_MAX_SCALER_COOKING_AMOUNT
+        food for other days. The produced servings can be up to required_servings * NH_COOK_MAX_SCALER_COOKING_AMOUNT
 
         Returns:
             float: number of servings to be cooked
@@ -229,8 +229,8 @@ class HouseholdCookingManager:
         available = self.pantry.get_total_servings() 
         ratio_avail_req  = available/self.todays_servings 
         if ratio_avail_req > 1: 
-            if ratio_avail_req > globals.COOK_MAX_SCALER_COOKING_AMOUNT: 
-                ratio_avail_req = globals.COOK_MAX_SCALER_COOKING_AMOUNT
+            if ratio_avail_req > globals.NH_COOK_MAX_SCALER_COOKING_AMOUNT: 
+                ratio_avail_req = globals.NH_COOK_MAX_SCALER_COOKING_AMOUNT
         else: 
             ratio_avail_req = 1 
         
@@ -304,10 +304,10 @@ class HouseholdCookingManager:
                 earliest_pantry = float("inf")
             
             #sth from fridge or pantry expires soon -> EEF
-            if  ((earliest_fridge <= globals.COOK_EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry)) and \
+            if  ((earliest_fridge <= globals.NH_COOK_EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry)) and \
             (not self.fridge.is_empty()):
                 strategy = "EEFfridge"
-            elif ((earliest_pantry <= globals.COOK_EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
+            elif ((earliest_pantry <= globals.NH_COOK_EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
             (not self.pantry.is_empty()): 
                 strategy = "EEFpantry"
         return strategy

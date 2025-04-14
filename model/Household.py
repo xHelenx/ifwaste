@@ -65,9 +65,7 @@ class Household(Location):
         todays_time: list = [random.random()*globals.HH_MAX_AVAIL_TIME_PER_DAY for i in range(7)]  
         
         self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
-        self.budget:float = random.randint(5, 15)*self.amount_adults * 1000 #TODO
-        print(self.budget)
-        #globals.log(self,"Budget: %f", self.budget)
+        self.budget:float = globals.HH_DAILY_BUDGET * globals.HH_PAY_DAY_INTERVAL
         
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
@@ -104,7 +102,6 @@ class Household(Location):
             id = self.id,
             req_servings=self.req_servings,
             logger = self.logger
-            
         )
         
     def _reset_logs(self) -> None: 
@@ -176,7 +173,7 @@ class Household(Location):
         globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"###########################################")
         globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "before:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         # check if it is payday
-        if globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL == 0:  #pay day
+        if globals.DAY % globals.HH_PAY_DAY_INTERVAL == 0:  #pay day
             self.shoppingManager.todays_budget += self.budget
         #globals.log(self,"Budget: %f", self.budget)
         shopping_time = 0

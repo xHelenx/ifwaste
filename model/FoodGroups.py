@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-from re import M
 import pandas as pd
 import globals 
 import os
@@ -26,7 +25,7 @@ class FoodGroups():
                     config = json.load(f)  
                     
                     food_groups = []
-                    for _, value in config["Food"].items(): 
+                    for _, value in config["Neighborhood"]["Food"].items(): 
                         food_groups.append({
                             'type': value['type'],
                             'kg_per_serving': value['kg_per_serving'],

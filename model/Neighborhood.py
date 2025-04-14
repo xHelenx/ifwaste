@@ -24,13 +24,13 @@ class Neighborhood():
         
         self.data_logger:DataLogger = DataLogger()
         #setup all stores
-        for i in range(len(globals.NEIGHBORHOOD_STORE_TYPES)):
-            for j in range (0,globals.NEIGHBORHOOD_STORE_AMOUNTS[i]): 
-                if globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.DISCOUNTRETAILER.value:
+        for i in range(len(globals.NH_STORE_TYPES)):
+            for j in range (0,globals.NH_STORE_AMOUNTS[i]): 
+                if globals.NH_STORE_TYPES[i] == EnumStoreTier.DISCOUNTRETAILER.value:
                     store = StoreDiscounterRetailer(grid=self.grid,id=i*j+j)
-                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.PREMIUMTIER.value:
+                elif globals.NH_STORE_TYPES[i] == EnumStoreTier.PREMIUMTIER.value:
                     store = StorePremimumRetailer(grid=self.grid,id=i*j+j)
-                elif globals.NEIGHBORHOOD_STORE_TYPES[i] == EnumStoreTier.CONVENIENCETIER.value:
+                elif globals.NH_STORE_TYPES[i] == EnumStoreTier.CONVENIENCETIER.value:
                     store = StoreConvenienceStore(grid=self.grid,id=i*j+j)
                 else: 
                     raise ValueError("store type does not exist")
@@ -39,7 +39,7 @@ class Neighborhood():
 
         
         #setup all households
-        for i in range(0,globals.NEIGHBORHOOD_HOUSES): 
+        for i in range(0,globals.NH_HOUSES): 
             house = Household(id=i,grid=self.grid,datalogger=self.data_logger)
             self.grid.assign_location(object=house)
             self.houses.append(house)

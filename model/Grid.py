@@ -15,11 +15,11 @@ class Grid:
             self.time_per_cell (float) : travel time required to travers a cell when planning the shortest way from a to b
             self.available_positions (list[tuple[int,int]]) : open spots for locations to be positioned on the grid
         """        
-        gridsize = globals.NEIGHBORHOOD_HOUSES + sum(globals.NEIGHBORHOOD_STORE_AMOUNTS)
+        gridsize = globals.NH_HOUSES + sum(globals.NH_STORE_AMOUNTS)
         #create grid that is as "square shaped as possible"      
         
         self.grid:list[list[tuple[int,int] | None | Location]] = self.setup_grid(gridsize=gridsize)    
-        self.time_per_cell:float = globals.GRID_TRAVEL_TIME_PER_CELL
+        self.time_per_cell:float = globals.NH_GRID_TRAVEL_TIME_PER_CELL
         self.available_positions:list[tuple[int,int]] =  [(r, c) for r in range(len(self.grid)) for c in range(len(self.grid[0]))]    
 
     def __str__(self) -> str:
@@ -100,7 +100,7 @@ class Grid:
         
     def get_travel_time_one_way(self,start:tuple[int,int],destination:tuple[int,int]) -> float: 
         '''
-        Returns the travel time from a to b (one way).
+        Returns the travel time from a to b (one way). without time in a store
         
         Args: 
             start (tuple[int,int]): coordinate of starting position
@@ -110,17 +110,17 @@ class Grid:
         '''
         return math.sqrt(math.pow((start[0]- destination[0]),2) + math.pow((start[1]- destination[1]),2)) * self.time_per_cell
     
-    def get_travel_time_entire_trip(self, start:Location,stores:list[tuple[int,int]]):
+    def get_travel_time_entire_trip(self, start:Location,stores:list[tuple[int,int]], time_per_store:float):
         first_stop = stores[0]
         coords = self.get_coordinates(location=start)
         if len(stores) > 1:
             second_stop = stores[1]
             return self.get_travel_time_one_way(coords, first_stop) + self.get_travel_time_one_way(first_stop, second_stop) + self.get_travel_time_one_way(second_stop, coords) +\
-            2 * globals.GRID_TIME_PER_STORE
+            2 * time_per_store
         else:
-            return self.get_travel_time_one_way(coords, first_stop) * 2 + globals.GRID_TIME_PER_STORE
+            return self.get_travel_time_one_way(coords, first_stop) * 2 + time_per_store
 
-    def get_stores_within_time_constraint(self,start:Location, avail_time:float) -> list[Store]: #assuming up to single travel 
+    def get_stores_within_time_constraint(self,start:Location, avail_time:float, time_per_store:float) -> list[Store]: #assuming up to single travel 
         '''
         Returns a list of store options, that meet different criteria: 
                 avail_time:  the traveling time for adding this store to the current trip does not exceed the avail time 
@@ -154,7 +154,7 @@ class Grid:
             for y_tmp in range(y_min,y_max):
                 if isinstance(self.grid[x_tmp][y_tmp], Store): 
                     stores = [(x_tmp,y_tmp)]
-                    traveling_time = self.get_travel_time_entire_trip(start,stores) # type: ignore #we just go the other way round for easier calc
+                    traveling_time = self.get_travel_time_entire_trip(start,stores,time_per_store) # type: ignore #we just go the other way round for easier calc
                     if traveling_time <= avail_time:
                         relevant_stores.append(self.grid[x_tmp][y_tmp])                    
         return relevant_stores

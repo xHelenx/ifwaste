@@ -211,7 +211,7 @@ class BasketCurator():
             options, _ = self._sample_and_buy(options)
         
         options = self._get_stock_options()
-        n = random.randint(1,globals.BASKETCURATOR_MAX_ITEMS_QUICKSHOP)
+        n = random.randint(1,globals.NH_BASKETCURATOR_MAX_ITEMS_QUICKSHOP)
         
         for _ in range(n): 
             options = options[options["amount"] > 0]
@@ -247,7 +247,7 @@ class BasketCurator():
         3 strategies will over time be applied including a) replace items with cheaper items of same food group, b) replace items 
         with a cheaper item of any food group, c) remove item without replacement). 
         There is an increasing likelihood for the adjusting process to be interrupted early as well
-        as an increasing likelihood (incremented by BASKETCURATOR_INCREMENT_LIKELIHOOD after each executing each strategy)
+        as an increasing likelihood (incremented by NH_BASKETCURATOR_INCREMENT_LIKELIHOOD after each executing each strategy)
         to move on to a more strict replacement strategy. Besides moving on to a more restrictive strategy, it is also possible
         to stop the replacement strategy (depedning on the likelihood_to_stop) and buy the keep the basket as is.
         
@@ -344,13 +344,13 @@ class BasketCurator():
         found_cheaper_option = func(*args)
         in_budget = self.is_basket_in_budget()
         rand = random.uniform(0,1)
-        self.likelihood_to_stop += globals.BASKETCURATOR_INCREMENT_LIKELIHOOD
+        self.likelihood_to_stop += globals.NH_BASKETCURATOR_INCREMENT_LIKELIHOOD
         
         while not found_cheaper_option and not in_budget and rand > self.likelihood_to_stop: 
             found_cheaper_option = func(*args)
             in_budget = self.is_basket_in_budget()
             rand = random.uniform(0,1)
-            self.likelihood_to_stop += globals.BASKETCURATOR_INCREMENT_LIKELIHOOD
+            self.likelihood_to_stop += globals.NH_BASKETCURATOR_INCREMENT_LIKELIHOOD
         self._organize_basket()    
 
     

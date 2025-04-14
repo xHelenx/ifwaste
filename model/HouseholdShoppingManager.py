@@ -1,18 +1,21 @@
 from __future__ import annotations
+
 import logging
 import random
 from typing import List
 
-import numpy as np
-from Grid import Grid
-import pandas as pd
-from Storage import Storage
-from Store import Store
 import globals
+import numpy as np
+import pandas as pd
 from BasketCurator import BasketCurator
 from DealAssessor import DealAssessor
+from EnumDiscountEffect import EnumDiscountEffect
 from FoodGroups import FoodGroups
-from EnumDiscountEffect import EnumDiscountEffect 
+from Grid import Grid
+from Storage import Storage
+from Store import Store
+
+
 class HouseholdShoppingManager: 
     
     def __init__(self, budget:float, pantry:Storage, fridge:Storage, req_servings_per_fg:collections.Counter, grid:Grid, household:Household, # type: ignore
@@ -42,18 +45,19 @@ class HouseholdShoppingManager:
         self.id:int = id
         
         self.budget:float = budget
-        self.time:list[float]= time
+        self.time:list[float]= time 
+        self.time_per_store = globals.HH_TIME_PER_STORE
         
         ### SHOPPING CHARACTERISTICS
         self.shopping_frequency:int = shopping_freq
-        self.price_sens:float = random.uniform(0,1)
-        self.brand_sens: float = random.uniform(0,1)
-        self.brand_pref: dict[Store,float]  = {store:random.uniform(0,1) for store in globals.NEIGHBORHOOD_STORE_TYPES}
-        self.quality_sens: float  = random.uniform(0,1)
-        self.availability_sens: float  = random.uniform(0,1)
-        self.deal_sens: float  = random.uniform(0,1)
-        self.planner: float = random.uniform(0,1)
-        self.impulsivity:float = random.uniform(0,1)
+        self.price_sens:float = globals.HH_PRICE_SENSITIVITY
+        self.brand_sens: float = globals.HH_BRAND_SENSITIVITY
+        self.brand_pref: dict[Store,float]  = {store:globals.HH_BRAND_PREFERENCE for store in globals.NH_STORE_TYPES}
+        self.quality_sens: float  = globals.HH_QUALITY_SENSITIVITY
+        self.availability_sens: float  = globals.HH_AVAILABILITY_SENSITIVITY
+        self.deal_sens: float  = globals.HH_DEAL_SENSITIVITY
+        self.planner: float = globals.HH_PLANNER
+        self.impulsivity:float = globals.HH_IMPULSIVITY
         
         sum_sens = self.price_sens + self.brand_sens + self.quality_sens + self.availability_sens + self.deal_sens
         self.price_sens /= sum_sens
@@ -68,6 +72,7 @@ class HouseholdShoppingManager:
         self.req_servings:float = sum(self.req_servings_per_fg.values())
     
     def _get_what_to_buy(self) -> pd.Series:
+        
         """Indicates how many servings of which food group are required to be bought depending on what 
         the household still holds in its fridge and pantry.
 
@@ -88,7 +93,7 @@ class HouseholdShoppingManager:
         Returns:
             float: available budget for the current shopping trip
         """        
-        days_till_payday = globals.NEIGHBORHOOD_PAY_DAY_INTERVAL - (globals.DAY % globals.NEIGHBORHOOD_PAY_DAY_INTERVAL)   
+        days_till_payday = globals.HH_PAY_DAY_INTERVAL - (globals.DAY % globals.HH_PAY_DAY_INTERVAL)   
         if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
             if self.todays_budget <= 0: #no money to buy anything
                 return 0 
@@ -100,7 +105,7 @@ class HouseholdShoppingManager:
         else: #hh will receive new money, so the budget estimate has to consider it
             #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
             still_have_servings = self.fridge.get_total_servings() + self.pantry.get_total_servings()
-            days = days_till_payday + globals.NEIGHBORHOOD_PAY_DAY_INTERVAL
+            days = days_till_payday + globals.HH_PAY_DAY_INTERVAL
             req_daily_servings = (self.req_servings*days - still_have_servings)/(days)
             
             budget_before_pd = self.todays_budget
@@ -368,7 +373,7 @@ class HouseholdShoppingManager:
         assert not (required_fgs == None and needs_lower_price == None) #TODO technically ok now
         selection = None 
         if len(selected_store) == 0: #no store is selected
-            store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time)
+            store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time, hh)
         else: #a store has been selected
             store_options = self.grid.get_second_store_within_time_constraint(self.location,selected_store[0],self.todays_time,fg=required_fgs, needs_lower_price=needs_lower_price)
         #choose a store from possible options (not is_planner just selects 1 store here)

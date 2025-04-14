@@ -56,24 +56,23 @@ ADULT_AGE_MAX = 65
 
 #-----------------------------------------
 
+EXPERIMENT_NAME = None 
 SIMULATION_RUNS = None
 SIMULATION_DAYS = None
 SIMULATION_OUTPUTFOLDER = None 
 SIMULATION_WRITE_TO_FILE_INTERVAL = None
 SIMULATION_DEBUG_LOG_ON = None
 
-NEIGHBORHOOD_HOUSES = None
-NEIGHBORHOOD_STORE_TYPES = None 
-NEIGHBORHOOD_STORE_AMOUNTS = None 
-NEIGHBORHOOD_PAY_DAY_INTERVAL = None
+NH_HOUSES = None
+NH_STORE_TYPES = None 
+NH_STORE_AMOUNTS = None 
 
-GRID_TRAVEL_TIME_PER_CELL = None 
-GRID_TIME_PER_STORE = None
+NH_GRID_TRAVEL_TIME_PER_CELL = None 
 
-COOK_SERVINGS_PER_GRAB = None
-COOK_INGREDIENTS_PER_QC = None
-COOK_MAX_SCALER_COOKING_AMOUNT = None
-COOK_EXPIRATION_THRESHOLD = None
+NH_COOK_SERVINGS_PER_GRAB = None
+NH_COOK_INGREDIENTS_PER_QC = None
+NH_COOK_MAX_SCALER_COOKING_AMOUNT = None
+NH_COOK_EXPIRATION_THRESHOLD = None
 
 HH_AMOUNT_CHILDREN = None
 HH_AMOUNT_ADULTS = None
@@ -81,9 +80,22 @@ HH_MAX_AVAIL_TIME_PER_DAY = None
 HH_IMPULSE_BUY_PERCENTAGE = None
 HH_SHOPPING_FREQUENCY = None
 HH_MIN_TIME_TO_COOK =  None
+HH_PAY_DAY_INTERVAL = None
+HH_TIME_PER_STORE = None
+HH_DAILY_BUDGET = None
+HH_TIME_PER_STORE = None
+HH_PRICE_SENSITIVITY = None
+HH_BRAND_SENSITIVITY = None
+HH_QUALITY_SENSITIVITY = None
+HH_AVAILABILITY_SENSITIVITY = None
+HH_DEAL_SENSITIVITY = None
+HH_PLANNER = None
+HH_IMPULSIVITY = None
+HH_BRAND_PREFERENCE = None
+HH_LEVEL_OF_CONCERN = None
 
-STORE_RESTOCK_INTERVAL = None 
-STORE_BASELINE_STOCK = None
+NH_STORE_RESTOCK_INTERVAL = None 
+NH_STORE_BASELINE_STOCK = None
 
 STORE_CON_QUALITY = None
 STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = None
@@ -131,85 +143,45 @@ STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 = None
 STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = None
 STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = None
 
+ADULT_PLATE_WASTE = None 
+ADULT_PREFERENCE_VECTOR = None
+ADULT_MALE_VEG_SERVINGS = None 
+ADULT_MALE_DRY_FOOD_SERVINGS = None 
+ADULT_MALE_DAIRY_SERVINGS = None 
+ADULT_MALE_MEAT_SERVINGS = None 
+ADULT_MALE_SNACKS_SERVINGS = None 
+ADULT_MALE_BAKED_SERVINGS = None 
+ADULT_MALE_STORE_PREPARED_SERVINGS = None 
 
-EXPERIMENT_NAME = None 
-ADULT_PLATE_WASTE_MIN = None 
-ADULT_PLATE_WASTE_MAX = None 
-ADULT_CONCERN_MIN = None 
-ADULT_CONCERN_MAX = None 
-ADULT_MALE_VEG_SERVINGS_MIN = None 
-ADULT_MALE_VEG_SERVINGS_MAX = None 
-ADULT_MALE_DRY_FOOD_SERVINGS_MIN = None 
-ADULT_MALE_DRY_FOOD_SERVINGS_MAX = None 
-ADULT_MALE_DAIRY_SERVINGS_MIN = None 
-ADULT_MALE_DAIRY_SERVINGS_MAX = None 
-ADULT_MALE_MEAT_SERVINGS_MIN = None 
-ADULT_MALE_MEAT_SERVINGS_MAX = None 
-ADULT_MALE_MEAT_SERVINGS_MIN = None 
-ADULT_MALE_MEAT_SERVINGS_MIN = None 
-ADULT_MALE_SNACKS_SERVINGS_MIN = None 
-ADULT_MALE_SNACKS_SERVINGS_MAX = None 
-ADULT_MALE_BAKED_SERVINGS_MIN = None 
-ADULT_MALE_BAKED_SERVINGS_MAX = None 
-ADULT_MALE_STORE_PREPARED_SERVINGS_MIN = None 
-ADULT_MALE_STORE_PREPARED_SERVINGS_MAX = None 
-ADULT_FEMALE_VEG_SERVINGS_MIN = None 
-ADULT_FEMALE_VEG_SERVINGS_MAX = None 
-ADULT_FEMALE_DRY_FOOD_SERVINGS_MIN = None 
-ADULT_FEMALE_DRY_FOOD_SERVINGS_MAX = None 
-ADULT_FEMALE_DAIRY_SERVINGS_MIN = None 
-ADULT_FEMALE_DAIRY_SERVINGS_MAX = None 
-ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
-ADULT_FEMALE_MEAT_SERVINGS_MAX = None 
-ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
-ADULT_FEMALE_MEAT_SERVINGS_MIN = None 
-ADULT_FEMALE_SNACKS_SERVINGS_MIN = None 
-ADULT_FEMALE_SNACKS_SERVINGS_MAX = None 
-ADULT_FEMALE_BAKED_SERVINGS_MIN = None 
-ADULT_FEMALE_BAKED_SERVINGS_MAX = None 
-ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN = None 
-ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX = None 
-CHILD_PLATE_WASTE_MIN = None 
-CHILD_PLATE_WASTE_MAX = None 
-CHILD_CONCERN_MIN = None 
-CHILD_CONCERN_MAX = None 
-CHILD_MALE_VEG_SERVINGS_MIN = None 
-CHILD_MALE_VEG_SERVINGS_MAX = None 
-CHILD_MALE_DRY_FOOD_SERVINGS_MIN = None 
-CHILD_MALE_DRY_FOOD_SERVINGS_MAX = None 
-CHILD_MALE_DAIRY_SERVINGS_MIN = None 
-CHILD_MALE_DAIRY_SERVINGS_MAX = None 
-CHILD_MALE_MEAT_SERVINGS_MIN = None 
-CHILD_MALE_MEAT_SERVINGS_MAX = None 
-CHILD_MALE_MEAT_SERVINGS_MIN = None 
-CHILD_MALE_MEAT_SERVINGS_MIN = None 
-CHILD_MALE_SNACKS_SERVINGS_MIN = None 
-CHILD_MALE_SNACKS_SERVINGS_MAX = None 
-CHILD_MALE_BAKED_SERVINGS_MIN = None 
-CHILD_MALE_BAKED_SERVINGS_MAX = None 
-CHILD_MALE_STORE_PREPARED_SERVINGS_MIN = None 
-CHILD_MALE_STORE_PREPARED_SERVINGS_MAX = None 
-CHILD_FEMALE_VEG_SERVINGS_MIN = None 
-CHILD_FEMALE_VEG_SERVINGS_MAX = None 
-CHILD_FEMALE_DRY_FOOD_SERVINGS_MIN = None 
-CHILD_FEMALE_DRY_FOOD_SERVINGS_MAX = None 
-CHILD_FEMALE_DAIRY_SERVINGS_MIN = None 
-CHILD_FEMALE_DAIRY_SERVINGS_MAX = None 
-CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
-CHILD_FEMALE_MEAT_SERVINGS_MAX = None 
-CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
-CHILD_FEMALE_MEAT_SERVINGS_MIN = None 
-CHILD_FEMALE_SNACKS_SERVINGS_MIN = None 
-CHILD_FEMALE_SNACKS_SERVINGS_MAX = None 
-CHILD_FEMALE_BAKED_SERVINGS_MIN = None 
-CHILD_FEMALE_BAKED_SERVINGS_MAX = None 
-CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = None 
-CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = None 
+ADULT_FEMALE_VEG_SERVINGS = None 
+ADULT_FEMALE_DRY_FOOD_SERVINGS = None 
+ADULT_FEMALE_DAIRY_SERVINGS = None 
+ADULT_FEMALE_MEAT_SERVINGS = None 
+ADULT_FEMALE_SNACKS_SERVINGS = None 
+ADULT_FEMALE_BAKED_SERVINGS = None 
+ADULT_FEMALE_STORE_PREPARED_SERVINGS = None 
 
-DEALASSESSOR_WEIGHT_SERVING_PRICE = None
+CHILD_PLATE_WASTE = None 
+CHILD_PREFERENCE_VECTOR = None
+CHILD_MALE_VEG_SERVINGS = None 
+CHILD_MALE_DRY_FOOD_SERVINGS = None 
+CHILD_MALE_DAIRY_SERVINGS = None 
+CHILD_MALE_MEAT_SERVINGS = None 
+CHILD_MALE_SNACKS_SERVINGS = None 
+CHILD_MALE_BAKED_SERVINGS = None 
+CHILD_MALE_STORE_PREPARED_SERVINGS = None 
 
-BASKETCURATOR_INCREMENT_LIKELIHOOD = None 
-BASKETCURATOR_MAX_ITEMS_QUICKSHOP = None
+CHILD_FEMALE_VEG_SERVINGS = None 
+CHILD_FEMALE_DRY_FOOD_SERVINGS = None 
+CHILD_FEMALE_DAIRY_SERVINGS = None 
+CHILD_FEMALE_MEAT_SERVINGS = None 
+CHILD_FEMALE_SNACKS_SERVINGS = None 
+CHILD_FEMALE_BAKED_SERVINGS = None 
+CHILD_FEMALE_STORE_PREPARED_SERVINGS = None 
+
+NH_DEALASSESSOR_WEIGHT_SERVING_PRICE = None
+NH_BASKETCURATOR_INCREMENT_LIKELIHOOD = None 
+NH_BASKETCURATOR_MAX_ITEMS_QUICKSHOP = None
 
 def to_EnumDiscountEffect(discount_effect: str) -> EnumDiscountEffect:
     if "." in discount_effect: 
@@ -239,22 +211,30 @@ def configure_simulation(file) -> None:
     global HH_MAX_AVAIL_TIME_PER_DAY
     global HH_IMPULSE_BUY_PERCENTAGE
     global HH_SHOPPING_FREQUENCY
-    global HH_MIN_TIME_TO_COOK
+
+    global HH_PAY_DAY_INTERVAL
+    global HH_TIME_PER_STORE
+    global HH_DAILY_BUDGET
+    global HH_PRICE_SENSITIVITY
+    global HH_BRAND_SENSITIVITY
+    global HH_QUALITY_SENSITIVITY
+    global HH_AVAILABILITY_SENSITIVITY
+    global HH_DEAL_SENSITIVITY
+    global HH_PLANNER
+    global HH_IMPULSIVITY
+    global HH_BRAND_PREFERENCE
+    global HH_LEVEL_OF_CONCERN    
     
-    global NEIGHBORHOOD_HOUSES
-    global NEIGHBORHOOD_STORE_TYPES
-    global NEIGHBORHOOD_STORE_AMOUNTS    
-    
-    global GRID_TRAVEL_TIME_PER_CELL
-    global GRID_TIME_PER_STORE
-    
-    global COOK_SERVINGS_PER_GRAB
-    global COOK_INGREDIENTS_PER_QC
-    global COOK_MAX_SCALER_COOKING_AMOUNT
-    global COOK_EXPIRATION_THRESHOLD
-    
-    global STORE_RESTOCK_INTERVAL
-    global STORE_BASELINE_STOCK
+    global NH_HOUSES
+    global NH_STORE_TYPES
+    global NH_STORE_AMOUNTS    
+    global NH_GRID_TRAVEL_TIME_PER_CELL
+    global NH_COOK_SERVINGS_PER_GRAB
+    global NH_COOK_INGREDIENTS_PER_QC
+    global NH_COOK_MAX_SCALER_COOKING_AMOUNT
+    global NH_COOK_EXPIRATION_THRESHOLD
+    global NH_STORE_RESTOCK_INTERVAL
+    global NH_STORE_BASELINE_STOCK
     
     global STORE_CON_QUALITY
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
@@ -297,83 +277,47 @@ def configure_simulation(file) -> None:
     global STORE_PRE_SAL_CLEARANCE_INTERVAL_3
     global STORE_PRE_SAL_CLEARANCE_DISCOUNT_1
     global STORE_PRE_SAL_CLEARANCE_DISCOUNT_2
-    global STORE_PRE_SAL_CLEARANCE_DISCOUNT_3   
-    global ADULT_PLATE_WASTE_MIN
-    global ADULT_PLATE_WASTE_MAX
-    global ADULT_CONCERN_MIN
-    global ADULT_CONCERN_MAX
-    global ADULT_MALE_VEG_SERVINGS_MIN
-    global ADULT_MALE_VEG_SERVINGS_MAX
-    global ADULT_MALE_DRY_FOOD_SERVINGS_MIN
-    global ADULT_MALE_DRY_FOOD_SERVINGS_MAX
-    global ADULT_MALE_DAIRY_SERVINGS_MIN
-    global ADULT_MALE_DAIRY_SERVINGS_MAX
-    global ADULT_MALE_MEAT_SERVINGS_MIN
-    global ADULT_MALE_MEAT_SERVINGS_MAX
-    global ADULT_MALE_MEAT_SERVINGS_MIN
-    global ADULT_MALE_MEAT_SERVINGS_MIN
-    global ADULT_MALE_SNACKS_SERVINGS_MIN
-    global ADULT_MALE_SNACKS_SERVINGS_MAX 
-    global ADULT_MALE_BAKED_SERVINGS_MIN
-    global ADULT_MALE_BAKED_SERVINGS_MAX
-    global ADULT_MALE_STORE_PREPARED_SERVINGS_MIN
-    global ADULT_MALE_STORE_PREPARED_SERVINGS_MAX
-    global ADULT_FEMALE_VEG_SERVINGS_MIN
-    global ADULT_FEMALE_VEG_SERVINGS_MAX
-    global ADULT_FEMALE_DRY_FOOD_SERVINGS_MIN
-    global ADULT_FEMALE_DRY_FOOD_SERVINGS_MAX
-    global ADULT_FEMALE_DAIRY_SERVINGS_MIN
-    global ADULT_FEMALE_DAIRY_SERVINGS_MAX
-    global ADULT_FEMALE_MEAT_SERVINGS_MIN
-    global ADULT_FEMALE_MEAT_SERVINGS_MAX
-    global ADULT_FEMALE_MEAT_SERVINGS_MIN
-    global ADULT_FEMALE_MEAT_SERVINGS_MIN
-    global ADULT_FEMALE_SNACKS_SERVINGS_MIN
-    global ADULT_FEMALE_SNACKS_SERVINGS_MAX
-    global ADULT_FEMALE_BAKED_SERVINGS_MIN
-    global ADULT_FEMALE_BAKED_SERVINGS_MAX
-    global ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN
-    global ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX
-    global CHILD_PLATE_WASTE_MIN
-    global CHILD_PLATE_WASTE_MAX
-    global CHILD_CONCERN_MIN
-    global CHILD_CONCERN_MAX
-    global CHILD_MALE_VEG_SERVINGS_MIN
-    global CHILD_MALE_VEG_SERVINGS_MAX
-    global CHILD_MALE_DRY_FOOD_SERVINGS_MIN
-    global CHILD_MALE_DRY_FOOD_SERVINGS_MAX
-    global CHILD_MALE_DAIRY_SERVINGS_MIN
-    global CHILD_MALE_DAIRY_SERVINGS_MAX
-    global CHILD_MALE_MEAT_SERVINGS_MIN
-    global CHILD_MALE_MEAT_SERVINGS_MAX
-    global CHILD_MALE_MEAT_SERVINGS_MIN
-    global CHILD_MALE_MEAT_SERVINGS_MIN
-    global CHILD_MALE_SNACKS_SERVINGS_MIN
-    global CHILD_MALE_SNACKS_SERVINGS_MAX
-    global CHILD_MALE_BAKED_SERVINGS_MIN
-    global CHILD_MALE_BAKED_SERVINGS_MAX
-    global CHILD_MALE_STORE_PREPARED_SERVINGS_MIN
-    global CHILD_MALE_STORE_PREPARED_SERVINGS_MAX
-    global CHILD_FEMALE_VEG_SERVINGS_MIN
-    global CHILD_FEMALE_VEG_SERVINGS_MAX
-    global CHILD_FEMALE_DRY_FOOD_SERVINGS_MIN
-    global CHILD_FEMALE_DRY_FOOD_SERVINGS_MAX
-    global CHILD_FEMALE_DAIRY_SERVINGS_MIN
-    global CHILD_FEMALE_DAIRY_SERVINGS_MAX
-    global CHILD_FEMALE_MEAT_SERVINGS_MIN
-    global CHILD_FEMALE_MEAT_SERVINGS_MAX
-    global CHILD_FEMALE_MEAT_SERVINGS_MIN
-    global CHILD_FEMALE_MEAT_SERVINGS_MIN
-    global CHILD_FEMALE_SNACKS_SERVINGS_MIN
-    global CHILD_FEMALE_SNACKS_SERVINGS_MAX
-    global CHILD_FEMALE_BAKED_SERVINGS_MIN
-    global CHILD_FEMALE_BAKED_SERVINGS_MAX
-    global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN
-    global CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX
-    global NEIGHBORHOOD_PAY_DAY_INTERVAL
-    global DEALASSESSOR_WEIGHT_SERVING_PRICE
-    global BASKETCURATOR_INCREMENT_LIKELIHOOD
-    global BASKETCURATOR_MAX_ITEMS_QUICKSHOP
+    global STORE_PRE_SAL_CLEARANCE_DISCOUNT_3  
+    
+    global ADULT_PLATE_WASTE
+    global ADULT_PREFERENCE_VECTOR
+    global ADULT_MALE_VEG_SERVINGS
+    global ADULT_MALE_DRY_FOOD_SERVINGS
+    global ADULT_MALE_DAIRY_SERVINGS
+    global ADULT_MALE_MEAT_SERVINGS
+    global ADULT_MALE_SNACKS_SERVINGS 
+    global ADULT_MALE_BAKED_SERVINGS
+    global ADULT_MALE_STORE_PREPARED_SERVINGS
+    
+    global ADULT_FEMALE_VEG_SERVINGS
+    global ADULT_FEMALE_DRY_FOOD_SERVINGS
+    global ADULT_FEMALE_DAIRY_SERVINGS
+    global ADULT_FEMALE_MEAT_SERVINGS
+    global ADULT_FEMALE_SNACKS_SERVINGS
+    global ADULT_FEMALE_BAKED_SERVINGS
+    global ADULT_FEMALE_STORE_PREPARED_SERVINGS
+    
+    global CHILD_PLATE_WASTE
+    global CHILD_PREFERENCE_VECTOR
+    global CHILD_MALE_VEG_SERVINGS
+    global CHILD_MALE_DRY_FOOD_SERVINGS
+    global CHILD_MALE_DAIRY_SERVINGS
+    global CHILD_MALE_MEAT_SERVINGS
+    global CHILD_MALE_SNACKS_SERVINGS
+    global CHILD_MALE_BAKED_SERVINGS
+    global CHILD_MALE_STORE_PREPARED_SERVINGS
+    
+    global CHILD_FEMALE_VEG_SERVINGS
+    global CHILD_FEMALE_DRY_FOOD_SERVINGS
+    global CHILD_FEMALE_DAIRY_SERVINGS
+    global CHILD_FEMALE_MEAT_SERVINGS
+    global CHILD_FEMALE_SNACKS_SERVINGS
+    global CHILD_FEMALE_BAKED_SERVINGS
+    global CHILD_FEMALE_STORE_PREPARED_SERVINGS
+
+    global NH_DEALASSESSOR_WEIGHT_SERVING_PRICE
+    global NH_BASKETCURATOR_INCREMENT_LIKELIHOOD
+    global NH_BASKETCURATOR_MAX_ITEMS_QUICKSHOP
         
     print(file)
     print(os.getcwd())
@@ -388,107 +332,76 @@ def configure_simulation(file) -> None:
     EXPERIMENT_NAME = config["Simulation"]["name"] 
     
     
-    NEIGHBORHOOD_HOUSES = config["Neighborhood"]["neighborhood_houses"]
-    
-    store_types = config["Neighborhood"]["neighborhood_store_types"]
+    NH_HOUSES = config["Neighborhood"]["nh_houses"]
+    store_types = config["Neighborhood"]["nh_store_types"]
     parts = store_types.strip('[]').split(',')
+    NH_STORE_TYPES = [part.strip().strip("'") for part in parts]
+    NH_STORE_AMOUNTS = [int(item) for item in json.loads(config["Neighborhood"]["nh_store_amounts"])]
+    NH_GRID_TRAVEL_TIME_PER_CELL = config["Neighborhood"]["Grid"]["travel_time_per_cell"]
+    NH_COOK_SERVINGS_PER_GRAB = config["Neighborhood"]["Cooking"]["cook_servings_per_grab"]
+    NH_COOK_INGREDIENTS_PER_QC = config["Neighborhood"]["Cooking"]["cook_ingredients_per_qc"]
+    NH_COOK_MAX_SCALER_COOKING_AMOUNT = config["Neighborhood"]["Cooking"]["cook_max_scaler_cooking_amount"]
+    NH_COOK_EXPIRATION_THRESHOLD = config["Neighborhood"]["Cooking"]["cook_expiration_threshold"]
+    NH_STORE_RESTOCK_INTERVAL = config["Neighborhood"]["Store"]["restock_interval"]
+    NH_STORE_BASELINE_STOCK = config["Neighborhood"]["Store"]["baseline_stock"]
+    NH_DEALASSESSOR_WEIGHT_SERVING_PRICE = config["Neighborhood"]["DealAssessor"]["weight_serving_price"]
+    NH_BASKETCURATOR_INCREMENT_LIKELIHOOD = config["Neighborhood"]["BasketCurator"]["increment_likelihood"]
+    NH_BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["Neighborhood"]["BasketCurator"]["max_items_quickshop"]
     
-    NEIGHBORHOOD_STORE_TYPES = [part.strip().strip("'") for part in parts]
-    NEIGHBORHOOD_STORE_AMOUNTS = [int(item) for item in json.loads(config["Neighborhood"]["neighborhood_store_amounts"])]
-    NEIGHBORHOOD_PAY_DAY_INTERVAL = config["Neighborhood"]["neighborhood_pay_day_interval"]
     
-    GRID_TRAVEL_TIME_PER_CELL = config["Grid"]["travel_time_per_cell"]
-    GRID_TIME_PER_STORE = config["Grid"]["time_per_store"]
+    HH_AMOUNT_CHILDREN =            config["Household"]["hh_amount_children"]
+    HH_AMOUNT_ADULTS =              config["Household"]["hh_amount_adults"]
+    HH_MAX_AVAIL_TIME_PER_DAY =     config["Household"]["hh_max_avail_time_per_day"]
+    HH_IMPULSE_BUY_PERCENTAGE =     config["Household"]["hh_impulse_buy_likelihood"]
+    HH_SHOPPING_FREQUENCY =         config["Household"]["hh_shopping_frequency"]
+    HH_MIN_TIME_TO_COOK =           config["Household"]["hh_min_time_to_cook"]
+    HH_PAY_DAY_INTERVAL =           config["Household"]["hh_pay_day_interval"]
+    HH_TIME_PER_STORE =             config["Household"]["hh_time_per_store"]
+    HH_DAILY_BUDGET =               config["Household"]["hh_daily_budget"]
+    HH_TIME_PER_STORE =             config["Household"]["hh_time_per_store"]
+    HH_PRICE_SENSITIVITY =          config["Household"]["hh_price_sensitivity"]
+    HH_BRAND_SENSITIVITY =          config["Household"]["hh_brand_sensitivity"]
+    HH_QUALITY_SENSITIVITY =        config["Household"]["hh_quality_sensitivity"]
+    HH_AVAILABILITY_SENSITIVITY =   config["Household"]["hh_availability_sensitivity"]
+    HH_DEAL_SENSITIVITY =           config["Household"]["hh_deal_sensitivity"]
+    HH_PLANNER =                    config["Household"]["hh_planner"]
+    HH_IMPULSIVITY =                config["Household"]["hh_impulsivity"]
+    HH_BRAND_PREFERENCE =           config["Household"]["hh_brand_preference"]
+    HH_LEVEL_OF_CONCERN =           config["Household"]["hh_level_of_concern"]
     
-    COOK_SERVINGS_PER_GRAB = config["Cooking"]["cook_servings_per_grab"]
-    COOK_INGREDIENTS_PER_QC = config["Cooking"]["cook_ingredients_per_qc"]
-    COOK_MAX_SCALER_COOKING_AMOUNT = config["Cooking"]["cook_max_scaler_cooking_amount"]
-    COOK_EXPIRATION_THRESHOLD = config["Cooking"]["cook_expiration_threshold"]
+    ADULT_PLATE_WASTE = config["Adult"]["adult_plate_waste"]
+    ADULT_PREFERENCE_VECTOR = config["Adult"]["adult_preference_vector"]
+    ADULT_MALE_VEG_SERVINGS = config["Adult"]["male_veg_servings"]
+    ADULT_MALE_DRY_FOOD_SERVINGS = config["Adult"]["male_dry_food_servings"]
+    ADULT_MALE_DAIRY_SERVINGS = config["Adult"]["male_dairy_servings"]
+    ADULT_MALE_MEAT_SERVINGS = config["Adult"]["male_meat_servings"]
+    ADULT_MALE_SNACKS_SERVINGS = config["Adult"]["male_snacks_servings"]
+    ADULT_MALE_BAKED_SERVINGS = config["Adult"]["male_baked_servings"]
+    ADULT_MALE_STORE_PREPARED_SERVINGS = config["Adult"]["male_store_prepared_servings"]
+    ADULT_FEMALE_VEG_SERVINGS = config["Adult"]["female_veg_servings"]
+    ADULT_FEMALE_DRY_FOOD_SERVINGS = config["Adult"]["female_dry_food_servings"]
+    ADULT_FEMALE_DAIRY_SERVINGS = config["Adult"]["female_dairy_servings"]
+    ADULT_FEMALE_MEAT_SERVINGS = config["Adult"]["female_meat_servings"]
+    ADULT_FEMALE_SNACKS_SERVINGS = config["Adult"]["female_snacks_servings"]
+    ADULT_FEMALE_BAKED_SERVINGS = config["Adult"]["female_baked_servings"]
+    ADULT_FEMALE_STORE_PREPARED_SERVINGS = config["Adult"]["female_store_prepared_servings"]
     
-    
-    HH_AMOUNT_CHILDREN = config["Household"]["hh_amount_children"]
-    HH_AMOUNT_ADULTS = config["Household"]["hh_amount_adults"]
-    HH_MAX_AVAIL_TIME_PER_DAY = config["Household"]["hh_max_avail_time_per_day"]
-    HH_IMPULSE_BUY_PERCENTAGE = config["Household"]["hh_impulse_buy_likelihood"]
-    HH_SHOPPING_FREQUENCY = config["Household"]["hh_shopping_frequency"]
-    HH_MIN_TIME_TO_COOK = config["Household"]["hh_min_time_to_cook"]
-    
-    ADULT_PLATE_WASTE_MIN = config["Adult"]["adult_plate_waste_min"]
-    ADULT_PLATE_WASTE_MAX = config["Adult"]["adult_plate_waste_max"]
-    ADULT_CONCERN_MIN = config["Adult"]["adult_concern_min"]
-    ADULT_CONCERN_MAX = config["Adult"]["adult_concern_max"]
-    ADULT_MALE_VEG_SERVINGS_MIN = config["Adult"]["male_veg_servings_min"]
-    ADULT_MALE_VEG_SERVINGS_MAX = config["Adult"]["male_veg_servings_max"]
-    ADULT_MALE_DRY_FOOD_SERVINGS_MIN = config["Adult"]["male_dry_food_servings_min"]
-    ADULT_MALE_DRY_FOOD_SERVINGS_MAX = config["Adult"]["male_dry_food_servings_max"]
-    ADULT_MALE_DAIRY_SERVINGS_MIN = config["Adult"]["male_dairy_servings_min"]
-    ADULT_MALE_DAIRY_SERVINGS_MAX = config["Adult"]["male_dairy_servings_max"]
-    ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
-    ADULT_MALE_MEAT_SERVINGS_MAX = config["Adult"]["male_meat_servings_max"]
-    ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
-    ADULT_MALE_MEAT_SERVINGS_MIN = config["Adult"]["male_meat_servings_min"]
-    ADULT_MALE_SNACKS_SERVINGS_MIN = config["Adult"]["male_snacks_servings_min"]
-    ADULT_MALE_SNACKS_SERVINGS_MAX = config["Adult"]["male_snacks_servings_max"]
-    ADULT_MALE_BAKED_SERVINGS_MIN = config["Adult"]["male_baked_servings_min"]
-    ADULT_MALE_BAKED_SERVINGS_MAX = config["Adult"]["male_baked_servings_max"]
-    ADULT_MALE_STORE_PREPARED_SERVINGS_MIN = config["Adult"]["male_store_prepared_servings_min"]
-    ADULT_MALE_STORE_PREPARED_SERVINGS_MAX = config["Adult"]["male_store_prepared_servings_max"]
-    ADULT_FEMALE_VEG_SERVINGS_MIN = config["Adult"]["female_veg_servings_min"]
-    ADULT_FEMALE_VEG_SERVINGS_MAX = config["Adult"]["female_veg_servings_max"]
-    ADULT_FEMALE_DRY_FOOD_SERVINGS_MIN = config["Adult"]["female_dry_food_servings_min"]
-    ADULT_FEMALE_DRY_FOOD_SERVINGS_MAX = config["Adult"]["female_dry_food_servings_max"]
-    ADULT_FEMALE_DAIRY_SERVINGS_MIN = config["Adult"]["female_dairy_servings_min"]
-    ADULT_FEMALE_DAIRY_SERVINGS_MAX = config["Adult"]["female_dairy_servings_max"]
-    ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
-    ADULT_FEMALE_MEAT_SERVINGS_MAX = config["Adult"]["female_meat_servings_max"]
-    ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
-    ADULT_FEMALE_MEAT_SERVINGS_MIN = config["Adult"]["female_meat_servings_min"]
-    ADULT_FEMALE_SNACKS_SERVINGS_MIN = config["Adult"]["female_snacks_servings_min"]
-    ADULT_FEMALE_SNACKS_SERVINGS_MAX = config["Adult"]["female_snacks_servings_max"]
-    ADULT_FEMALE_BAKED_SERVINGS_MIN = config["Adult"]["female_baked_servings_min"]
-    ADULT_FEMALE_BAKED_SERVINGS_MAX = config["Adult"]["female_baked_servings_max"]
-    ADULT_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Adult"]["female_store_prepared_servings_min"]
-    ADULT_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Adult"]["female_store_prepared_servings_max"]
-    CHILD_PLATE_WASTE_MIN = config["Child"]["child_plate_waste_min"]
-    CHILD_PLATE_WASTE_MAX = config["Child"]["child_plate_waste_max"]
-    CHILD_CONCERN_MIN = config["Child"]["child_concern_min"]
-    CHILD_CONCERN_MAX = config["Child"]["child_concern_max"]
-    CHILD_MALE_VEG_SERVINGS_MIN = config["Child"]["male_veg_servings_min"]
-    CHILD_MALE_VEG_SERVINGS_MAX = config["Child"]["male_veg_servings_max"]
-    CHILD_MALE_DRY_FOOD_SERVINGS_MIN = config["Child"]["male_dry_food_servings_min"]
-    CHILD_MALE_DRY_FOOD_SERVINGS_MAX = config["Child"]["male_dry_food_servings_max"]
-    CHILD_MALE_DAIRY_SERVINGS_MIN = config["Child"]["male_dairy_servings_min"]
-    CHILD_MALE_DAIRY_SERVINGS_MAX = config["Child"]["male_dairy_servings_max"]
-    CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
-    CHILD_MALE_MEAT_SERVINGS_MAX = config["Child"]["male_meat_servings_max"]
-    CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
-    CHILD_MALE_MEAT_SERVINGS_MIN = config["Child"]["male_meat_servings_min"]
-    CHILD_MALE_SNACKS_SERVINGS_MIN = config["Child"]["male_snacks_servings_min"]
-    CHILD_MALE_SNACKS_SERVINGS_MAX = config["Child"]["male_snacks_servings_max"]
-    CHILD_MALE_BAKED_SERVINGS_MIN = config["Child"]["male_baked_servings_min"]
-    CHILD_MALE_BAKED_SERVINGS_MAX = config["Child"]["male_baked_servings_max"]
-    CHILD_MALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["male_store_prepared_servings_min"]
-    CHILD_MALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["male_store_prepared_servings_max"]
-    CHILD_FEMALE_VEG_SERVINGS_MIN = config["Child"]["female_veg_servings_min"]
-    CHILD_FEMALE_VEG_SERVINGS_MAX = config["Child"]["female_veg_servings_max"]
-    CHILD_FEMALE_DRY_FOOD_SERVINGS_MIN = config["Child"]["female_dry_food_servings_min"]
-    CHILD_FEMALE_DRY_FOOD_SERVINGS_MAX = config["Child"]["female_dry_food_servings_max"]
-    CHILD_FEMALE_DAIRY_SERVINGS_MIN = config["Child"]["female_dairy_servings_min"]
-    CHILD_FEMALE_DAIRY_SERVINGS_MAX = config["Child"]["female_dairy_servings_max"]
-    CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
-    CHILD_FEMALE_MEAT_SERVINGS_MAX = config["Child"]["female_meat_servings_max"]
-    CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
-    CHILD_FEMALE_MEAT_SERVINGS_MIN = config["Child"]["female_meat_servings_min"]
-    CHILD_FEMALE_SNACKS_SERVINGS_MIN = config["Child"]["female_snacks_servings_min"]
-    CHILD_FEMALE_SNACKS_SERVINGS_MAX = config["Child"]["female_snacks_servings_max"]
-    CHILD_FEMALE_BAKED_SERVINGS_MIN = config["Child"]["female_baked_servings_min"]
-    CHILD_FEMALE_BAKED_SERVINGS_MAX = config["Child"]["female_baked_servings_max"]
-    CHILD_FEMALE_STORE_PREPARED_SERVINGS_MIN = config["Child"]["female_store_prepared_servings_min"]
-    CHILD_FEMALE_STORE_PREPARED_SERVINGS_MAX = config["Child"]["female_store_prepared_servings_max"]
-    
-    STORE_RESTOCK_INTERVAL = config["Store"]["restock_interval"]
-    STORE_BASELINE_STOCK = config["Store"]["baseline_stock"]
-    
+    CHILD_PLATE_WASTE                       = config["Child"]["child_plate_waste"]
+    CHILD_PREFERENCE_VECTOR                 = config["Child"]["child_preference_vector"]
+    CHILD_MALE_VEG_SERVINGS                 = config["Child"]["male_veg_servings"]
+    CHILD_MALE_DRY_FOOD_SERVINGS            = config["Child"]["male_dry_food_servings"]
+    CHILD_MALE_DAIRY_SERVINGS               = config["Child"]["male_dairy_servings"]
+    CHILD_MALE_MEAT_SERVINGS                = config["Child"]["male_meat_servings"]
+    CHILD_MALE_SNACKS_SERVINGS              = config["Child"]["male_snacks_servings"]
+    CHILD_MALE_BAKED_SERVINGS               = config["Child"]["male_baked_servings"]
+    CHILD_MALE_STORE_PREPARED_SERVINGS      = config["Child"]["male_store_prepared_servings"]
+    CHILD_FEMALE_VEG_SERVINGS               = config["Child"]["female_veg_servings"]
+    CHILD_FEMALE_DRY_FOOD_SERVINGS          = config["Child"]["female_dry_food_servings"]
+    CHILD_FEMALE_DAIRY_SERVINGS             = config["Child"]["female_dairy_servings"]
+    CHILD_FEMALE_MEAT_SERVINGS              = config["Child"]["female_meat_servings"]
+    CHILD_FEMALE_SNACKS_SERVINGS            = config["Child"]["female_snacks_servings"]
+    CHILD_FEMALE_BAKED_SERVINGS             = config["Child"]["female_baked_servings"]
+    CHILD_FEMALE_STORE_PREPARED_SERVINGS    = config["Child"]["female_store_prepared_servings"]
     
     STORE_CON_QUALITY = config["Store"]["Convenience_store"]["quality"]
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = config["Store"]["Convenience_store"]["Sales"]["high_stock_interval_1"]
@@ -534,13 +447,6 @@ def configure_simulation(file) -> None:
     STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 =  [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_1_discount"]]
     STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_2_discount"]]
     STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = [to_EnumDiscountEffect(i) for i in config["Store"]["Premium_retailer"]["Sales"]["clearance_interval_3_discount"]]
-    
-    
-    
-    DEALASSESSOR_WEIGHT_SERVING_PRICE = config["DealAssessor"]["weight_serving_price"]
-    
-    BASKETCURATOR_INCREMENT_LIKELIHOOD = config["BasketCurator"]["increment_likelihood"]
-    BASKETCURATOR_MAX_ITEMS_QUICKSHOP = config["BasketCurator"]["max_items_quickshop"]
 
 
 def log(obj, log_type=None, message="", *args) -> None:

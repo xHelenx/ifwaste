@@ -74,7 +74,7 @@ class Store(Location):
         
         self.tracker: pd.DataFrame = self.product_range.copy() 
         self.tracker = self.tracker.drop(columns=["price_per_serving", "type", "servings"])
-        list_init =  [0] * globals.STORE_RESTOCK_INTERVAL
+        list_init =  [0] * globals.NH_STORE_RESTOCK_INTERVAL
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
         self.price = self.product_range["price_per_serving"].mean()
@@ -101,7 +101,7 @@ class Store(Location):
     def buy_stock(self, amount_per_item:int, product:pd.Series | None=None)  -> None: 
         if amount_per_item <= 0:
             return 
-        a_1 =  globals.DEALASSESSOR_WEIGHT_SERVING_PRICE
+        a_1 =  globals.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE
         a_2 = 1- a_1
         
         to_be_purchased = self.product_range
@@ -182,7 +182,7 @@ class Store(Location):
         
         if globals.DAY == 0:  #on first day stock store with baseline amount
             #globals.log(self,str(self))
-            self.buy_stock(amount_per_item=globals.STORE_BASELINE_STOCK)
+            self.buy_stock(amount_per_item=globals.NH_STORE_BASELINE_STOCK)
             #globals.log(self,"--- after restocking ---" )
             #globals.log(self,self.stock)
         else: #from them on restock based on demand
@@ -331,7 +331,7 @@ class Store(Location):
         """Calculates how much of each item in the product range the store should restock on and then 
         refills the stock accordingly. Restocking is currently free and instantaneous
         """        
-        if globals.DAY % globals.STORE_RESTOCK_INTERVAL == 0:       
+        if globals.DAY % globals.NH_STORE_RESTOCK_INTERVAL == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
             #globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
             for index, row in self.tracker.iterrows():
@@ -509,18 +509,18 @@ class Store(Location):
             if high_stock_mask.any(): # type: ignore
                 # At least some of the items have already been decided to go on highstock sale (might have new shipment that is missing)
                 total_amount = self.stock.loc[mask, "amount"].sum() # type: ignore
-                if (total_amount <= globals.STORE_BASELINE_STOCK * self.high_stock_interval_1) and \
+                if (total_amount <= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1) and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_1): # type: ignore #I can check the first here, cause they are all on the same deal
                     # 1. If item is below interval 1 and was on sale -> back to original price
                     self._change_sale(mask & (high_stock_mask))
                 
-                elif globals.STORE_BASELINE_STOCK * self.high_stock_interval_1 < total_amount <= globals.STORE_BASELINE_STOCK * self.high_stock_interval_2  and \
+                elif globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1 < total_amount <= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2  and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_2): # type: ignore
                     # 2. It's between interval 1 and interval 2 -> apply di scount for interval 1
                     # Ignore if BOGO, if sales, revert old discount, apply new discount
                     self._change_sale(mask & (high_stock_mask), new_sale_options=self.high_stock_discount_1)
                 
-                elif total_amount > globals.STORE_BASELINE_STOCK * self.high_stock_interval_2 and \
+                elif total_amount > globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2 and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_2): # type: ignore
                     # 3. Items that shifted from interval 1 to interval 2
                     # Ignore if BOGO, if sales, revert old discount, apply new discount
@@ -539,9 +539,9 @@ class Store(Location):
             current_product = self.stock[mask]
             ## high stock sales ##
             mask_no_sale_applied = mask & (self.stock["sale_type"] == EnumSales.NONE)
-            if current_product["amount"].sum() >= globals.STORE_BASELINE_STOCK * self.high_stock_interval_2:
+            if current_product["amount"].sum() >= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2:
                 self._add_sales_options(mask_no_sale_applied,[(EnumSales.HIGHSTOCK, self.high_stock_discount_2)])                
-            elif current_product["amount"].sum()  >= globals.STORE_BASELINE_STOCK * self.high_stock_interval_1:
+            elif current_product["amount"].sum()  >= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1:
                 self._add_sales_options(mask_no_sale_applied, [(EnumSales.HIGHSTOCK, self.high_stock_discount_1)])
 
             #now we look at each item of this product type (could vary by e.g. expiry date)
@@ -612,7 +612,7 @@ class Store(Location):
         deal value accordingly 
         """        
         #update deal value because servings size or price has changed
-        a_1 =  globals.DEALASSESSOR_WEIGHT_SERVING_PRICE
+        a_1 =  globals.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE
         a_2 = 1- a_1
         self.stock["deal_value"] = a_1 * self.stock["price_per_serving"] + a_2 *\
                             self.stock["price_per_serving"] * self.stock["servings"]
