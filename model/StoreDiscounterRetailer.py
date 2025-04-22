@@ -13,14 +13,15 @@ class StoreDiscounterRetailer(Store):
             grid (Grid): grid of the neighborhood
             id (int): store id 
         """   
+        self.path_to_product_range = globals.STORE_DIS_PATH
         super().__init__(EnumStoreTier.DISCOUNTRETAILER, grid,id)
-        
         self.quality:float = globals.STORE_DIS_QUALITY  # type: ignore
+        self.price:float = globals.STORE_DIS_PRICE
         # high price is expensive, low is cheap -> 1-price in formulas
         self.high_stock_interval_1:float|None = globals.STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1
         self.high_stock_interval_2:float|None = globals.STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2
         self.high_stock_discount_1:list[EnumDiscountEffect] = globals.STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1
-        self.high_stock_discount_2:list[EnumDiscountEffect] = globals.STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1
+        self.high_stock_discount_2:list[EnumDiscountEffect] = globals.STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
         self.seasonal_likelihood:float|None = globals.STORE_DIS_SAL_SEASONAL_LIKELIHOOD
         self.seasonal_discount:list[EnumDiscountEffect] = globals.STORE_DIS_SAL_SEASONAL_DISCOUNT
         self.seasonal_duration:float|None = globals.STORE_DIS_SAL_SEASONAL_DURATION

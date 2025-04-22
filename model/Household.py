@@ -10,7 +10,6 @@ from Grid import Grid
 from Location import Location
 from DataLogger import DataLogger
 from Person import Person
-from FoodGroups import FoodGroups
 from HouseholdCookingManager import HouseholdCookingManager
 from HouseholdShoppingManager import HouseholdShoppingManager
 
@@ -47,11 +46,11 @@ class Household(Location):
         ###HOUSEHOLD MEMBER
         self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
         self.amount_children: int = globals.HH_AMOUNT_CHILDREN
-        self.adult_influence: float = 0.75 #not used atm
-        self.child_influence: float = 1 - self.adult_influence #not used atm
+        #self.adult_influence: float = 0.75 #not used atm
+        #self.child_influence: float = 1 - self.adult_influence #not used atm
         self.ppl: list = self.gen_ppl()
-        self.household_concern: float = self.calculate_household_concern()
-        
+        #self.household_concern: float = self.calculate_household_concern()
+        self.household_concern = globals.HH_LEVEL_OF_CONCERN
         ### HOUSEHOLD FOOD DEMAND
         self.req_servings_per_fg = collections.Counter()
         
@@ -61,8 +60,8 @@ class Household(Location):
         
         self.req_servings = sum(self.req_servings_per_fg.values())
         
-        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in FoodGroups.get_instance().get_all_food_groups()}
-        todays_time: list = [random.random()*globals.HH_MAX_AVAIL_TIME_PER_DAY for i in range(7)]  
+        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in globals.FOOD_GROUPS["type"].to_list()}
+        todays_time: list = globals.HH_MAX_AVAIL_TIME_PER_DAY
         
         self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
         self.budget:float = globals.HH_DAILY_BUDGET * globals.HH_PAY_DAY_INTERVAL

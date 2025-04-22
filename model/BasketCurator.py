@@ -6,7 +6,6 @@ from typing import Callable, List, Optional
 import pandas as pd
 from EnumSales import EnumSales
 import globals
-from FoodGroups import FoodGroups
 from Store import Store
 from EnumDiscountEffect import EnumDiscountEffect 
 
@@ -39,10 +38,10 @@ class BasketCurator():
         rows = []
         if servings_to_buy_fg is None:
             servings_to_buy_fg = pd.Series()
-            for fg in FoodGroups._instance.get_all_food_groups(): # type: ignore 
+            for fg in globals.FOOD_GROUPS["type"].to_list(): # type: ignore 
                 servings_to_buy_fg[fg] = 0 
             
-        for fg in FoodGroups._instance.get_all_food_groups(): # type: ignore 
+        for fg in globals.FOOD_GROUPS["type"].to_list(): # type: ignore 
 
 
             row = {'type': fg, 'required': servings_to_buy_fg[fg], 'got':0, 'is_in_other_fg': 0,
@@ -183,20 +182,15 @@ class BasketCurator():
         Returns:
             pd.DataFrame: edited options
         """        
-        # Convert food_groups to a DataFrame for merging
-        food_groups_df = pd.DataFrame(FoodGroups._instance.food_groups) # type: ignore
-        
         # Merge the options with food_groups_df to add the impulse_buy_likelihood
-        options = options.merge(food_groups_df[['type', 'impulse_buy_likelihood']], on='type', how='left')
-            
+        options = options.merge(globals.FOOD_GROUPS[['type', 'impulse_buy_likelihood']], on='type', how='left')
+        options["impulse_buy_likelihood"] = pd.to_numeric(options["impulse_buy_likelihood"])
         # Normalize the likelihoods to get probabilities
         total_likelihood = options['impulse_buy_likelihood'].sum()
         options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'] / total_likelihood
         
         return options
         
-        
-                    
     def _create_quickshop_basket(self) -> None: 
         """
         Selects and purchases items for the basket in the quick shop scenarios. This allows 

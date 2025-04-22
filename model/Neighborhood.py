@@ -64,8 +64,6 @@ class Neighborhood():
             random.shuffle(self.houses) #increase fairness, that not always the same household goes shopping last (might be out of stock)
             for house in self.houses:
                 house.do_a_day()
-                left = house.pantry.current_items["servings"].sum() + house.fridge.current_items["servings"].sum() 
-                #globals.log(house,"LEFT: %i", left)
                 
             #stock decays / throw out items 
             for store in self.stores: 

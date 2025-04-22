@@ -159,7 +159,7 @@ class Grid:
                         relevant_stores.append(self.grid[x_tmp][y_tmp])                    
         return relevant_stores
     
-    def get_second_store_within_time_constraint(self,start:Location, first_stop:Store, avail_time:float, fg:list[str]|None=None, needs_lower_price:bool=False) -> list[Store]: #assuming up to single travel 
+    def get_second_store_within_time_constraint(self,start:Location, first_stop:Store, avail_time:float,time_per_store:float, fg:list[str]|None=None, needs_lower_price:bool=False) -> list[Store]: #assuming up to single travel 
         '''
         Returns a list of store options, that meet different criteria: 
                 avail_time:  the traveling time for adding this store to the current trip does not exceed the avail time 
@@ -186,7 +186,7 @@ class Grid:
                 if isinstance(self.grid[x_tmp][y_tmp], Store): 
                     if (x_tmp,y_tmp) != first_stop_coord: #dont add the same store again
                         stores = [first_stop_coord,(x_tmp,y_tmp)]
-                        traveling_time = self.get_travel_time_entire_trip(start,stores) # type: ignore #we just go the other way round for easier calc
+                        traveling_time = self.get_travel_time_entire_trip(start,stores,time_per_store) # type: ignore #we just go the other way round for easier calc
                         if traveling_time <= avail_time:
                             if not((fg != None and not
                                     set(fg).issubset(set(self.grid[x_tmp][y_tmp].get_available_food_groups()))) #type: ignore

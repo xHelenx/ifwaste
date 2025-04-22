@@ -10,7 +10,6 @@ import pandas as pd
 from BasketCurator import BasketCurator
 from DealAssessor import DealAssessor
 from EnumDiscountEffect import EnumDiscountEffect
-from FoodGroups import FoodGroups
 from Grid import Grid
 from Storage import Storage
 from Store import Store
@@ -130,14 +129,14 @@ class HouseholdShoppingManager:
         """        
         price = 0.0
         inedible = 0
-        for fg in FoodGroups.get_instance().get_all_food_groups():
+        for fg in globals.FOOD_GROUPS["type"].to_list():
             #assumes you can buy only one item type items
             if fg != item["type"]: 
                 item[fg] = 0.0
             else:
                 item[fg] = float(item["servings"])
                 price = item["servings"] * item["price_per_serving"]
-                inedible = FoodGroups._instance.food_groups.loc[FoodGroups._instance.food_groups["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
+                inedible = globals.FOOD_GROUPS.loc[globals.FOOD_GROUPS["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
             item = item.drop(["adjustment"])
         if "impulse_buy_likelihood" in item.index: 
@@ -246,24 +245,26 @@ class HouseholdShoppingManager:
             #create initial basket with groceries
             basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
             basketCurator.create_basket()
-        
-            basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
+
+            if len(basketCurator.basket) > 0:
+                basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
 
         #calculated required time for shopping tour (final time for planner, current time for not planner)
         visited_stores = basketCurator.get_visited_stores() # type: ignore
         duration = 0
         if visited_stores != []:
             coords = [store.get_coordinates() for store in visited_stores]
-            duration += self.grid.get_travel_time_entire_trip(self.location,coords)            
+            duration += self.grid.get_travel_time_entire_trip(self.location,coords, self.time_per_store)            
         
         basketCurator.impulse_buy(self.impulsivity)
         
         if len(basketCurator.basket) > 0:
             globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
         else:
             globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
         
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
+        
         
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
@@ -373,9 +374,9 @@ class HouseholdShoppingManager:
         assert not (required_fgs == None and needs_lower_price == None) #TODO technically ok now
         selection = None 
         if len(selected_store) == 0: #no store is selected
-            store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time, hh)
+            store_options = self.grid.get_stores_within_time_constraint(self.location,self.todays_time, self.time_per_store)
         else: #a store has been selected
-            store_options = self.grid.get_second_store_within_time_constraint(self.location,selected_store[0],self.todays_time,fg=required_fgs, needs_lower_price=needs_lower_price)
+            store_options = self.grid.get_second_store_within_time_constraint(self.location,selected_store[0],self.todays_time, self.time_per_store,fg=required_fgs, needs_lower_price=needs_lower_price)
         #choose a store from possible options (not is_planner just selects 1 store here)
         if len(store_options) > 0:
             store_order = self._get_store_order(is_planner, required_fgs,store_options)

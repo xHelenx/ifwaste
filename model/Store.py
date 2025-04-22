@@ -11,7 +11,6 @@ import globals
 import json
 import os 
 
-from FoodGroups import FoodGroups
 from EnumSales import EnumSales
 from EnumStoreTier import EnumStoreTier
 from Location import Location
@@ -53,24 +52,22 @@ class Store(Location):
         self.clearance_discount_3:list[EnumDiscountEffect] = []
         
         self.grid:Grid = grid 
-        self.food_groups:FoodGroups = FoodGroups.get_instance()
         self.product_range:pd.DataFrame = pd.DataFrame()
-        with open(globals.CONFIG_PATH) as f: 
-            config = json.load(f)
-            self.product_range = pd.read_csv(config["Store"][store_type.value]["product_range"])
-            self.product_range["product_ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
-            self.stock = pd.DataFrame(columns= [
-            'type', 
-            'servings', 
-            'days_till_expiry',
-            'price_per_serving',
-            'sale_type',
-            'discount_effect',
-            'amount',
-            'deal_value', 
-            'sale_timer',
-            'store',
-            'product_ID'])      
+    
+        self.product_range = pd.read_csv(self.path_to_product_range)
+        self.product_range["product_ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
+        self.stock = pd.DataFrame(columns= [
+        'type', 
+        'servings', 
+        'days_till_expiry',
+        'price_per_serving',
+        'sale_type',
+        'discount_effect',
+        'amount',
+        'deal_value', 
+        'sale_timer',
+        'store',
+        'product_ID'])      
         
         self.tracker: pd.DataFrame = self.product_range.copy() 
         self.tracker = self.tracker.drop(columns=["price_per_serving", "type", "servings"])
@@ -110,8 +107,9 @@ class Store(Location):
             
         for i in to_be_purchased.index: 
             #for each item that is bought, init a new item
-            curr_fg = self.food_groups.get_food_group(str(self.product_range.loc[i,"type"]))
-            days_till_expiry = random.randint(curr_fg["exp_min"].tolist()[0], curr_fg["exp_max"].tolist()[0]) #TODO only max here
+            curr_fg =  globals.FOOD_GROUPS[globals.FOOD_GROUPS["type"] == self.product_range.loc[i,"type"]]
+            #curr_fg = self.food_groups.get_food_group(str(self.product_range.loc[i,"type"]))
+            days_till_expiry = int(float(curr_fg["expiration"].iloc[0]))
             new_item = {"type": self.product_range.loc[i,"type"], 
                         "servings": self.product_range.loc[i,"servings"],
                         "days_till_expiry": days_till_expiry, #TODO change to gauss
@@ -235,8 +233,6 @@ class Store(Location):
         # Convert enums to strings temporarily for grouping
         self.stock["sale_type"] = self.stock["sale_type"].apply(lambda x: str(x))
         self.stock["discount_effect"] = self.stock["discount_effect"].apply(lambda x: str(x))
-
-        # Perform grouping and aggregation
         self.stock = (
             self.stock.groupby(
                 [

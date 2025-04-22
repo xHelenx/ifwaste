@@ -7,7 +7,6 @@ from Storage import Storage
 from HouseholdShoppingManager import HouseholdShoppingManager
 import pandas as pd
 from DataLogger import DataLogger
-from FoodGroups import FoodGroups
 
 
 class HouseholdCookingManager: 
@@ -142,8 +141,7 @@ class HouseholdCookingManager:
             pd.Series: resulting meal
         """        
         meal = pd.Series()
-        fgs = FoodGroups.get_instance()
-        for fg in fgs.get_all_food_groups():
+        for fg in globals.FOOD_GROUPS["type"].to_list():
             meal[fg] = items[fg].sum()
             
         meal["servings"] = items["servings"].sum()
@@ -205,9 +203,7 @@ class HouseholdCookingManager:
         to_eat = pd.Series()
         item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
         if item is not None:
-            servings = item["servings"]
-            
-        
+            servings = item["servings"]        
             if not is_quickcook and servings > globals.NH_COOK_SERVINGS_PER_GRAB: 
                 servings = globals.NH_COOK_SERVINGS_PER_GRAB
             (to_eat, to_pantry) = self._split(item, servings)
@@ -369,14 +365,13 @@ class HouseholdCookingManager:
         Returns:
             tuple[pd.Series , Union[pd.Series, None]]: meal to consume, waste
         """        
-        fgs = FoodGroups.get_instance() # type: ignore
         consumed = meal.copy(deep=True)
         waste = meal.copy(deep=True)
         total_serv = 0
-        for fg in fgs.get_all_food_groups(): 
+        for fg in globals.FOOD_GROUPS["type"].to_list(): 
             portion = 0
             if waste_type == globals.FW_INEDIBLE: 
-                portion = fgs.food_groups.loc[ fgs.food_groups["type"] == fg,  "inedible_percentage"].values[0]
+                portion = globals.FOOD_GROUPS[globals.FOOD_GROUPS["type"] == fg]["inedible_percentage"].iloc[0]
             elif waste_type == globals.FW_PLATE_WASTE: 
                 portion = self.household_plate_waste_ratio
             else: #spoiled is all will be removed 
@@ -424,7 +419,7 @@ class HouseholdCookingManager:
         to_eat["servings"] = serv_to_eat
         to_fridge["servings"] -= serv_to_eat
         
-        fgs = FoodGroups.get_instance().get_all_food_groups() # type: ignore
+        fgs = globals.FOOD_GROUPS["type"].to_list()
         for fg in fgs: # type: ignore
             to_eat[fg] = serv_to_eat/meal["servings"] * to_eat[fg]
             to_fridge[fg] -= serv_to_eat/meal["servings"] * to_fridge[fg]

@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-
-from FoodGroups import FoodGroups
 import globals 
 class Storage: 
 
@@ -130,8 +128,7 @@ class Storage:
         Returns:
             pd.Series: Series that maps food group to number of servings
         """        
-        fg = FoodGroups.get_instance()  # type: ignore
-        fgs = fg.get_all_food_groups()
+        fgs = globals.FOOD_GROUPS["type"].to_list()
         result = pd.Series(dict(zip(fgs, [0]*len(fgs))))
         
         return self.current_items[fgs].sum()

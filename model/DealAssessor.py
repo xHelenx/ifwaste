@@ -2,7 +2,6 @@ import sys
 from Store import Store
 import pandas as pd
 
-from FoodGroups import FoodGroups 
 import globals 
 
 class DealAssessor: 
@@ -19,7 +18,7 @@ class DealAssessor:
         Returns:
             pd.DataFrame: dataframe of items with best deals and their "deal_value" 
         """        
-        fgs = FoodGroups.get_instance().get_all_food_groups()
+        fgs = globals.FOOD_GROUPS["type"].to_list()
         
         best_deals_df = pd.DataFrame({
             "type": fgs,
