@@ -2,7 +2,7 @@ import sys
 from Store import Store
 import pandas as pd
 
-import globals 
+import globals_config as globals_config 
 
 class DealAssessor: 
     def __init__(self) -> None:
@@ -18,7 +18,7 @@ class DealAssessor:
         Returns:
             pd.DataFrame: dataframe of items with best deals and their "deal_value" 
         """        
-        fgs = globals.FOOD_GROUPS["type"].to_list()
+        fgs = globals_config.FOOD_GROUPS["type"].to_list()
         
         best_deals_df = pd.DataFrame({
             "type": fgs,

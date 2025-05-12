@@ -4,7 +4,7 @@ import random
 import logging
 from Child import Child
 from Storage import Storage
-import globals
+import globals_config as globals_config
 from Adult import Adult
 from Grid import Grid
 from Location import Location
@@ -12,6 +12,7 @@ from DataLogger import DataLogger
 from Person import Person
 from HouseholdCookingManager import HouseholdCookingManager
 from HouseholdShoppingManager import HouseholdShoppingManager
+
 
 class Household(Location):
     def __init__(self, id: int, grid:Grid,  datalogger:DataLogger) -> None:
@@ -38,19 +39,20 @@ class Household(Location):
             shoppingManager (HouseholdShoppingManager): object that manages everything regarding the shopping process
             cookingManager (HouseholdCookingManager): object that manages everything regarding the cooking process
             
-        """        
+        """
+        
         super().__init__(id, grid, "HH_"+ str(id))
         self.pantry: Storage  = Storage()
         self.fridge: Storage = Storage()
         self.datalogger: DataLogger = datalogger
         ###HOUSEHOLD MEMBER
-        self.amount_adults: int = globals.HH_AMOUNT_ADULTS #(if 1-person household is possible, set suscepti. to 0)
-        self.amount_children: int = globals.HH_AMOUNT_CHILDREN
+        self.amount_adults: int = globals_config.get_parameter_value(globals_config.HH_AMOUNT_ADULTS, self.id) #(if 1-person household is possible, set suscepti. to 0)
+        self.amount_children: int =  globals_config.get_parameter_value(globals_config.HH_AMOUNT_CHILDREN, self.id)
         #self.adult_influence: float = 0.75 #not used atm
         #self.child_influence: float = 1 - self.adult_influence #not used atm
         self.ppl: list = self.gen_ppl()
         #self.household_concern: float = self.calculate_household_concern()
-        self.household_concern = globals.HH_LEVEL_OF_CONCERN
+        self.household_concern =  globals_config.get_parameter_value(globals_config.HH_LEVEL_OF_CONCERN, self.id)
         ### HOUSEHOLD FOOD DEMAND
         self.req_servings_per_fg = collections.Counter()
         
@@ -60,14 +62,17 @@ class Household(Location):
         
         self.req_servings = sum(self.req_servings_per_fg.values())
         
-        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in globals.FOOD_GROUPS["type"].to_list()}
-        todays_time: list = globals.HH_MAX_AVAIL_TIME_PER_DAY
+        self.hh_preference: dict[str, float] = {fg: sum(person.fg_preference[fg] for person in self.ppl) / len(self.ppl) for fg in globals_config.FOOD_GROUPS["type"].to_list()}
+        todays_time: list =  globals_config.get_parameter_value(globals_config.HH_MAX_AVAIL_TIME_PER_DAY,self.id)
         
-        self.shopping_frequency:int = globals.HH_SHOPPING_FREQUENCY
-        self.budget:float = globals.HH_DAILY_BUDGET * globals.HH_PAY_DAY_INTERVAL
+        self.shopping_frequency:int =  globals_config.get_parameter_value(globals_config.HH_SHOPPING_FREQUENCY,self.id)
+        self.budget:float =  globals_config.get_parameter_value(globals_config.HH_DAILY_BUDGET,self.id) \
+                * globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id)
         
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
+        self.log_quickshop: int = 0
+        self.log_shop: int = 0
         
         self.shoppingManager:HouseholdShoppingManager = HouseholdShoppingManager(
             budget = self.budget,
@@ -108,6 +113,8 @@ class Household(Location):
         """        
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
+        self.log_quickshop = 0
+        self.log_shop = 0
 
     def gen_ppl(self) -> list[Person]:
         """Generates the people living together in a household.
@@ -117,9 +124,9 @@ class Household(Location):
         """  
         ppl = []
         for _ in range(self.amount_adults):
-            ppl += [Adult()]
+            ppl += [Adult(self.id)]
         for _ in range(self.amount_children):
-            ppl += [Child()]
+            ppl += [Child(self.id)]
         
         return ppl        
     
@@ -167,32 +174,32 @@ class Household(Location):
         """  
         
         self._reset_logs()      
-        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"###########################################")
-        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"Day %i:", globals.DAY)
-        globals.log(self,globals.LOG_TYPE_DAY_SEPARATOR,"###########################################")
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "before:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
+        globals_config.log(self,globals_config.LOG_TYPE_DAY_SEPARATOR,"###########################################")
+        globals_config.log(self,globals_config.LOG_TYPE_DAY_SEPARATOR,"Day %i:", globals_config.DAY)
+        globals_config.log(self,globals_config.LOG_TYPE_DAY_SEPARATOR,"###########################################")
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "before:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         # check if it is payday
-        if globals.DAY % globals.HH_PAY_DAY_INTERVAL == 0:  #pay day
+        if globals_config.DAY %  globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id) == 0:  #pay day
             self.shoppingManager.todays_budget += self.budget
         #globals.log(self,"Budget: %f", self.budget)
         shopping_time = 0
         #check if it is time for a big grocery shop
-        if globals.DAY % self.shopping_frequency == 0:
+        if globals_config.DAY % self.shopping_frequency == 0:
             shopping_time = self.shoppingManager.shop(is_quickshop=False)
             
-            globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after shopping: fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
+            globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "after shopping: fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         #cook and eat
         cooking_time = 0 
         quick_shopping_time, cooking_time = self.cookingManager.cook_and_eat(used_time=shopping_time)
         shopping_time += quick_shopping_time
         #decay food and throw spoiled food out
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after eating:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "after eating:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
         self.decay_food()
         self.throw_food_out()    
         
         self.log_shopping_time = shopping_time
         self.log_cooking_time = cooking_time
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "after throw out:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "after throw out:fridge + pantry hold: %s", self.fridge.get_total_servings() + self.pantry.get_total_servings())
 
     
     def decay_food(self) -> None:
@@ -211,8 +218,8 @@ class Household(Location):
                 debug_spoiled = 0
 
                 for i in spoiled_food.index: 
-                    (edible,inedible) = self.cookingManager._split_waste_from_food(meal=spoiled_food.loc[i],waste_type=globals.FW_INEDIBLE)
-                    edible["reason"] = globals.FW_SPOILED
+                    (edible,inedible) = self.cookingManager._split_waste_from_food(meal=spoiled_food.loc[i],waste_type=globals_config.FW_INEDIBLE)
+                    edible["reason"] = globals_config.FW_SPOILED
                     self.datalogger.append_log(self.id, "log_wasted", edible)   
                     self.datalogger.append_log(self.id, "log_wasted", inedible)  
                     if edible is not None: 
@@ -221,5 +228,5 @@ class Household(Location):
                         debug_spoiled += inedible["servings"]
                     
                 location.drop(spoiled_food.index, inplace=True)  # remove expired 
-                globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "spoiled : %s", debug_spoiled)      
+                globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "spoiled : %s", debug_spoiled)      
                 

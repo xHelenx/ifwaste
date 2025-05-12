@@ -2,7 +2,7 @@ from __future__ import annotations  # Delay import for type hints
 from Store import Store
 import math
 import random
-import globals
+import globals_config as globals_config
 from Location import Location
 
 class Grid: 
@@ -15,11 +15,12 @@ class Grid:
             self.time_per_cell (float) : travel time required to travers a cell when planning the shortest way from a to b
             self.available_positions (list[tuple[int,int]]) : open spots for locations to be positioned on the grid
         """        
-        gridsize = globals.NH_HOUSES + sum(globals.NH_STORE_AMOUNTS)
+        gridsize = globals_config.NH_HOUSES + sum(globals_config.NH_STORE_AMOUNTS)
         #create grid that is as "square shaped as possible"      
         
         self.grid:list[list[tuple[int,int] | None | Location]] = self.setup_grid(gridsize=gridsize)    
-        self.time_per_cell:float = globals.NH_GRID_TRAVEL_TIME_PER_CELL
+        
+        self.time_per_cell:float = globals_config.NH_GRID_TRAVEL_TIME_PER_CELL[0]
         self.available_positions:list[tuple[int,int]] =  [(r, c) for r in range(len(self.grid)) for c in range(len(self.grid[0]))]    
 
     def __str__(self) -> str:

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import globals 
+import globals_config as globals_config 
 class Storage: 
 
     def __init__(self) -> None:
@@ -12,13 +12,13 @@ class Storage:
         """    
         self.current_items: pd.DataFrame = pd.DataFrame(
             columns=[
-                globals.FGMEAT, 
-                globals.FGDAIRY,
-                globals.FGVEGETABLE, 
-                globals.FGDRYFOOD,
-                globals.FGSNACKS, 
-                globals.FGBAKED,
-                globals.FGSTOREPREPARED,
+                globals_config.FGMEAT, 
+                globals_config.FGDAIRY,
+                globals_config.FGVEGETABLE, 
+                globals_config.FGDRYFOOD,
+                globals_config.FGSNACKS, 
+                globals_config.FGBAKED,
+                globals_config.FGSTOREPREPARED,
                 'price',
                 'status',
                 'servings', 
@@ -26,13 +26,13 @@ class Storage:
                 'inedible_percentage'
             ],
         )
-        self.current_items[globals.FGMEAT] = self.current_items[globals.FGMEAT].astype(float)
-        self.current_items[globals.FGDAIRY] = self.current_items[globals.FGDAIRY].astype(float)
-        self.current_items[globals.FGVEGETABLE] = self.current_items[globals.FGVEGETABLE].astype(float)
-        self.current_items[globals.FGDRYFOOD] = self.current_items[globals.FGDRYFOOD].astype(float)
-        self.current_items[globals.FGBAKED] = self.current_items[globals.FGBAKED].astype(float)
-        self.current_items[globals.FGSNACKS] = self.current_items[globals.FGSNACKS].astype(float)
-        self.current_items[globals.FGSTOREPREPARED] = self.current_items[globals.FGSTOREPREPARED].astype(float)
+        self.current_items[globals_config.FGMEAT] = self.current_items[globals_config.FGMEAT].astype(float)
+        self.current_items[globals_config.FGDAIRY] = self.current_items[globals_config.FGDAIRY].astype(float)
+        self.current_items[globals_config.FGVEGETABLE] = self.current_items[globals_config.FGVEGETABLE].astype(float)
+        self.current_items[globals_config.FGDRYFOOD] = self.current_items[globals_config.FGDRYFOOD].astype(float)
+        self.current_items[globals_config.FGBAKED] = self.current_items[globals_config.FGBAKED].astype(float)
+        self.current_items[globals_config.FGSNACKS] = self.current_items[globals_config.FGSNACKS].astype(float)
+        self.current_items[globals_config.FGSTOREPREPARED] = self.current_items[globals_config.FGSTOREPREPARED].astype(float)
         
         self.current_items['price'] = self.current_items['price'].astype(float)
         self.current_items['status'] = self.current_items['status'].astype(str)
@@ -76,7 +76,7 @@ class Storage:
                 # Remove only the first match 
                 self.current_items = self.current_items.drop(matching_indices[0])
     
-    def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float]) -> pd.Series|None: 
+    def get_item_by_strategy(self, strategy:str,preference_vector:dict[str,float], food_groups:list=[]) -> pd.Series|None: 
         """Retrieves an item from storage depending on the strategy. The likelihood of an item being of a specific food group 
         furthermore depends on the the given preference vector
 
@@ -88,23 +88,30 @@ class Storage:
         Returns:
             pd.Series|None: item selected for return
         """        
-
+        if food_groups == []: 
+            food_groups = globals_config.FOOD_GROUPS["type"].to_list()
         if self.is_empty(): 
             return None 
+        
+        rel_items = self.current_items[self.current_items[food_groups].gt(0).any(axis=1)]
+        if len(rel_items) == 0:
+            return None #e.g. in quickshop maybe some fg are used up during sampling a.s.p
         
         if strategy == "random": 
             #random grab 
             fgs = list(preference_vector.keys())
-            weights = self.current_items[fgs].dot(pd.Series(preference_vector))
+            weights = rel_items[fgs].dot(pd.Series(preference_vector))
             weights = weights / weights.sum()
             weights = weights.astype(np.float64)
             #weighted sample
-            idx = np.random.choice(self.current_items.index, size=1, replace=False, p=weights.values)
-            item = self.current_items.loc[idx].iloc[0]
-            
+            idx = np.random.choice(rel_items.index, size=1, replace=False, p=weights.values)
+            item = rel_items.loc[idx].iloc[0]
+            #if item == None: #there are items but not of the preferred fg / so well just grab something to cook with
+            #    item = np.random.sample(self.pantry.current_items)
+                
         else: #EEF
-            idx = self.current_items['days_till_expiry'].astype(float).idxmin()
-            item = self.current_items.loc[idx]
+            idx = rel_items['days_till_expiry'].astype(float).idxmin()
+            item = rel_items.loc[idx]
             
         self.remove(item) # type: ignore
         return item      # type: ignore
@@ -128,7 +135,7 @@ class Storage:
         Returns:
             pd.Series: Series that maps food group to number of servings
         """        
-        fgs = globals.FOOD_GROUPS["type"].to_list()
+        fgs = globals_config.FOOD_GROUPS["type"].to_list()
         result = pd.Series(dict(zip(fgs, [0]*len(fgs))))
         
         return self.current_items[fgs].sum()

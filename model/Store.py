@@ -7,7 +7,7 @@ import random
 from typing import Hashable, List, Literal, Optional, Tuple, Union
 from numpy import row_stack
 import pandas as pd
-import globals
+import globals_config as globals_config
 import json
 import os 
 
@@ -71,7 +71,7 @@ class Store(Location):
         
         self.tracker: pd.DataFrame = self.product_range.copy() 
         self.tracker = self.tracker.drop(columns=["price_per_serving", "type", "servings"])
-        list_init =  [0] * globals.NH_STORE_RESTOCK_INTERVAL
+        list_init =  [0] * globals_config.NH_STORE_RESTOCK_INTERVAL[0]
         self.tracker["purchased"] = [list_init[:] for _ in range(len(self.tracker))]
         self.tracker["today"] = 0
         self.price = self.product_range["price_per_serving"].mean()
@@ -98,7 +98,7 @@ class Store(Location):
     def buy_stock(self, amount_per_item:int, product:pd.Series | None=None)  -> None: 
         if amount_per_item <= 0:
             return 
-        a_1 =  globals.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE
+        a_1 =  globals_config.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE[0]
         a_2 = 1- a_1
         
         to_be_purchased = self.product_range
@@ -107,7 +107,7 @@ class Store(Location):
             
         for i in to_be_purchased.index: 
             #for each item that is bought, init a new item
-            curr_fg =  globals.FOOD_GROUPS[globals.FOOD_GROUPS["type"] == self.product_range.loc[i,"type"]]
+            curr_fg =  globals_config.FOOD_GROUPS[globals_config.FOOD_GROUPS["type"] == self.product_range.loc[i,"type"]]
             #curr_fg = self.food_groups.get_food_group(str(self.product_range.loc[i,"type"]))
             days_till_expiry = int(float(curr_fg["expiration"].iloc[0]))
             new_item = {"type": self.product_range.loc[i,"type"], 
@@ -119,7 +119,7 @@ class Store(Location):
                         "amount" : amount_per_item, 
                         "deal_value": a_1 * self.product_range.loc[i,"price_per_serving"] + a_2 *\
                             self.product_range.loc[i,"price_per_serving"] * self.product_range.loc[i,"servings"],
-                        "sale_timer": globals.SALES_TIMER_PLACEHOLDER,
+                        "sale_timer": globals_config.SALES_TIMER_PLACEHOLDER,
                         "store": self,
                         "product_ID": str(self.product_range.loc[i,"type"]) + str(self.product_range.loc[i,"servings"])+ \
                         str(self.product_range.loc[i,"price_per_serving"])}      
@@ -178,9 +178,9 @@ class Store(Location):
         #globals.log(self,"---- DAY %i ----",  globals.DAY )
         #globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
         
-        if globals.DAY == 0:  #on first day stock store with baseline amount
+        if globals_config.DAY == 0:  #on first day stock store with baseline amount
             #globals.log(self,str(self))
-            self.buy_stock(amount_per_item=globals.NH_STORE_BASELINE_STOCK)
+            self.buy_stock(amount_per_item=globals_config.NH_STORE_BASELINE_STOCK[0])
             #globals.log(self,"--- after restocking ---" )
             #globals.log(self,self.stock)
         else: #from them on restock based on demand
@@ -208,7 +208,7 @@ class Store(Location):
         #globals.log(self, "ITEMS THROWN OUT: %i", self._debug_amount(spoiled_food))
 
         if len(spoiled_food) > 0:
-            self.stock.loc[self.stock["days_till_expiry"] <= 0.0, "reason"] = globals.FW_SPOILED  
+            self.stock.loc[self.stock["days_till_expiry"] <= 0.0, "reason"] = globals_config.FW_SPOILED  
             for _, item in self.stock.loc[self.stock["days_till_expiry"] <= 0.0].iterrows():
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
@@ -248,8 +248,8 @@ class Store(Location):
         ) # type: ignore
 
         # Convert strings back to Enums
-        self.stock["sale_type"] = self.stock["sale_type"].map(lambda x: globals.to_EnumSales(x)) # type: ignore
-        self.stock["discount_effect"] = self.stock["discount_effect"].map(lambda x: globals.to_EnumDiscountEffect(x)) # type: ignore
+        self.stock["sale_type"] = self.stock["sale_type"].map(lambda x: globals_config.to_EnumSales(x)) # type: ignore
+        self.stock["discount_effect"] = self.stock["discount_effect"].map(lambda x: globals_config.to_EnumDiscountEffect(x)) # type: ignore
         assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
 
     def buy(self,item:pd.Series,amount:int=1) -> None:
@@ -327,7 +327,7 @@ class Store(Location):
         """Calculates how much of each item in the product range the store should restock on and then 
         refills the stock accordingly. Restocking is currently free and instantaneous
         """        
-        if globals.DAY % globals.NH_STORE_RESTOCK_INTERVAL == 0:       
+        if globals_config.DAY % globals_config.NH_STORE_RESTOCK_INTERVAL[0] == 0:       
             self.tracker["planned_restock_amount"] = self.tracker["purchased"].apply(lambda x: sum(x))
             #globals.log(self, "ITEMS TO RESTOCK: %i", self.tracker["planned_restock_amount"].sum())
             for index, row in self.tracker.iterrows():
@@ -404,7 +404,7 @@ class Store(Location):
         sale_type = selected_rows["sale_type"].iloc[0]
         self.stock.loc[selected_rows.index, "sale_type"] = EnumSales.NONE # type: ignore
         self.stock.loc[selected_rows.index, "discount_effect"] = EnumDiscountEffect.NONE # type: ignore
-        self.stock.loc[selected_rows.index, "sale_timer"] = globals.SALES_TIMER_PLACEHOLDER
+        self.stock.loc[selected_rows.index, "sale_timer"] = globals_config.SALES_TIMER_PLACEHOLDER
         discount_effect = discounts_in_place[0] if len(discounts_in_place) > 0 else EnumDiscountEffect.NONE
 
         # Reverse previous discount effect
@@ -505,18 +505,18 @@ class Store(Location):
             if high_stock_mask.any(): # type: ignore
                 # At least some of the items have already been decided to go on highstock sale (might have new shipment that is missing)
                 total_amount = self.stock.loc[mask, "amount"].sum() # type: ignore
-                if (total_amount <= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1) and \
+                if (total_amount <= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_1) and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_1): # type: ignore #I can check the first here, cause they are all on the same deal
                     # 1. If item is below interval 1 and was on sale -> back to original price
                     self._change_sale(mask & (high_stock_mask))
                 
-                elif globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1 < total_amount <= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2  and \
+                elif globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_1 < total_amount <= globals_config.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2  and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_2): # type: ignore
                     # 2. It's between interval 1 and interval 2 -> apply di scount for interval 1
                     # Ignore if BOGO, if sales, revert old discount, apply new discount
                     self._change_sale(mask & (high_stock_mask), new_sale_options=self.high_stock_discount_1)
                 
-                elif total_amount > globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2 and \
+                elif total_amount > globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_2 and \
                 (self.stock.loc[mask,"discount_effect"].iloc[0] not in self.high_stock_discount_2): # type: ignore
                     # 3. Items that shifted from interval 1 to interval 2
                     # Ignore if BOGO, if sales, revert old discount, apply new discount
@@ -535,9 +535,9 @@ class Store(Location):
             current_product = self.stock[mask]
             ## high stock sales ##
             mask_no_sale_applied = mask & (self.stock["sale_type"] == EnumSales.NONE)
-            if current_product["amount"].sum() >= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_2:
+            if current_product["amount"].sum() >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_2:
                 self._add_sales_options(mask_no_sale_applied,[(EnumSales.HIGHSTOCK, self.high_stock_discount_2)])                
-            elif current_product["amount"].sum()  >= globals.NH_STORE_BASELINE_STOCK * self.high_stock_interval_1:
+            elif current_product["amount"].sum()  >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_1:
                 self._add_sales_options(mask_no_sale_applied, [(EnumSales.HIGHSTOCK, self.high_stock_discount_1)])
 
             #now we look at each item of this product type (could vary by e.g. expiry date)
@@ -599,7 +599,7 @@ class Store(Location):
                 self.stock.loc[mask,"price_per_serving"] = self.stock.loc[mask,"price_per_serving"] * self.stock.loc[mask,"discount_effect"].apply(lambda x: float(x.scaler))
             
             self._update_deal_value()
-            self.stock["sale_timer"] = self.stock["sale_type"].apply(lambda x: self.seasonal_duration if x == EnumSales.SEASONAL else globals.SALES_TIMER_PLACEHOLDER)
+            self.stock["sale_timer"] = self.stock["sale_type"].apply(lambda x: self.seasonal_duration if x == EnumSales.SEASONAL else globals_config.SALES_TIMER_PLACEHOLDER)
         
         self.stock = self.stock.drop(columns=["sale_option"])   
         
@@ -608,7 +608,7 @@ class Store(Location):
         deal value accordingly 
         """        
         #update deal value because servings size or price has changed
-        a_1 =  globals.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE
+        a_1 =  globals_config.NH_DEALASSESSOR_WEIGHT_SERVING_PRICE[0]
         a_2 = 1- a_1
         self.stock["deal_value"] = a_1 * self.stock["price_per_serving"] + a_2 *\
                             self.stock["price_per_serving"] * self.stock["servings"]
@@ -623,3 +623,4 @@ class Store(Location):
         """        
         #add item to the temporary list of possible sales to apply to the item 
         self.stock.loc[item_mask, 'sale_option'] = self.stock.loc[item_mask, 'sale_option'].apply(lambda x: x + sale_option)
+        

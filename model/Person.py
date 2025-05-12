@@ -2,7 +2,7 @@ import json
 import logging
 import random
 from tkinter import N
-import globals
+import globals_config as globals_config
 
 class Person():
     def __init__(self):
@@ -18,13 +18,13 @@ class Person():
         - fg_preference: indicates the preference (0-1) for each food group
         
         """                
-        self.gender:int = random.randint(globals.MALE, globals.FEMALE) #1 is female
+        self.gender:int = random.randint(globals_config.MALE, globals_config.FEMALE) #1 is female
         self.is_adult:bool 
         self.kcal:float
         self.susceptibility:float
         self.concern:list[float]
         self.plate_waste_ratio :float 
         
-        self.fg_preference:dict[str,float] = {item:random.uniform(0,1) for item in globals.FOOD_GROUPS["type"].to_list()}
+        self.fg_preference:dict[str,float] = {item:random.uniform(0,1) for item in globals_config.FOOD_GROUPS["type"].to_list()}
         self.req_servings: float 
         self.req_servings_per_fg:dict[str,float] 

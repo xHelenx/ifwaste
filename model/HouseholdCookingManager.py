@@ -2,7 +2,7 @@ import logging
 import random
 from typing import Literal, Union
 
-import globals
+import globals_config as globals_config
 from Storage import Storage
 from HouseholdShoppingManager import HouseholdShoppingManager
 import pandas as pd
@@ -67,7 +67,7 @@ class HouseholdCookingManager:
         Returns:
             bool: has enough time
         """        
-        return self.todays_time < globals.HH_MIN_TIME_TO_COOK
+        return self.todays_time < globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
     
     def _reset_logs(self) -> None: 
         """Resets variables tracking infos for data logger
@@ -106,13 +106,13 @@ class HouseholdCookingManager:
         prepped = []
         debug_total_inedible = 0
         for ingredient in ingredients: 
-            (edible,inedible) = self._split_waste_from_food(ingredient, waste_type=globals.FW_INEDIBLE)
+            (edible,inedible) = self._split_waste_from_food(ingredient, waste_type=globals_config.FW_INEDIBLE)
             prepped.append(edible)
             if not inedible is None:
                 debug_total_inedible += inedible["servings"]
                 self.datalogger.append_log(self.id, "log_wasted",inedible)
                 
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "inedible: %s", debug_total_inedible)        
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "inedible: %s", debug_total_inedible)        
         prepped = pd.DataFrame(prepped)
         
         meal = None 
@@ -125,7 +125,7 @@ class HouseholdCookingManager:
             self.log_today_quickcook = 1
             
         ## TODO calc cooking time
-        cooking_time = globals.HH_MIN_TIME_TO_COOK
+        cooking_time = globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
         if is_quickcook: 
             cooking_time /=2
             
@@ -141,12 +141,12 @@ class HouseholdCookingManager:
             pd.Series: resulting meal
         """        
         meal = pd.Series()
-        for fg in globals.FOOD_GROUPS["type"].to_list():
+        for fg in globals_config.FOOD_GROUPS["type"].to_list():
             meal[fg] = items[fg].sum()
             
         meal["servings"] = items["servings"].sum()
         meal["days_till_expiry"] = random.randint(4,7)
-        meal["status"] = globals.STATUS_PREPARED
+        meal["status"] = globals_config.STATUS_PREPARED
         meal["price"] = items["price"].sum()
         meal["inedible_percentage"] = 0.0 #we just cut off the inedible parts of all items before combining the item
                 
@@ -169,22 +169,25 @@ class HouseholdCookingManager:
         planned_servings = self._choose_how_much_to_cook()
         ingredients = []
         
-        if not is_quickcook:
-            while planned_servings > 0 and not self.pantry.is_empty(): 
-                to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
-                planned_servings -= to_eat["servings"] * (1-to_eat["inedible_percentage"]) #TEST LOGIC
-                ingredients.append(to_eat)
-        else: #quickcook
-            used_ingredients = 0
-            while planned_servings > 0 and used_ingredients <= globals.NH_COOK_INGREDIENTS_PER_QC and not self.pantry.is_empty(): 
-                to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook)
-                used_ingredients += 1
-                ingredients.append(to_eat)
-                planned_servings -= to_eat["servings"] * (1-to_eat["inedible_percentage"])
+        #sample which foodgroups to cook with
+        food_groups = []
+        if is_quickcook:
+            servings_per_fg = self.pantry.get_servings_per_fg()
+            food_groups = servings_per_fg[servings_per_fg > 0].index.to_list()
+            food_groups = random.sample(food_groups, 
+                                        min(globals_config.get_parameter_value(globals_config.NH_COOK_FG_PER_QC,self.id), 
+                                                                        len(food_groups)))
+        
+        while planned_servings > 0 and not self.pantry.is_empty(): 
+            to_eat = self._get_ingredient(strategy=strategy, is_quickcook=is_quickcook,food_groups=food_groups)
+            if len(to_eat) == 0: #we cannot find more items in the fg, so we stop early (a bit hungry)
+                break
+            planned_servings -= to_eat["servings"] * (1-to_eat["inedible_percentage"]) #TEST LOGIC
+            ingredients.append(to_eat)
                 
         return ingredients
                     
-    def _get_ingredient(self, strategy:Literal["EEF","random"], is_quickcook:bool) -> pd.Series: 
+    def _get_ingredient(self, strategy:Literal["EEF","random"], is_quickcook:bool,food_groups:list=[]) -> pd.Series: 
         """Helper function of "get_ingredients", includes selecting a single item from the pantry.
 
         Args:
@@ -192,6 +195,8 @@ class HouseholdCookingManager:
             strategy (Literal[&quot;random&quot;,&quot;EEF&quot;]): strategy impacting how 
             the food items are chosen (random = random selection, EEF = earliest expiration first, items
             are selected based on their expiration date)
+            food_groups: refers to the allowed food groups types, is only set if quick_cook. Is used to limit cooking 
+            to a quick meal
 
         Raises:
             ValueError: Trying to select an item from an empty pantry
@@ -201,16 +206,14 @@ class HouseholdCookingManager:
         """        
         
         to_eat = pd.Series()
-        item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector)#consider they only use unused ingredients and dont cook with leftovers here    
+        item = self.pantry.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector,food_groups=food_groups)#consider they only use unused ingredients and dont cook with leftovers here    
         if item is not None:
             servings = item["servings"]        
-            if not is_quickcook and servings > globals.NH_COOK_SERVINGS_PER_GRAB: 
-                servings = globals.NH_COOK_SERVINGS_PER_GRAB
+            if not is_quickcook and servings > globals_config.get_parameter_value(globals_config.NH_COOK_SERVINGS_PER_GRAB,self.id): 
+                servings = globals_config.get_parameter_value(globals_config.NH_COOK_SERVINGS_PER_GRAB,self.id)
             (to_eat, to_pantry) = self._split(item, servings)
             if not to_pantry is None: 
                 self.pantry.add(to_pantry)
-        else: 
-            raise ValueError("Pantry is empty, so we cannot grab ingredients")
         return to_eat
 
     def _choose_how_much_to_cook(self) -> float: 
@@ -225,8 +228,8 @@ class HouseholdCookingManager:
         available = self.pantry.get_total_servings() 
         ratio_avail_req  = available/self.todays_servings 
         if ratio_avail_req > 1: 
-            if ratio_avail_req > globals.NH_COOK_MAX_SCALER_COOKING_AMOUNT: 
-                ratio_avail_req = globals.NH_COOK_MAX_SCALER_COOKING_AMOUNT
+            if ratio_avail_req > globals_config.get_parameter_value(globals_config.NH_COOK_MAX_SCALER_COOKING_AMOUNT,self.id): 
+                ratio_avail_req = globals_config.get_parameter_value(globals_config.NH_COOK_MAX_SCALER_COOKING_AMOUNT,self.id)
         else: 
             ratio_avail_req = 1 
         
@@ -248,7 +251,7 @@ class HouseholdCookingManager:
         cooking_time = 0
         shopping_time = 0
         self._reset_logs()
-        self.todays_time = self.time[globals.DAY%7] - used_time
+        self.todays_time = self.time[globals_config.DAY%7] - used_time
         self.todays_servings = self.req_servings
         
         strategy = self._determine_strategy()
@@ -275,7 +278,7 @@ class HouseholdCookingManager:
         if strategy != "random":
             self.log_today_eef = 1
             
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV,"consumed today: %f", self.req_servings - self.todays_servings)    
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV,"consumed today: %f", self.req_servings - self.todays_servings)    
         #globals.log(self,"req servings: %f", self.req_servings)    
                 
                 
@@ -300,10 +303,12 @@ class HouseholdCookingManager:
                 earliest_pantry = float("inf")
             
             #sth from fridge or pantry expires soon -> EEF
-            if  ((earliest_fridge <= globals.NH_COOK_EXPIRATION_THRESHOLD) and (earliest_fridge <= earliest_pantry)) and \
+            if  ((earliest_fridge <= globals_config.get_parameter_value(
+                globals_config.NH_COOK_EXPIRATION_THRESHOLD,self.id)) and (earliest_fridge <= earliest_pantry)) and \
             (not self.fridge.is_empty()):
                 strategy = "EEFfridge"
-            elif ((earliest_pantry <= globals.NH_COOK_EXPIRATION_THRESHOLD) and (earliest_pantry <= earliest_fridge)) and \
+            elif ((earliest_pantry <= globals_config.get_parameter_value(
+                globals_config.NH_COOK_EXPIRATION_THRESHOLD,self.id)) and (earliest_pantry <= earliest_fridge)) and \
             (not self.pantry.is_empty()): 
                 strategy = "EEFpantry"
         return strategy
@@ -344,7 +349,7 @@ class HouseholdCookingManager:
         """        
 
         (to_eat, to_fridge) = self._split(meal=meal, servings=needed_serv)
-        (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals.FW_PLATE_WASTE)
+        (consumed, plate_waste) = self._split_waste_from_food(meal=to_eat, waste_type=globals_config.FW_PLATE_WASTE)
         self.todays_servings -= consumed["servings"]
         if to_fridge is not None: 
             self.fridge.add(to_fridge)
@@ -352,7 +357,7 @@ class HouseholdCookingManager:
         if plate_waste is not None:
             self.datalogger.append_log(self.id,"log_wasted",plate_waste)
             
-        globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "plate_waste: %s", plate_waste["servings"])      
+        globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "plate_waste: %s", plate_waste["servings"])      
         
     def _split_waste_from_food(self,meal:pd.Series, waste_type:str) -> tuple[pd.Series , Union[pd.Series, None]]:
         """Methods that facilitates splitting a specific waste type from a meal and then returns 
@@ -368,11 +373,11 @@ class HouseholdCookingManager:
         consumed = meal.copy(deep=True)
         waste = meal.copy(deep=True)
         total_serv = 0
-        for fg in globals.FOOD_GROUPS["type"].to_list(): 
+        for fg in globals_config.FOOD_GROUPS["type"].to_list(): 
             portion = 0
-            if waste_type == globals.FW_INEDIBLE: 
-                portion = globals.FOOD_GROUPS[globals.FOOD_GROUPS["type"] == fg]["inedible_percentage"].iloc[0]
-            elif waste_type == globals.FW_PLATE_WASTE: 
+            if waste_type == globals_config.FW_INEDIBLE: 
+                portion = globals_config.FOOD_GROUPS[globals_config.FOOD_GROUPS["type"] == fg]["inedible_percentage"].iloc[0]
+            elif waste_type == globals_config.FW_PLATE_WASTE: 
                 portion = self.household_plate_waste_ratio
             else: #spoiled is all will be removed 
                 portion = 1                
@@ -385,10 +390,10 @@ class HouseholdCookingManager:
         waste["servings"] -= total_serv
         waste["reason"] = waste_type
         
-        if waste_type == globals.FW_INEDIBLE: 
+        if waste_type == globals_config.FW_INEDIBLE: 
             waste["price"] = 0 
             consumed["price"] = meal["price"]
-        elif waste_type ==  globals.FW_PLATE_WASTE or waste_type == globals.FW_SPOILED: 
+        elif waste_type ==  globals_config.FW_PLATE_WASTE or waste_type == globals_config.FW_SPOILED: 
             waste["price"] = (waste["servings"]/meal["servings"]) * meal["price"]
             consumed["price"] = (consumed["servings"]/meal["servings"]) * meal["price"]
         
@@ -419,7 +424,7 @@ class HouseholdCookingManager:
         to_eat["servings"] = serv_to_eat
         to_fridge["servings"] -= serv_to_eat
         
-        fgs = globals.FOOD_GROUPS["type"].to_list()
+        fgs = globals_config.FOOD_GROUPS["type"].to_list()
         for fg in fgs: # type: ignore
             to_eat[fg] = serv_to_eat/meal["servings"] * to_eat[fg]
             to_fridge[fg] -= serv_to_eat/meal["servings"] * to_fridge[fg]

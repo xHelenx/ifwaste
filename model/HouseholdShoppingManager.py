@@ -4,7 +4,7 @@ import logging
 import random
 from typing import List
 
-import globals
+import globals_config as globals_config
 import numpy as np
 import pandas as pd
 from BasketCurator import BasketCurator
@@ -45,18 +45,18 @@ class HouseholdShoppingManager:
         
         self.budget:float = budget
         self.time:list[float]= time 
-        self.time_per_store = globals.HH_TIME_PER_STORE
+        self.time_per_store = globals_config.get_parameter_value(globals_config.HH_TIME_PER_STORE,self.id)
         
         ### SHOPPING CHARACTERISTICS
         self.shopping_frequency:int = shopping_freq
-        self.price_sens:float = globals.HH_PRICE_SENSITIVITY
-        self.brand_sens: float = globals.HH_BRAND_SENSITIVITY
-        self.brand_pref: dict[Store,float]  = {store:globals.HH_BRAND_PREFERENCE for store in globals.NH_STORE_TYPES}
-        self.quality_sens: float  = globals.HH_QUALITY_SENSITIVITY
-        self.availability_sens: float  = globals.HH_AVAILABILITY_SENSITIVITY
-        self.deal_sens: float  = globals.HH_DEAL_SENSITIVITY
-        self.planner: float = globals.HH_PLANNER
-        self.impulsivity:float = globals.HH_IMPULSIVITY
+        self.price_sens:float = globals_config.get_parameter_value(globals_config.HH_PRICE_SENSITIVITY,self.id)
+        self.brand_sens: float = globals_config.get_parameter_value(globals_config.HH_BRAND_SENSITIVITY,self.id)
+        self.brand_pref: dict[Store,float]  = {store:globals_config.get_parameter_value(globals_config.HH_BRAND_PREFERENCE,self.id) for store in globals_config.NH_STORE_TYPES}
+        self.quality_sens: float  = globals_config.get_parameter_value(globals_config.HH_QUALITY_SENSITIVITY,self.id)
+        self.availability_sens: float  = globals_config.get_parameter_value(globals_config.HH_AVAILABILITY_SENSITIVITY,self.id)
+        self.deal_sens: float  = globals_config.get_parameter_value(globals_config.HH_DEAL_SENSITIVITY,self.id)
+        self.planner: float = globals_config.get_parameter_value(globals_config.HH_PLANNER,self.id)
+        self.impulsivity:float = globals_config.get_parameter_value(globals_config.HH_IMPULSIVITY,self.id)
         
         sum_sens = self.price_sens + self.brand_sens + self.quality_sens + self.availability_sens + self.deal_sens
         self.price_sens /= sum_sens
@@ -92,7 +92,7 @@ class HouseholdShoppingManager:
         Returns:
             float: available budget for the current shopping trip
         """        
-        days_till_payday = globals.HH_PAY_DAY_INTERVAL - (globals.DAY % globals.HH_PAY_DAY_INTERVAL)   
+        days_till_payday = globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id) - (globals_config.DAY % globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id))   
         if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
             if self.todays_budget <= 0: #no money to buy anything
                 return 0 
@@ -104,7 +104,7 @@ class HouseholdShoppingManager:
         else: #hh will receive new money, so the budget estimate has to consider it
             #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
             still_have_servings = self.fridge.get_total_servings() + self.pantry.get_total_servings()
-            days = days_till_payday + globals.HH_PAY_DAY_INTERVAL
+            days = days_till_payday + globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id)
             req_daily_servings = (self.req_servings*days - still_have_servings)/(days)
             
             budget_before_pd = self.todays_budget
@@ -129,14 +129,14 @@ class HouseholdShoppingManager:
         """        
         price = 0.0
         inedible = 0
-        for fg in globals.FOOD_GROUPS["type"].to_list():
+        for fg in globals_config.FOOD_GROUPS["type"].to_list():
             #assumes you can buy only one item type items
             if fg != item["type"]: 
                 item[fg] = 0.0
             else:
                 item[fg] = float(item["servings"])
                 price = item["servings"] * item["price_per_serving"]
-                inedible = globals.FOOD_GROUPS.loc[globals.FOOD_GROUPS["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
+                inedible = globals_config.FOOD_GROUPS.loc[globals_config.FOOD_GROUPS["type"] == item["type"], "inedible_percentage"].values[0] # type: ignore
         if "adjustment" in item.index: 
             item = item.drop(["adjustment"])
         if "impulse_buy_likelihood" in item.index: 
@@ -163,11 +163,11 @@ class HouseholdShoppingManager:
             item = basket.loc[idx].copy()
             
             status = storage = None
-            if item["type"] == globals.FGSTOREPREPARED:
-                status = globals.STATUS_PREPREPARED
+            if item["type"] == globals_config.FGSTOREPREPARED:
+                status = globals_config.STATUS_PREPREPARED
                 storage = self.fridge
             else: 
-                status = globals.STATUS_UNPREPARED
+                status = globals_config.STATUS_UNPREPARED
                 storage = self.pantry
             
             amount = item["amount"]    
@@ -206,16 +206,18 @@ class HouseholdShoppingManager:
             float: shopping time
         """        
         if is_quickshop:
-            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"------> QUICK SHOPPING")    
+            globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"------> QUICK SHOPPING")    
+            self.log_quickshop = 1
         else:
-            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"------> SHOPPING")
+            globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"------> SHOPPING")
+            self.log_shop = 1
             
-        self.todays_time = self.time[globals.DAY%7] 
+        self.todays_time = self.time[globals_config.DAY%7] 
         budget = self._get_budget_for_this_purchase() 
         is_planner = self.planner > random.uniform(0,1)
         
         if is_quickshop: 
-            relevant_fg = [globals.FGSTOREPREPARED]
+            relevant_fg = [globals_config.FGSTOREPREPARED]
         else: 
             servings_to_buy_fg = self._get_what_to_buy()
             relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
@@ -225,13 +227,13 @@ class HouseholdShoppingManager:
         if store != None and not store in selected_stores: 
             selected_stores.append(store)
         else:
-            globals.log(self,globals.LOG_TYPE_STORE_TYPE,"No store found, avail time %f", self.todays_time)
+            globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"No store found, avail time %f", self.todays_time)
             return 0
         
         if is_quickshop: 
             #build quick basket
             basketCurator = BasketCurator(stores=selected_stores, logger=self.logger, budget=budget)
-            basketCurator.create_basket(is_quickshop=True)
+            basketCurator.create_basket(self.id,is_quickshop=True)
         else: 
             if servings_to_buy_fg.sum() <= 0: # type: ignore #we dont need to buy anything
                 return 0
@@ -244,7 +246,7 @@ class HouseholdShoppingManager:
 
             #create initial basket with groceries
             basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
-            basketCurator.create_basket()
+            basketCurator.create_basket(self.id)
 
             if len(basketCurator.basket) > 0:
                 basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
@@ -256,13 +258,13 @@ class HouseholdShoppingManager:
             coords = [store.get_coordinates() for store in visited_stores]
             duration += self.grid.get_travel_time_entire_trip(self.location,coords, self.time_per_store)            
         
-        basketCurator.impulse_buy(self.impulsivity)
+        basketCurator.impulse_buy(self.impulsivity,self.id)
         
         if len(basketCurator.basket) > 0:
-            globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
-            globals.log(self,globals.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
         else:
-            globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
         
         
         
@@ -270,7 +272,7 @@ class HouseholdShoppingManager:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
             
-        globals.log(self,globals.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
+        globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
         return duration
     def _debug_amount(self, df:pd.DataFrame) -> int: 
         """Debug function to print how many items are in the df (basket)
@@ -316,7 +318,7 @@ class HouseholdShoppingManager:
 
         if self._is_adjustment_needed(basketCurator): 
             if is_planner: 
-                basketCurator.adjust_basket()
+                basketCurator.adjust_basket(self.id)
             else: 
                 if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
                     if not basketCurator.is_basket_in_budget(): 
@@ -327,7 +329,7 @@ class HouseholdShoppingManager:
                                 #redo entire basket now with a bonus store
                                 basketCurator.return_basket_to_store() #we are starting over instead
                                 basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
-                                basketCurator.create_basket()
+                                basketCurator.create_basket(self.id)
                     if not basketCurator.does_basket_cover_all_fg(): 
                         if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
                             #adding a store from a lower price group
@@ -338,9 +340,9 @@ class HouseholdShoppingManager:
                                     #basketCurator.stores.append(store)
                                     assert len(basketCurator.stores) == len(set(basketCurator.stores))
                                     #buy missing food items + keep old basket #TODO is this ok?
-                                    basketCurator.create_basket()
+                                    basketCurator.create_basket(self.id)
         if self._is_adjustment_needed(basketCurator): 
-            basketCurator.adjust_basket()
+            basketCurator.adjust_basket(self.id)
             
         return basketCurator
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 import os  # Delay import for type hints
-import globals 
+import globals_config as globals_config 
 
 class Location:
     def __init__(self,id:int, grid:Grid, logger_name:str) -> None: # type: ignore
@@ -40,7 +40,7 @@ class Location:
         Returns:
             logging.Logger|None: logger
         """        
-        if globals.SIMULATION_DEBUG_LOG_ON:
+        if globals_config.SIMULATION_DEBUG_LOG_ON:
                 log_dir = "LOGS"
                 if not os.path.exists(log_dir):
                     os.makedirs(log_dir)  # Create the directory if it doesn't exist
