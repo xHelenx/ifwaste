@@ -69,6 +69,9 @@ class HouseholdShoppingManager:
         self.todays_time:float = 0
         self.req_servings_per_fg = req_servings_per_fg
         self.req_servings:float = sum(self.req_servings_per_fg.values())
+        
+        self.log_quickshop: int = 0
+        self.log_shop: int = 0
     
     def _get_what_to_buy(self) -> pd.Series:
         
@@ -195,6 +198,10 @@ class HouseholdShoppingManager:
             store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, required_fgs=left_fg) #TODO it was left_fg[0], dunno why
 
         return store
+    
+    def _reset_logs(self):
+        self.log_quickshop:int = 0
+        self.log_shop:int = 0
         
     def shop(self, is_quickshop:bool=False) -> float:
         """Shops for groceries and stores them in the correct location in the house

@@ -250,7 +250,6 @@ class HouseholdCookingManager:
         #globals.log(self,"------> COOKING")    
         cooking_time = 0
         shopping_time = 0
-        self._reset_logs()
         self.todays_time = self.time[globals_config.DAY%7] - used_time
         self.todays_servings = self.req_servings
         

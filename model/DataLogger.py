@@ -397,36 +397,36 @@ class DataLogger:
         for house in houses:       
             log_wasted = self.logs["log_wasted"]
             log_wasted = log_wasted[(log_wasted["day"] == day) & (log_wasted["household"] == house.id)]
-
-            new_vals["household"] = house.id
-            new_vals["n_quickcook"] = int(house.cookingManager.log_today_quickcook)
-            new_vals["n_cook"] =  int(house.cookingManager.log_today_cooked)
-            new_vals["n_leftovers"] = int(house.cookingManager.log_today_leftovers)
-            new_vals["n_shop"] = int(house.log_shop)
-            new_vals["n_quickshop"] = int(house.log_quickshop)
-            
-            if len(log_wasted) > 0:
-                new_vals[globals_config.FGMEAT] = log_wasted[globals_config.FGMEAT].sum()
-                new_vals[globals_config.FGDAIRY] = log_wasted[globals_config.FGDAIRY].sum()
-                new_vals[globals_config.FGVEGETABLE] = log_wasted[globals_config.FGVEGETABLE].sum()
-                new_vals[globals_config.FGDRYFOOD] = log_wasted[globals_config.FGDRYFOOD].sum()
-                new_vals[globals_config.FGSNACKS] = log_wasted[globals_config.FGSNACKS].sum()
-                new_vals[globals_config.FGBAKED] = log_wasted[globals_config.FGBAKED].sum()
-                new_vals[globals_config.FGSTOREPREPARED] = log_wasted[globals_config.FGSTOREPREPARED].sum()
+            if day > 13:
+                new_vals["household"] = house.id
+                new_vals["n_quickcook"] = int(house.cookingManager.log_today_quickcook)
+                new_vals["n_cook"] =  int(house.cookingManager.log_today_cooked)
+                new_vals["n_leftovers"] = int(house.cookingManager.log_today_leftovers)
+                new_vals["n_shop"] = house.shoppingManager.log_shop
+                new_vals["n_quickshop"] = house.shoppingManager.log_quickshop
                 
-                new_vals[globals_config.FW_INEDIBLE] = self._sum_waste_per_reason(day,house.id,globals_config.FW_INEDIBLE)
-                new_vals[globals_config.FW_PLATE_WASTE] = self._sum_waste_per_reason(day,house.id,globals_config.FW_PLATE_WASTE)
-                new_vals[globals_config.FW_SPOILED] = self._sum_waste_per_reason(day,house.id,globals_config.FW_SPOILED)
-                new_vals[globals_config.STATUS_PREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_PREPARED)
-                new_vals[globals_config.STATUS_UNPREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_UNPREPARED)
-                new_vals[globals_config.STATUS_PREPREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_PREPREPARED)
-                
+                if len(log_wasted) > 0:
+                    new_vals[globals_config.FGMEAT] = log_wasted[globals_config.FGMEAT].sum()
+                    new_vals[globals_config.FGDAIRY] = log_wasted[globals_config.FGDAIRY].sum()
+                    new_vals[globals_config.FGVEGETABLE] = log_wasted[globals_config.FGVEGETABLE].sum()
+                    new_vals[globals_config.FGDRYFOOD] = log_wasted[globals_config.FGDRYFOOD].sum()
+                    new_vals[globals_config.FGSNACKS] = log_wasted[globals_config.FGSNACKS].sum()
+                    new_vals[globals_config.FGBAKED] = log_wasted[globals_config.FGBAKED].sum()
+                    new_vals[globals_config.FGSTOREPREPARED] = log_wasted[globals_config.FGSTOREPREPARED].sum()
+                    
+                    new_vals[globals_config.FW_INEDIBLE] = self._sum_waste_per_reason(day,house.id,globals_config.FW_INEDIBLE)
+                    new_vals[globals_config.FW_PLATE_WASTE] = self._sum_waste_per_reason(day,house.id,globals_config.FW_PLATE_WASTE)
+                    new_vals[globals_config.FW_SPOILED] = self._sum_waste_per_reason(day,house.id,globals_config.FW_SPOILED)
+                    new_vals[globals_config.STATUS_PREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_PREPARED)
+                    new_vals[globals_config.STATUS_UNPREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_UNPREPARED)
+                    new_vals[globals_config.STATUS_PREPREPARED] = self._sum_waste_per_status(day, house.id,globals_config.STATUS_PREPREPARED)
+                    
             
-            if house.id not in self.aggregated_outputs["household"].values: #init empty rows
-                self.aggregated_outputs = pd.concat([self.aggregated_outputs, pd.DataFrame(new_vals, index=[0])], ignore_index=True)
-            else: 
-                new_vals["household"] = 0 #dont increment the id
-                self.aggregated_outputs[self.aggregated_outputs["household"] == house.id] += pd.DataFrame(new_vals, index=[0]).iloc[0]
+                if house.id not in self.aggregated_outputs["household"].values: #init empty rows
+                    self.aggregated_outputs = pd.concat([self.aggregated_outputs, pd.DataFrame(new_vals, index=[0])], ignore_index=True)
+                else: 
+                    new_vals["household"] = 0 #dont increment the id
+                    self.aggregated_outputs[self.aggregated_outputs["household"] == house.id] += pd.DataFrame(new_vals, index=[0]).iloc[0]
                 
     def _sum_waste_per_reason(self,day:int, household:int, reason:str):
         log_wasted = self.logs["log_wasted"]

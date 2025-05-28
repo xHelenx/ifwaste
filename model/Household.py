@@ -71,8 +71,6 @@ class Household(Location):
         
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
-        self.log_quickshop: int = 0
-        self.log_shop: int = 0
         
         self.shoppingManager:HouseholdShoppingManager = HouseholdShoppingManager(
             budget = self.budget,
@@ -113,8 +111,8 @@ class Household(Location):
         """        
         self.log_shopping_time: float = 0
         self.log_cooking_time: float = 0
-        self.log_quickshop = 0
-        self.log_shop = 0
+        self.cookingManager._reset_logs()
+        self.shoppingManager._reset_logs()
 
     def gen_ppl(self) -> list[Person]:
         """Generates the people living together in a household.

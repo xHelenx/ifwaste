@@ -99,7 +99,6 @@ NH_STORE_BASELINE_STOCK = None
 
 STORE_CON_PATH = None
 STORE_CON_QUALITY = None
-STORE_CON_PRICE = None
 STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
@@ -116,7 +115,6 @@ STORE_CON_SAL_CLEARANCE_DISCOUNT_3  = None
 
 STORE_DIS_PATH = None
 STORE_DIS_QUALITY = None 
-STORE_DIS_PRICE = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None 
@@ -133,7 +131,6 @@ STORE_DIS_SAL_CLEARANCE_DISCOUNT_3  = None
 
 STORE_PRE_PATH = None
 STORE_PRE_QUALITY = None
-STORE_PRE_PRICE = None
 STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = None
 STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = None
 STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = None
@@ -223,6 +220,7 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     global HH_PAY_DAY_INTERVAL
     global HH_TIME_PER_STORE
     global HH_DAILY_BUDGET
+
     global HH_PRICE_SENSITIVITY
     global HH_BRAND_SENSITIVITY
     global HH_QUALITY_SENSITIVITY
@@ -247,7 +245,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     
     global STORE_CON_PATH
     global STORE_CON_QUALITY
-    global STORE_CON_PRICE
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_CON_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
@@ -263,7 +260,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     global STORE_CON_SAL_CLEARANCE_DISCOUNT_3
     global STORE_DIS_PATH
     global STORE_DIS_QUALITY
-    global STORE_DIS_PRICE
     global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2
@@ -279,7 +275,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     global STORE_DIS_SAL_CLEARANCE_DISCOUNT_3
     global STORE_PRE_PATH
     global STORE_PRE_QUALITY
-    global STORE_PRE_PRICE
     global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1
     global STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2
     global STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1
@@ -421,7 +416,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     
     STORE_CON_PATH = config["Convenience_store"]["product_range"]
     STORE_CON_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["quality"])]
-    STORE_CON_PRICE = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["price"])]
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["high_stock_interval_1"])]
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Convenience_store"]["Sales"]["high_stock_interval_2"], STORE_CON_SAL_HIGH_STOCK_INTERVAL_1)#
     STORE_CON_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["seasonal_likelihood"])]
@@ -438,7 +432,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     
     STORE_DIS_PATH = config["Discount_retailer"]["product_range"]
     STORE_DIS_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["quality"])]
-    STORE_DIS_PRICE = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["price"])]
     STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["high_stock_interval_1"])]
     STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Discount_retailer"]["Sales"]["high_stock_interval_2"],STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1)
     STORE_DIS_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["seasonal_likelihood"])]
@@ -455,7 +448,6 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     
     STORE_PRE_PATH = config["Premium_retailer"]["product_range"]
     STORE_PRE_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["quality"])]
-    STORE_PRE_PRICE = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["price"])]
     STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["high_stock_interval_1"])]
     STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Premium_retailer"]["Sales"]["high_stock_interval_2"],STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1)
     STORE_PRE_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["seasonal_likelihood"])]
