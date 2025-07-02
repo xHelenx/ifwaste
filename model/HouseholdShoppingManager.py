@@ -72,6 +72,7 @@ class HouseholdShoppingManager:
         
         self.log_quickshop: int = 0
         self.log_shop: int = 0
+        self.log_attempted_shop: int = 0
     
     def _get_what_to_buy(self) -> pd.Series:
         
@@ -87,37 +88,41 @@ class HouseholdShoppingManager:
         fridge_content = pd.Series(self.fridge.get_servings_per_fg())
         pantry_content = pd.Series(self.pantry.get_servings_per_fg())
     
-        return required_servings - (fridge_content + pantry_content)
-    def _get_budget_for_this_purchase(self) -> float: #estimate budget for current shopping tour
+        return required_servings * globals_config.GROCERY_MULITPLIER  - (fridge_content + pantry_content)
+    def _get_budget_for_this_purchase(self, is_quickshop:bool=False) -> float: #estimate budget for current shopping tour
         """Estimates how much money can be spend on this routinary shopping trip depending on 
         the left budget and the next pay day time.
 
         Returns:
             float: available budget for the current shopping trip
-        """        
-        days_till_payday = globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id) - (globals_config.DAY % globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id))   
-        if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
-            if self.todays_budget <= 0: #no money to buy anything
-                return 0 
-            req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
-            req_daily_servings = req_servings_till_payday/days_till_payday
-            price_per_serving = self.todays_budget/req_servings_till_payday
-            return price_per_serving * (req_daily_servings * self.shopping_frequency)
+        """    
+        if is_quickshop: 
+            #take average money for 1 day
+            return self.budget/globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id)
+        else:   
+            days_till_payday = globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id) - (globals_config.DAY % globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id))   
+            if days_till_payday >= self.shopping_frequency: #we are staying within this months budget plans:
+                if self.todays_budget <= 0: #no money to buy anything
+                    return 0 
+                req_servings_till_payday = (self.req_servings * days_till_payday) - (self.fridge.get_total_servings() + self.pantry.get_total_servings())
+                req_daily_servings = req_servings_till_payday/days_till_payday
+                price_per_serving = self.todays_budget/req_servings_till_payday
+                return price_per_serving * (req_daily_servings * self.shopping_frequency)
 
-        else: #hh will receive new money, so the budget estimate has to consider it
-            #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
-            still_have_servings = self.fridge.get_total_servings() + self.pantry.get_total_servings()
-            days = days_till_payday + globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id)
-            req_daily_servings = (self.req_servings*days - still_have_servings)/(days)
-            
-            budget_before_pd = self.todays_budget
-            if self.todays_budget <= 0:
-                budget_before_pd = 0
-            total_budget = budget_before_pd + self.budget 
-            
-            price_per_serving = total_budget/(req_daily_servings*days)
-            
-            return price_per_serving * req_daily_servings * self.shopping_frequency
+            else: #hh will receive new money, so the budget estimate has to consider it
+                #TODO remember for report: that now the budget is a bit higher, because we split the money along the whole month
+                still_have_servings = self.fridge.get_total_servings() + self.pantry.get_total_servings()
+                days = days_till_payday + globals_config.get_parameter_value(globals_config.HH_PAY_DAY_INTERVAL,self.id)
+                req_daily_servings = (self.req_servings*days - still_have_servings)/(days)
+                
+                budget_before_pd = self.todays_budget
+                if self.todays_budget <= 0:
+                    budget_before_pd = 0
+                total_budget = budget_before_pd + self.budget 
+                
+                price_per_serving = total_budget/(req_daily_servings*days)
+                
+                return price_per_serving * req_daily_servings * self.shopping_frequency
 
     def _convert_bought_to_store_series(self,item:pd.Series, status:str) -> pd.Series:
         """Helper function that formats the food item (store properties) to the form that is used 
@@ -202,62 +207,73 @@ class HouseholdShoppingManager:
     def _reset_logs(self):
         self.log_quickshop:int = 0
         self.log_shop:int = 0
+        self.log_attempted_shop:int = 0
         
-    def shop(self, is_quickshop:bool=False) -> float:
-        """Shops for groceries and stores them in the correct location in the house
-
-        Args:
-            is_quickshop (bool, optional): indicates whether the household does a quick shop (vs a normal shop). Defaults to False.
-
-        Returns:
-            float: shopping time
-        """        
+    def shop(self,is_quickshop:bool=False, req_servings:float=0) -> float: 
         if is_quickshop:
+            return self.quick_shop(req_servings)
+        else: 
+            return self.normal_shop()
+            
+    def quick_shop(self, req_servings:float):
+        self.todays_time = self.time[globals_config.DAY%7] 
+        budget = self._get_budget_for_this_purchase(is_quickshop=True)
+        
+        #build quick basket
+        basketCurator = BasketCurator(stores=[self.grid.get_random_store()], logger=self.logger, budget=budget)
+        basketCurator.create_basket(self.id,is_quickshop=True, req_servings=req_servings)      
+        basketCurator.impulse_buy(self.impulsivity,self.id)
+        
+        if len(basketCurator.basket) > 0:
+            self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
+            self._store_groceries(basket=basketCurator.basket)
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
+            globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
             globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"------> QUICK SHOPPING")    
             self.log_quickshop = 1
         else:
-            globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"------> SHOPPING")
-            self.log_shop = 1
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
+            self.log_attempted_shop = 1
+            return 0
             
+        return globals_config.QUICK_SHOP_TIME #TODO ensure that this is always possible and we dont spent more time than available
+            
+    def normal_shop(self):
         self.todays_time = self.time[globals_config.DAY%7] 
         budget = self._get_budget_for_this_purchase() 
         is_planner = self.planner > random.uniform(0,1)
         
-        if is_quickshop: 
-            relevant_fg = [globals_config.FGSTOREPREPARED]
-        else: 
-            servings_to_buy_fg = self._get_what_to_buy()
-            relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
-            
+        servings_to_buy_fg = self._get_what_to_buy()
+        relevant_fg = servings_to_buy_fg[servings_to_buy_fg> 0].index.tolist()
+        
         selected_stores = []
         store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores,required_fgs=relevant_fg)
         if store != None and not store in selected_stores: 
             selected_stores.append(store)
         else:
             globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"No store found, avail time %f", self.todays_time)
+            self.log_attempted_shop = 1
             return 0
         
-        if is_quickshop: 
-            #build quick basket
-            basketCurator = BasketCurator(stores=selected_stores, logger=self.logger, budget=budget)
-            basketCurator.create_basket(self.id,is_quickshop=True)
-        else: 
-            if servings_to_buy_fg.sum() <= 0: # type: ignore #we dont need to buy anything
-                return 0
-            
-            #if planner add more stores if necessary because of missing fg
-            if is_planner: #planner hh 
-                store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
-                if not store is None and not store in selected_stores: 
-                    selected_stores.append(store)     
+        if servings_to_buy_fg.sum() <= 0: # type: ignore #we dont need to buy anything
+            self.log_attempted_shop = 1
+            return 0
+        
+        #if planner add more stores if necessary because of missing fg
+        if is_planner: #planner hh 
+            store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
+            if not store is None and not store in selected_stores: 
+                selected_stores.append(store)     
 
-            #create initial basket with groceries
-            basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
-            basketCurator.create_basket(self.id)
+        #create initial basket with groceries
+        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
+        basketCurator.create_basket(self.id)
 
-            if len(basketCurator.basket) > 0:
-                basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
+        if len(basketCurator.basket) > 0:
+            basketCurator = self._handle_basket_adjustment(is_planner,basketCurator,selected_stores,budget, servings_to_buy_fg)                                            # type: ignore
 
+        basketCurator.impulse_buy(self.impulsivity,self.id)
         #calculated required time for shopping tour (final time for planner, current time for not planner)
         visited_stores = basketCurator.get_visited_stores() # type: ignore
         duration = 0
@@ -265,22 +281,22 @@ class HouseholdShoppingManager:
             coords = [store.get_coordinates() for store in visited_stores]
             duration += self.grid.get_travel_time_entire_trip(self.location,coords, self.time_per_store)            
         
-        basketCurator.impulse_buy(self.impulsivity,self.id)
-        
         if len(basketCurator.basket) > 0:
-            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
-            globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
-        else:
-            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
-        
-        
-        
-        if len(basketCurator.basket) > 0:
+            
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
             self._store_groceries(basket=basketCurator.basket)
-            
-        globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
+            globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
+            globals_config.log(self,globals_config.LOG_TYPE_STORE_TYPE,"------> SHOPPING")
+            self.log_shop = 1
+        else:
+            globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET is empty")
+            self.log_attempted_shop = 1
+            return 0
+        
         return duration
+
     def _debug_amount(self, df:pd.DataFrame) -> int: 
         """Debug function to print how many items are in the df (basket)
 
