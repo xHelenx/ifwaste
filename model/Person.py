@@ -25,6 +25,6 @@ class Person():
         self.concern:list[float]
         self.plate_waste_ratio :float 
         
-        self.fg_preference:dict[str,float] = {item:random.uniform(0,1) for item in globals_config.FOOD_GROUPS["type"].to_list()}
+        self.fg_preference:dict[str,float]
         self.req_servings: float 
         self.req_servings_per_fg:dict[str,float] 

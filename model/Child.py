@@ -39,11 +39,19 @@ class Child(Person):
             
         
         self.req_servings:float = veg_servings + dry_food_servings + dairy_servings + meat_servings + snacks_servings + baked_servings + store_prepared_servings
+        
+        child_pref = globals_config.get_parameter_value(globals_config.CHILD_PREFERENCE_VECTOR, hh_id) 
+        self.fg_preference:dict[str,float] = {}  # Initialize the dictionary before using it
+        for id, item in enumerate(globals_config.FOOD_GROUPS["type"].to_list()): 
+            self.fg_preference.update({item:child_pref[id]})  # Use the id from the preference vector to set the preference
         sum_pref = sum(self.fg_preference.values())
+        
+        
+
         self.req_servings_per_fg:dict[str,float] = dict()
         for item in globals_config.FOOD_GROUPS["type"].to_list():  # type: ignore
             self.req_servings_per_fg.update({item:(self.req_servings/sum_pref)*self.fg_preference[item]})
-        
+            
         self.susceptibility:float = 0
         #self.concern:list[float] = [random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX),1- random.uniform(globals.CHILD_CONCERN_MIN,globals.CHILD_CONCERN_MAX)]
         self.plate_waste_ratio:float = globals_config.get_parameter_value(globals_config.CHILD_PLATE_WASTE,hh_id)
