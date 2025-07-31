@@ -51,23 +51,27 @@ class Store(Location):
         self.clearance_discount_2:list[EnumDiscountEffect] = []
         self.clearance_discount_3:list[EnumDiscountEffect] = []
         
+        self.has_highstock_sale = self.high_stock_interval_1 != None
+        self.has_clearance_sale = self.clearance_interval_1 != None
+        self.has_seasonal_sale = self.seasonal_likelihood == 0
+        
         self.grid:Grid = grid 
         self.product_range:pd.DataFrame = pd.DataFrame()
-    
-        self.product_range = pd.read_csv(self.path_to_product_range)
-        self.product_range["product_ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
-        self.stock = pd.DataFrame(columns= [
-        'type', 
+        self.store_items_cols = ['type', 
         'servings', 
         'days_till_expiry',
         'price_per_serving',
         'sale_type',
         'discount_effect',
         'amount',
-        'deal_value', 
+        'deal_value',
         'sale_timer',
         'store',
-        'product_ID'])      
+        'product_ID']
+        self.product_range = pd.read_csv(self.path_to_product_range)
+        self.product_range["product_ID"] = self.product_range.apply(lambda x: str(x["type"]) + str(x["servings"]) + str(x["price_per_serving"]), axis=1)        
+        self.stock = pd.DataFrame(columns=self.store_items_cols)      
+        self.thrown_out = pd.DataFrame(columns=self.store_items_cols)
         
         self.tracker: pd.DataFrame = self.product_range.copy() 
         self.tracker = self.tracker.drop(columns=["price_per_serving", "type", "servings"])
@@ -177,7 +181,7 @@ class Store(Location):
     def do_before_day(self) -> None:    
         #globals.log(self,"---- DAY %i ----",  globals.DAY )
         #globals.log(self, "ITEMS IN STOCK: %i", self._debug_amount(self.stock))
-        
+        self.thrown_out = pd.DataFrame(columns=self.store_items_cols)  # Reset thrown out items for the day // "empty garbage bin"
         if globals_config.DAY == 0:  #on first day stock store with baseline amount
             #globals.log(self,str(self))
             self.buy_stock(amount_per_item=globals_config.NH_STORE_BASELINE_STOCK[0])
@@ -213,6 +217,7 @@ class Store(Location):
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
             #self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
+            self.thrown_out = pd.concat([self.thrown_out, spoiled_food], ignore_index=True)  # type: ignore
             self.stock.drop(spoiled_food.index, inplace=True)  # remove expired 
             self.stock = self.stock.drop(columns=["reason"])
     
@@ -340,7 +345,7 @@ class Store(Location):
         """        
         
         #remove finished sales (clearance automatically when food is bad/bought)
-        self._update_seaonsal_sales()
+        self._update_seasonal_sales()
         self._update_high_stock_sales()
         self._update_clearance_sales()
         self._add_new_sales()
@@ -368,9 +373,9 @@ class Store(Location):
                 (row["discount_effect"] not in self.clearance_discount_1):
                 #1. if item is below interval 1 and was one sale-> back to original price
                 self._change_sale(idx,new_sale_options=self.clearance_discount_1)           
-    
-                            
-    def _update_seaonsal_sales(self) -> None: 
+
+
+    def _update_seasonal_sales(self) -> None: 
         """ Seasonal sales get updated. Seasonal sales are randomly started and then run for 
         a predefined amount of time (parameterized thorugh: STORE_***_SAL_SEASONAL_DURATION)
         """        
@@ -535,24 +540,27 @@ class Store(Location):
             current_product = self.stock[mask]
             ## high stock sales ##
             mask_no_sale_applied = mask & (self.stock["sale_type"] == EnumSales.NONE)
-            if current_product["amount"].sum() >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_2:
-                self._add_sales_options(mask_no_sale_applied,[(EnumSales.HIGHSTOCK, self.high_stock_discount_2)])                
-            elif current_product["amount"].sum()  >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_1:
-                self._add_sales_options(mask_no_sale_applied, [(EnumSales.HIGHSTOCK, self.high_stock_discount_1)])
+            
+            if self.has_highstock_sale: 
+                if current_product["amount"].sum() >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_2:
+                    self._add_sales_options(mask_no_sale_applied,[(EnumSales.HIGHSTOCK, self.high_stock_discount_2)])                
+                elif current_product["amount"].sum()  >= globals_config.NH_STORE_BASELINE_STOCK[0] * self.high_stock_interval_1:
+                    self._add_sales_options(mask_no_sale_applied, [(EnumSales.HIGHSTOCK, self.high_stock_discount_1)])
 
             #now we look at each item of this product type (could vary by e.g. expiry date)
             for _,row_by_exp in self.stock[mask_no_sale_applied].iterrows():
                 ## clearance sales ## 
                 #select all item of 1 expiry date
-                if row_by_exp["days_till_expiry"] <= self.clearance_interval_3: 
-                    self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_3)])
-                elif row_by_exp["days_till_expiry"] <= self.clearance_interval_2: 
-                    self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_2)])
-                elif row_by_exp["days_till_expiry"] <= self.clearance_interval_1: 
-                    self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_1)])
+                if self.has_clearance_sale:
+                    if row_by_exp["days_till_expiry"] <= self.clearance_interval_3: 
+                        self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_3)])
+                    elif row_by_exp["days_till_expiry"] <= self.clearance_interval_2: 
+                        self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_2)])
+                    elif row_by_exp["days_till_expiry"] <= self.clearance_interval_1: 
+                        self._add_sales_options(mask,[(EnumSales.EXPIRING,self.clearance_discount_1)])
 
                 ## seasonal sales (random sales)
-                if random.uniform(0,1) < self.seasonal_likelihood:  # type: ignore
+                if self.has_seasonal_sale and random.uniform(0,1) < self.seasonal_likelihood:  # type: ignore
                     self._add_sales_options(mask,[(EnumSales.SEASONAL,self.seasonal_discount)])        
 
         #all items that are empty are set to NONE:         

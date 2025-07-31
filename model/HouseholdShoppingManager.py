@@ -158,7 +158,7 @@ class HouseholdShoppingManager:
         return item
         
         
-    def _store_groceries(self, basket:pd.DataFrame) -> None: 
+    def _store_groceries(self, basket:pd.DataFrame, is_quickshop: bool) -> None: 
         """Puts aways the groceries to the pantry and the fridge.
         prepared and prepared food items go in the fridge. Unprepared item go to the pantry
 
@@ -166,6 +166,7 @@ class HouseholdShoppingManager:
             basket (pd.DataFrame): Purchased items
         """        
         #put groceries away
+        basket["is_quickshop"] = is_quickshop
         for idx in basket.index:
             self.datalogger.append_log(self.id,"log_bought", basket.loc[idx])
             item = basket.loc[idx].copy()
@@ -220,13 +221,13 @@ class HouseholdShoppingManager:
         budget = self._get_budget_for_this_purchase(is_quickshop=True)
         
         #build quick basket
-        basketCurator = BasketCurator(stores=[self.grid.get_random_store()], logger=self.logger, budget=budget)
+        basketCurator = BasketCurator(stores=[self.grid.get_random_store()], logger=self.logger, budget=budget) 
         basketCurator.create_basket(self.id,is_quickshop=True, req_servings=req_servings)      
-        basketCurator.impulse_buy(self.impulsivity,self.id)
+        #basketCurator.impulse_buy(self.impulsivity,self.id)
         
         if len(basketCurator.basket) > 0:
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
-            self._store_groceries(basket=basketCurator.basket)
+            self._store_groceries(basket=basketCurator.basket, is_quickshop=True)
             globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
             globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
             globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
@@ -239,7 +240,7 @@ class HouseholdShoppingManager:
             
         return globals_config.QUICK_SHOP_TIME #TODO ensure that this is always possible and we dont spent more time than available
             
-    def normal_shop(self):
+    def normal_shop(self) -> float:
         self.todays_time = self.time[globals_config.DAY%7] 
         budget = self._get_budget_for_this_purchase() 
         is_planner = self.planner > random.uniform(0,1)
@@ -264,10 +265,10 @@ class HouseholdShoppingManager:
         if is_planner: #planner hh 
             store = self._choose_second_store(is_planner,selected_stores,servings_to_buy_fg) # type: ignore
             if not store is None and not store in selected_stores: 
-                selected_stores.append(store)     
+                selected_stores.append(store)
 
         #create initial basket with groceries
-        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger) # type: ignore
+        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg) # type: ignore
         basketCurator.create_basket(self.id)
 
         if len(basketCurator.basket) > 0:
@@ -284,7 +285,7 @@ class HouseholdShoppingManager:
         if len(basketCurator.basket) > 0:
             
             self._pay(basket=basketCurator.basket) #todo stock was empty once so nothing was bought?! origing of problem?
-            self._store_groceries(basket=basketCurator.basket)
+            self._store_groceries(basket=basketCurator.basket, is_quickshop=False)
             globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,"FINAL BASKET: items %i, cost: %f", self._debug_amount(basketCurator.basket), (basketCurator.basket["price_per_serving"] * basketCurator.basket["amount"] * basketCurator.basket["servings"] ).sum())
             globals_config.log(self,globals_config.LOG_TYPE_BASKET_COMPOSITION,basketCurator.basket)
             globals_config.log(self,globals_config.LOG_TYPE_TOTAL_SERV, "basket holds %s: servings",(basketCurator.basket["servings"] *  basketCurator.basket["amount"]).sum())
@@ -351,7 +352,7 @@ class HouseholdShoppingManager:
                                 assert len(selected_stores) == len(set(selected_stores))
                                 #redo entire basket now with a bonus store
                                 basketCurator.return_basket_to_store() #we are starting over instead
-                                basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger)
+                                basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg)
                                 basketCurator.create_basket(self.id)
                     if not basketCurator.does_basket_cover_all_fg(): 
                         if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
@@ -472,7 +473,7 @@ class HouseholdShoppingManager:
 
                 preference = (self.quality_sens * store.quality + self.price_sens * (1-store.price) +\
                     self.brand_sens * self.brand_pref[store.store_type.value] + self.deal_sens *\
-                        deal + self.availability_sens *avail_fg_value)
+                        (1-deal) + self.availability_sens *avail_fg_value)
                 store_preference[store] = preference
                 
         return store_preference

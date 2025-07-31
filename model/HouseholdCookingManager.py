@@ -47,10 +47,11 @@ class HouseholdCookingManager:
         self.todays_servings: float = req_servings
         self.today:int = 0
         
-        self.log_today_eef: int
-        self.log_today_cooked: int
-        self.log_today_leftovers: int
-        self.log_today_quickcook: int
+        self.log_today_eef: int = 0
+        self.log_today_cooked: int = 0
+        self.log_today_leftovers: int = 0
+        self.log_today_quickcook: int = 0
+        self.log_attempted_cook:int  = 0
         
         
     def _has_enough_ingredients(self) -> bool: 
@@ -59,7 +60,7 @@ class HouseholdCookingManager:
         Returns:
             bool: has enough ingredients
         """        
-        return self.pantry.get_total_servings() > self.todays_servings
+        return self.pantry.get_total_servings() > self.todays_servings #pantry cause we check if we can cook here
     
     def _has_enough_time(self) -> bool:
         """Returns whether the household has enough time to cook a full meal
@@ -67,7 +68,7 @@ class HouseholdCookingManager:
         Returns:
             bool: has enough time
         """        
-        return self.todays_time < globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
+        return self.todays_time >= globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
     
     def _reset_logs(self) -> None: 
         """Resets variables tracking infos for data logger
@@ -76,6 +77,7 @@ class HouseholdCookingManager:
         self.log_today_cooked = 0
         self.log_today_leftovers = 0
         self.log_today_quickcook = 0
+        self.log_attempted_cook = 0
     
     def _cook(self,strategy:Literal["random","EEF"],is_quickcook:bool) ->  tuple[Union[pd.Series, None], float,float]:
         """Encapsulates the cooking process 
@@ -95,9 +97,9 @@ class HouseholdCookingManager:
         shopping_time = 0
         cooking_time = 0
         if not self._has_enough_ingredients(): 
-            shopping_time = self.shoppingManager.shop(is_quickshop=True) #shopping time ignored cause its short and we quickcook
+            shopping_time = self.shoppingManager.shop(is_quickshop=True, req_servings=self.req_servings) #shopping time ignored cause its short and we quickcook
             self.todays_time -= shopping_time 
-            
+
         if not self._has_enough_time():
             is_quickcook = True
         
@@ -118,16 +120,15 @@ class HouseholdCookingManager:
         meal = None 
         if not prepped.empty:
             meal = self._combine_to_meal(prepped)
-        
-        if not is_quickcook: 
-            self.log_today_cooked = 1 
-        else: 
-            self.log_today_quickcook = 1
-            
-        ## TODO calc cooking time
-        cooking_time = globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
-        if is_quickcook: 
-            cooking_time /=2
+            ## TODO calc cooking time
+            cooking_time = globals_config.get_parameter_value(globals_config.HH_MIN_TIME_TO_COOK,self.id)
+            if is_quickcook:
+                cooking_time /=2
+                self.log_today_quickcook = 1
+            else:
+                self.log_today_cooked = 1
+        else:
+            self.log_attempted_cook = 1
             
         return meal, shopping_time, cooking_time
     
@@ -234,8 +235,8 @@ class HouseholdCookingManager:
             ratio_avail_req = 1 
         
         planned = random.uniform(1,ratio_avail_req) * self.todays_servings +\
-            self.household_plate_waste_ratio * self.todays_servings #eat enough so consider pw already
-        #TODO or should we not do tihs
+            random.uniform(1,ratio_avail_req) * self.household_plate_waste_ratio * self.todays_servings #eat enough so consider pw already
+            
         return planned
     
     def cook_and_eat(self, used_time:float) -> tuple[float,float]: 
@@ -262,7 +263,7 @@ class HouseholdCookingManager:
         #still hungry -> fe
         if self.todays_servings > 0: 
             if strategy == "EEFfridge":  #we only ate from fridge - so lets quickly cook
-                meal,shopping_time,cooking_time = self._cook("EEF", is_quickcook = True)
+                meal,shopping_time,cooking_time = self._cook("EEF", is_quickcook = not self._has_enough_time())
                 #globals.log(self,"quick cook more:")    
                 if meal is not None: 
                     #globals.log(self,meal["servings"])
@@ -325,17 +326,18 @@ class HouseholdCookingManager:
         assert not (strategy != None and meal is not None)   
         needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
         
-        if meal is None and needed_serv > 0.001:  
+        if meal is not None: 
+            needed_serv = self._consume(meal,needed_serv) # type: ignore
+        else:
             meal = self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector) # type: ignore
-            while needed_serv > 0.001 and not meal is None: #float balance
+            while needed_serv > 0.01 and not meal is None: #float balance
                 self._consume(meal,needed_serv)
                 needed_serv = self.todays_servings + self.household_plate_waste_ratio * self.todays_servings
-                if needed_serv > 0.001: 
+                if needed_serv > 0.01:
                     meal = self.fridge.get_item_by_strategy(strategy=strategy, preference_vector=self.preference_vector) # type: ignore
                     
                 self.log_today_leftovers = 1 # type: ignore #yes we ate leftovers today 
-        else: 
-            needed_serv = self._consume(meal,needed_serv) # type: ignore
+
 
         
     def _consume(self,meal:pd.Series,needed_serv:float) -> None: 

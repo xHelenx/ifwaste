@@ -11,7 +11,7 @@ from EnumDiscountEffect import EnumDiscountEffect
 
 class BasketCurator(): 
     
-    def __init__(self,stores:list[Store],servings_to_buy_fg:pd.Series | None=None,budget:float | None = None, logger:logging.Logger|None=None) -> None:
+    def __init__(self,stores:list[Store], servings_to_buy_fg:pd.Series | None=None,budget:float | None = None, logger:logging.Logger|None=None, req_servings_per_fg:dict | None = None) -> None:
         """initalizes BasketCurator.
 
         Args:
@@ -34,7 +34,8 @@ class BasketCurator():
         self.stores:list[Store] = stores
         self.budget:float | None = budget
         self.likelihood_to_stop:float = 0
-        
+        self.req_servings_per_fg :dict | None = req_servings_per_fg #the req servins are based on the food preferences so here used to estimate likelihood of purchase impulsively
+        self.total_req_servings = 0 if self.req_servings_per_fg is None else sum(self.req_servings_per_fg.values())
         rows = []
         if servings_to_buy_fg is None:
             servings_to_buy_fg = pd.Series()
@@ -70,7 +71,7 @@ class BasketCurator():
         else:
             return False
         
-    def create_basket(self,hh_id:int, is_quickshop:bool=False) -> None:
+    def create_basket(self,hh_id:int, is_quickshop:bool=False,req_servings:float=0) -> None:
         """Creates a shopping basket for either a quick shop or a normal shopping. 
         Args:
             is_quickshop (bool, optional): Toggles between quickshop and shopping. Defaults to False.
@@ -83,7 +84,7 @@ class BasketCurator():
         if not is_quickshop:
             self._create_shop_basket(hh_id)
         else:
-            self._create_quickshop_basket(hh_id)
+            self._create_quickshop_basket(hh_id,req_servings)
 
         if len(self.basket) > 0: 
             self._organize_basket()        
@@ -184,35 +185,39 @@ class BasketCurator():
         """        
         # Merge the options with food_groups_df to add the impulse_buy_likelihood
         options = options.merge(globals_config.FOOD_GROUPS[['type', 'impulse_buy_likelihood']], on='type', how='left')
-        options["impulse_buy_likelihood"] = pd.to_numeric(options["impulse_buy_likelihood"])
-        # Normalize the likelihoods to get probabilities
+        options["impulse_buy_likelihood"] = (
+            pd.to_numeric(options["impulse_buy_likelihood"])
+            + (options["type"].map(self.req_servings_per_fg) / self.total_req_servings)
+            + (options["sale_type"] != EnumSales.NONE).astype(int)
+        )/3 # Normalize the likelihoods to get probabilities per item
+        
         total_likelihood = options['impulse_buy_likelihood'].sum()
-        options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'] / total_likelihood
+        options['impulse_buy_likelihood'] = options['impulse_buy_likelihood'] / total_likelihood #overall likelihood
         
         return options
         
-    def _create_quickshop_basket(self, hh_id:int) -> None: 
+    def _create_quickshop_basket(self, hh_id:int,req_servings: float) -> None: 
         """
-        Selects and purchases items for the basket in the quick shop scenarios. This allows 
-        visiting one items and in this case only a single store can be visited. If available if it will one item 
-        of the FGSTOREPREPARED food group and 1-n random other food items.
+        Selects and purchases items for the basket in the quick shop scenarios. If available if the HH will purchase one item 
+        of the FGSTOREPREPARED food group and n random other food items until the daily required servings are surpassed
         
         """ 
-        
+        bought_servings = 0
         options = self._get_stock_options(fgs=[globals_config.FGSTOREPREPARED]) 
         #options = options.dropna()
         if not options.empty:
-            options, _ = self._sample_and_buy(options)
+            options, purchased = self._sample_and_buy(options)
+            bought_servings += purchased["servings"]
         
         options = self._get_stock_options()
-        n = random.randint(1,globals_config.get_parameter_value(globals_config.NH_BASKETCURATOR_MAX_ITEMS_QUICKSHOP,hh_id))
         
-        for _ in range(n): 
+        while bought_servings < req_servings: 
             options = options[options["amount"] > 0]
             #options = options.dropna()
             if options.empty: 
                 break
-            options, _ = self._sample_and_buy(options)
+            options, purchased = self._sample_and_buy(options)
+            bought_servings += purchased["servings"]
         
     def is_basket_in_budget(self)-> bool: 
         '''
@@ -771,34 +776,27 @@ class BasketCurator():
         Returns:
             pd.Dataframe: All options matching the filters
         """
-        predefined_columns_set = {"type", "servings", "days_till_expiry", "price_per_serving", "sale_type", "discount_effect",
-                                "deal_value", "sale_timer", "store", "product_ID", "amount"}
         options = pd.DataFrame()
         #go over required food groups
         if fgs == None: 
             for store in self.stores: 
                 if len(options) == 0:
                     options = store.stock.copy(deep=True)
-                    assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                 else: 
                     options = pd.concat([options, store.stock.copy(deep=True)], ignore_index=True)
-                    assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
         else: 
             for fg in fgs:
                 for store in self.stores: 
                     if store.is_fg_in_stock(fg): 
                         if len(options) == 0: 
                             options = store.stock[store.stock["type"]==fg].copy(deep=True)
-                            assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                         else: 
                             options = pd.concat([options, store.stock.copy(deep=True)], ignore_index=True)
-                            assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
         if len(options) > 0 and focus_on_sales : 
             items_on_sale = options[options["sale_type"] != EnumSales.NONE] 
             if len(items_on_sale) > 0: 
                 #if items are on sale buy from those (even tho might not be best deal)
                 options = items_on_sale
-                assert set(options.columns).issubset(predefined_columns_set), f"Unexpected column detected: {set(options.columns) - predefined_columns_set}"
                 
         return options  # type: ignore
     
