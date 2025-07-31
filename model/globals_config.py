@@ -12,6 +12,9 @@ DAY = 0
 
 SALES_TIMER_PLACEHOLDER = 1000
 
+QUICK_SHOP_TIME = 15
+GROCERY_MULITPLIER = 1.3
+
 ## Constants - DONT CHANGE
 CONFIG_PATH = '/blue/carpena/haasehelen/ifwaste/bash-scripts/experiments/config_trial.json'
 SAMPLE_FILENAME_HH = "household_ifwaste_sample.txt"
@@ -24,7 +27,7 @@ logger_store = None
 LOG_TYPE_ACTIVE_DAY_SEPARATOR =True
 LOG_TYPE_ACTIVE_TOTAL_SERV = True #TODO move to config
 LOG_TYPE_ACTIVE_BASKET_ADJUSTMENT = False
-LOG_TYPE_ACTIVE_STORE_TYPE = False
+LOG_TYPE_ACTIVE_STORE_TYPE = True
 LOG_TYPE_ACTIVE_BASKET_COMPOSITION = False
 
 LOG_TYPE_DAY_SEPARATOR = "day_separator"
@@ -416,50 +419,50 @@ def configure_simulation(simulation_run_id,file:str="",as_dict:dict={}) -> None:
     
     STORE_CON_PATH = config["Convenience_store"]["product_range"]
     STORE_CON_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["quality"])]
-    STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["high_stock_interval_1"])]
+    STORE_CON_SAL_HIGH_STOCK_INTERVAL_1 = read_noneable_values(config["Convenience_store"]["Sales"]["high_stock_interval_1"], [None])
     STORE_CON_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Convenience_store"]["Sales"]["high_stock_interval_2"], STORE_CON_SAL_HIGH_STOCK_INTERVAL_1)#
-    STORE_CON_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["seasonal_likelihood"])]
-    STORE_CON_SAL_SEASONAL_DURATION = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["seasonal_duration"])]
-    STORE_CON_SAL_CLEARANCE_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Convenience_store"]["Sales"]["clearance_interval_1_expires_within"])]
+    STORE_CON_SAL_SEASONAL_LIKELIHOOD = read_noneable_values(config["Convenience_store"]["Sales"]["seasonal_likelihood"], [0])
+    STORE_CON_SAL_SEASONAL_DURATION = read_noneable_values(config["Convenience_store"]["Sales"]["seasonal_duration"], [0])
+    STORE_CON_SAL_CLEARANCE_INTERVAL_1 = read_noneable_values(config["Convenience_store"]["Sales"]["clearance_interval_1_expires_within"], [None])
     STORE_CON_SAL_CLEARANCE_INTERVAL_2 = read_noneable_values(config["Convenience_store"]["Sales"]["clearance_interval_2_expires_within"], STORE_CON_SAL_HIGH_STOCK_INTERVAL_1)
     STORE_CON_SAL_CLEARANCE_INTERVAL_3 = read_noneable_values(config["Convenience_store"]["Sales"]["clearance_interval_3_expires_within"], STORE_CON_SAL_HIGH_STOCK_INTERVAL_1)
-    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Convenience_store"]["Sales"]["high_stock_discount_interval_1"])
+    STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Convenience_store"]["Sales"]["high_stock_discount_interval_1"], [None])
     STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = read_sales(config["Convenience_store"]["Sales"]["high_stock_discount_interval_2"],STORE_CON_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1)
-    STORE_CON_SAL_SEASONAL_DISCOUNT = read_sales(config["Convenience_store"]["Sales"]["seasonal_discount"])
-    STORE_CON_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Convenience_store"]["Sales"]["clearance_interval_1_discount"])
+    STORE_CON_SAL_SEASONAL_DISCOUNT = read_sales(config["Convenience_store"]["Sales"]["seasonal_discount"], [0])
+    STORE_CON_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Convenience_store"]["Sales"]["clearance_interval_1_discount"], [0])
     STORE_CON_SAL_CLEARANCE_DISCOUNT_2 = read_sales(config["Convenience_store"]["Sales"]["clearance_interval_2_discount"],STORE_CON_SAL_CLEARANCE_DISCOUNT_1)
     STORE_CON_SAL_CLEARANCE_DISCOUNT_3 = read_sales(config["Convenience_store"]["Sales"]["clearance_interval_3_discount"],STORE_CON_SAL_CLEARANCE_DISCOUNT_1)
     
     STORE_DIS_PATH = config["Discount_retailer"]["product_range"]
     STORE_DIS_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["quality"])]
-    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["high_stock_interval_1"])]
+    STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1 = read_noneable_values(config["Discount_retailer"]["Sales"]["high_stock_interval_1"], [None])
     STORE_DIS_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Discount_retailer"]["Sales"]["high_stock_interval_2"],STORE_DIS_SAL_HIGH_STOCK_INTERVAL_1)
-    STORE_DIS_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["seasonal_likelihood"])]
-    STORE_DIS_SAL_SEASONAL_DURATION = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["seasonal_duration"])]
-    STORE_DIS_SAL_CLEARANCE_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Discount_retailer"]["Sales"]["clearance_interval_1_expires_within"])]
+    STORE_DIS_SAL_SEASONAL_LIKELIHOOD = read_noneable_values(config["Discount_retailer"]["Sales"]["seasonal_likelihood"], [0])
+    STORE_DIS_SAL_SEASONAL_DURATION = read_noneable_values(config["Discount_retailer"]["Sales"]["seasonal_duration"], [0])
+    STORE_DIS_SAL_CLEARANCE_INTERVAL_1 = read_noneable_values(config["Discount_retailer"]["Sales"]["clearance_interval_1_expires_within"], [None])
     STORE_DIS_SAL_CLEARANCE_INTERVAL_2 = read_noneable_values(config["Discount_retailer"]["Sales"]["clearance_interval_2_expires_within"],STORE_DIS_SAL_CLEARANCE_INTERVAL_1)
     STORE_DIS_SAL_CLEARANCE_INTERVAL_3 = read_noneable_values(config["Discount_retailer"]["Sales"]["clearance_interval_3_expires_within"],STORE_DIS_SAL_CLEARANCE_INTERVAL_1)
-    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"])
+    STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Discount_retailer"]["Sales"]["high_stock_discount_interval_1"], [None])
     STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = read_sales(config["Discount_retailer"]["Sales"]["high_stock_discount_interval_2"],STORE_DIS_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1)
-    STORE_DIS_SAL_SEASONAL_DISCOUNT = read_sales(config["Discount_retailer"]["Sales"]["seasonal_discount"])
-    STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Discount_retailer"]["Sales"]["clearance_interval_1_discount"])
+    STORE_DIS_SAL_SEASONAL_DISCOUNT = read_sales(config["Discount_retailer"]["Sales"]["seasonal_discount"], [0])
+    STORE_DIS_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Discount_retailer"]["Sales"]["clearance_interval_1_discount"], [0])
     STORE_DIS_SAL_CLEARANCE_DISCOUNT_2 = read_sales(config["Discount_retailer"]["Sales"]["clearance_interval_2_discount"],STORE_DIS_SAL_CLEARANCE_DISCOUNT_1)
     STORE_DIS_SAL_CLEARANCE_DISCOUNT_3 = read_sales(config["Discount_retailer"]["Sales"]["clearance_interval_3_discount"],STORE_DIS_SAL_CLEARANCE_DISCOUNT_1)
     
     STORE_PRE_PATH = config["Premium_retailer"]["product_range"]
     STORE_PRE_QUALITY = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["quality"])]
-    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["high_stock_interval_1"])]
+    STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1 = read_noneable_values(config["Premium_retailer"]["Sales"]["high_stock_interval_1"], [None])
     STORE_PRE_SAL_HIGH_STOCK_INTERVAL_2 = read_noneable_values(config["Premium_retailer"]["Sales"]["high_stock_interval_2"],STORE_PRE_SAL_HIGH_STOCK_INTERVAL_1)
-    STORE_PRE_SAL_SEASONAL_LIKELIHOOD = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["seasonal_likelihood"])]
-    STORE_PRE_SAL_SEASONAL_DURATION = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["seasonal_duration"])]
-    STORE_PRE_SAL_CLEARANCE_INTERVAL_1 = [int(x) if x.isdigit() else float(x) for x in (config["Premium_retailer"]["Sales"]["clearance_interval_1_expires_within"])]
+    STORE_PRE_SAL_SEASONAL_LIKELIHOOD = read_noneable_values(config["Premium_retailer"]["Sales"]["seasonal_likelihood"], [0])
+    STORE_PRE_SAL_SEASONAL_DURATION = read_noneable_values(config["Premium_retailer"]["Sales"]["seasonal_duration"], [0])
+    STORE_PRE_SAL_CLEARANCE_INTERVAL_1 = read_noneable_values(config["Premium_retailer"]["Sales"]["clearance_interval_1_expires_within"], [None])
     STORE_PRE_SAL_CLEARANCE_INTERVAL_2 = read_noneable_values(config["Premium_retailer"]["Sales"]["clearance_interval_2_expires_within"],STORE_PRE_SAL_CLEARANCE_INTERVAL_1)
     STORE_PRE_SAL_CLEARANCE_INTERVAL_3 = read_noneable_values(config["Premium_retailer"]["Sales"]["clearance_interval_3_expires_within"],STORE_PRE_SAL_CLEARANCE_INTERVAL_1)
 
-    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"])
+    STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1 = read_sales(config["Premium_retailer"]["Sales"]["high_stock_discount_interval_1"], [None])
     STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_2 = read_sales(config["Premium_retailer"]["Sales"]["high_stock_discount_interval_2"],STORE_PRE_SAL_HIGH_STOCK_DISCOUNT_INTERVAL_1)
-    STORE_PRE_SAL_SEASONAL_DISCOUNT = read_sales(config["Premium_retailer"]["Sales"]["seasonal_discount"])
-    STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Premium_retailer"]["Sales"]["clearance_interval_1_discount"])
+    STORE_PRE_SAL_SEASONAL_DISCOUNT = read_sales(config["Premium_retailer"]["Sales"]["seasonal_discount"], [0])
+    STORE_PRE_SAL_CLEARANCE_DISCOUNT_1 = read_sales(config["Premium_retailer"]["Sales"]["clearance_interval_1_discount"], [0])
     STORE_PRE_SAL_CLEARANCE_DISCOUNT_2 = read_sales(config["Premium_retailer"]["Sales"]["clearance_interval_2_discount"],STORE_PRE_SAL_CLEARANCE_DISCOUNT_1)
     STORE_PRE_SAL_CLEARANCE_DISCOUNT_3 = read_sales(config["Premium_retailer"]["Sales"]["clearance_interval_3_discount"],STORE_PRE_SAL_CLEARANCE_DISCOUNT_1)
 
@@ -487,7 +490,7 @@ def read_noneable_values(value, fallback):
         else: 
             return fallback
     else: 
-        return value
+        return [value]
     
 def read_sales(value, fallback=None): 
     value = ast.literal_eval(value[0])

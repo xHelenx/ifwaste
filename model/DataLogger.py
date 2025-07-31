@@ -60,9 +60,11 @@ class DataLogger:
                                     globals_config.STATUS_PREPREPARED,
                                     "n_quickcook",
                                     "n_cook",
+                                    "n_attempted_cook",
                                     "n_leftovers",
                                     "n_shop",
-                                    "n_quickshop"
+                                    "n_quickshop",
+                                    "n_attempted_shop"
                                     ])
     def log_grid(self,grid:"Grid"): # type: ignore
         """Write the current grid to the log_grid
@@ -117,7 +119,12 @@ class DataLogger:
                 "ate_leftovers": house.cookingManager.log_today_leftovers,
                 "quick_cook":house.cookingManager.log_today_quickcook,
                 "shopping_time": house.log_shopping_time,
-                "cooking_time": house.log_cooking_time
+                "cooking_time": house.log_cooking_time,
+                "shopped": house.shoppingManager.log_shop,
+                "quick_shopped":house.shoppingManager.log_quickshop,
+                "attempted_shop": house.shoppingManager.log_attempted_shop,
+                "attempted_cook":house.cookingManager.log_attempted_cook,
+                
             }
     
     def log_households_left_resources(self, houses:list["Household"]) -> None:  # type: ignore
@@ -155,6 +162,23 @@ class DataLogger:
             for index in store.stock.index: 
                 item = store.stock.loc[index]
                 self.logs["log_store_daily"].loc[len(self.logs["log_store_daily"])] = { # type: ignore
+                    "status": "in_stock",
+                    "day": globals_config.DAY,
+                    'type': item["type"],
+                    'servings': item["servings"],
+                    'days_till_expiry': item["days_till_expiry"],
+                    'price_per_serving': item["price_per_serving"],
+                    'sale_type': item["sale_type"],
+                    'discount_effect': item["discount_effect"],
+                    'amount': item["amount"],
+                    'sale_timer': item["sale_timer"],
+                    'store': item["store"],
+                    'product_ID':item["product_ID"]
+                }
+            for index in store.thrown_out.index: 
+                item = store.thrown_out.loc[index]
+                self.logs["log_store_daily"].loc[len(self.logs["log_store_daily"])] = { # type: ignore
+                    "status": "thrown_out",
                     "day": globals_config.DAY,
                     'type': item["type"],
                     'servings': item["servings"],
@@ -168,46 +192,49 @@ class DataLogger:
                     'product_ID':item["product_ID"]
                 }
         
+    def _round_floats(self, df: pd.DataFrame) -> pd.DataFrame:
+            float_cols = df.select_dtypes(include=['float']).columns
+            df[float_cols] = df[float_cols].round(3)
+            return df
     
-    def data_to_csv(self,logs_to_write: list[str]|None=None) -> None: 
-        """Saves the finished tracked data to csv files
+    def data_to_csv(self, logs_to_write: list[str] | None = None) -> None:
+        """Saves the finished tracked data to csv files.
 
         Args:
-            run (int): Number of simulation run, used to write folder_name
             logs_to_write (list[str] | None, optional): logs_to_write, None defaults to all logs in self.logs. Defaults to None.
-        """                
+        """
         path = self._create_folder()
-        
+
         if logs_to_write is not None and "aggregated_outputs" in logs_to_write:
-            file_path = path + self.foldername + "//" + "aggregated_outputs" + ".csv"
-            log_header = True
-            if os.path.exists(file_path):
-                log_header = False
-            self.aggregated_outputs = self.aggregated_outputs.astype({col: "float64" for col in self.aggregated_outputs.columns.tolist()})
-            self.aggregated_outputs = self.aggregated_outputs.round(3)
+            file_path = os.path.join(path, self.foldername, "aggregated_outputs.csv")
+            log_header = not os.path.exists(file_path)
+            self.aggregated_outputs = self._round_floats(self.aggregated_outputs)
             self.aggregated_outputs.to_csv(file_path, header=log_header, mode="a", index=False)
             self.reset_logs()
-        elif logs_to_write is not None: 
-            for item in logs_to_write: 
+
+        elif logs_to_write is not None:
+            for item in logs_to_write:
                 config_header = True
-                config_path = path + self.foldername + f"//"+ item + ".csv"
+                config_path = os.path.join(path, self.foldername, f"{item}.csv")
                 if os.path.exists(config_path):
                     config_header = False
                 if isinstance(self.logs[item], pd.DataFrame):
-                    self.logs[item].to_csv(config_path, header=config_header, mode="a", index=False)
-                else: 
-                    with open( config_path, "w", newline="") as file:
-                        file.write(self.logs[item]) # type: ignore
+                    df = self._round_floats(self.logs[item])
+                    df.to_csv(config_path, header=config_header, mode="a", index=False)
+                else:
+                    with open(config_path, "w", newline="") as file:
+                        file.write(self.logs[item])  # type: ignore
+
         else:
             for log_name, log_file in self.logs.items():
-                if not log_name == "log_hh_config" and not log_name == "log_sim_config"\
-                    and not log_name == "log_grid":
-                    file_path = path + self.foldername + "//" + log_name + ".csv"
-                    log_header = True
-                    if os.path.exists(file_path):
-                        log_header = False
-                    log_file.to_csv(file_path, header=log_header, mode="a", index=False)
-                    self.reset_logs()
+                if log_name not in ["log_hh_config", "log_sim_config", "log_grid"]:
+                    file_path = os.path.join(path, self.foldername, f"{log_name}.csv")
+                    log_header = not os.path.exists(file_path)
+                    if isinstance(log_file, pd.DataFrame):
+                        df = self._round_floats(log_file)
+                        df.to_csv(file_path, header=log_header, mode="a", index=False)
+            self.reset_logs()
+
     
     def _create_folder(self)  -> str:
         """creates the folder name and returns it. Will be used for 
@@ -265,7 +292,7 @@ class DataLogger:
             columns=(["store","day","type","servings",
                     "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "product_ID"])),
         "log_hh_daily" : pd.DataFrame(
-            columns=["household","day","budget","servings","EEF","cooked","ate_leftovers","quick_cook","shopping_time", "cooking_time"])
+            columns=["household","day","budget","servings","EEF","shopped", "quick_shopped", "attempted_shop", "attempted_cook","cooked","ate_leftovers","quick_cook","shopping_time", "cooking_time"])
         }
         
     def append_log(self, id:int, log_key:str, data:pd.DataFrame | pd.Series  | None ) -> None:
@@ -356,6 +383,7 @@ class DataLogger:
         """  
         for _, item in data.iterrows():
             self.logs["log_bought"].loc[len(self.logs["log_bought"])] = { # type: ignore
+                "is_quickshop": item["is_quickshop"],
                 "household": item["household"],
                 "day": globals_config.DAY,
                 'type': item["type"],
@@ -389,21 +417,25 @@ class DataLogger:
                 globals_config.STATUS_PREPREPARED: 0,
                 "n_quickcook": 0,
                 "n_cook": 0,
+                "n_attempted_cook":0,
                 "n_leftovers": 0,
                 "n_shop": 0,
-                "n_quickshop": 0
+                "n_quickshop": 0,
+                "n_attempted_shop":0
             }
         
         for house in houses:       
             log_wasted = self.logs["log_wasted"]
             log_wasted = log_wasted[(log_wasted["day"] == day) & (log_wasted["household"] == house.id)]
             if day > 13:
-                new_vals["household"] = house.id
+                new_vals["household"] = int(house.id)
                 new_vals["n_quickcook"] = int(house.cookingManager.log_today_quickcook)
                 new_vals["n_cook"] =  int(house.cookingManager.log_today_cooked)
+                new_vals["n_attempted_cook"] =  int(house.cookingManager.log_attempted_cook)
                 new_vals["n_leftovers"] = int(house.cookingManager.log_today_leftovers)
-                new_vals["n_shop"] = house.shoppingManager.log_shop
-                new_vals["n_quickshop"] = house.shoppingManager.log_quickshop
+                new_vals["n_shop"] = int(house.shoppingManager.log_shop)
+                new_vals["n_quickshop"] = int(house.shoppingManager.log_quickshop)
+                new_vals["n_attempted_shop"] = int(house.shoppingManager.log_attempted_shop)
                 
                 if len(log_wasted) > 0:
                     new_vals[globals_config.FGMEAT] = log_wasted[globals_config.FGMEAT].sum()
