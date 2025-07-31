@@ -21,3 +21,6 @@ bash-scripts/LOGS/*
 model/*.out
 
 misc/*
+
+#ignore figure files
+analysis/figures/*
