@@ -31,14 +31,18 @@ class Neighborhood():
             self.houses.append(house)
             
         #setup all stores
+        k = globals_config.NH_HOUSES
         for i in range(len(globals_config.NH_STORE_TYPES)):
-            for j in range (0,globals_config.NH_STORE_AMOUNTS[i]): 
+            for _ in range (0,globals_config.NH_STORE_AMOUNTS[i]): 
                 if globals_config.NH_STORE_TYPES[i] == EnumStoreTier.DISCOUNTRETAILER.value:
-                    store = StoreDiscounterRetailer(grid=self.grid,id=i*j+j)
+                    store = StoreDiscounterRetailer(grid=self.grid,id=k)
+                    k+=1
                 elif globals_config.NH_STORE_TYPES[i] == EnumStoreTier.PREMIUMTIER.value:
-                    store = StorePremimumRetailer(grid=self.grid,id=i*j+j)
+                    store = StorePremimumRetailer(grid=self.grid,id=k)
+                    k+=1
                 elif globals_config.NH_STORE_TYPES[i] == EnumStoreTier.CONVENIENCETIER.value:
-                    store = StoreConvenienceStore(grid=self.grid,id=i*j+j)
+                    store = StoreConvenienceStore(grid=self.grid,id=k)
+                    k+=1
                 else: 
                     raise ValueError("store type does not exist")
                 self.grid.assign_location(object=store)

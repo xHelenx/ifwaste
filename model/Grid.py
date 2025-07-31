@@ -19,7 +19,7 @@ class Grid:
         #create grid that is as "square shaped as possible"      
         
         self.grid:list[list[tuple[int,int] | None | Location]] = self.setup_grid(gridsize=gridsize)    
-        
+        self.stores = []
         self.time_per_cell:float = globals_config.NH_GRID_TRAVEL_TIME_PER_CELL[0]
         self.available_positions:list[tuple[int,int]] =  [(r, c) for r in range(len(self.grid)) for c in range(len(self.grid[0]))]    
 
@@ -88,6 +88,8 @@ class Grid:
             sqrt_n += 1 
             
         return [[None] * x_dim for _ in range(sqrt_n)]
+    def get_random_store(self):
+        return random.choice(self.stores)
     
     def assign_location(self, object:Location) -> None: 
         """Positions a location on a free position of the grid.
@@ -98,6 +100,8 @@ class Grid:
         index = random.randint(0, len(self.available_positions) - 1)
         row, col = self.available_positions.pop(index)
         self.grid[row][col] = object
+        if isinstance(object,Store):
+            self.stores.append(object)
         
     def get_travel_time_one_way(self,start:tuple[int,int],destination:tuple[int,int]) -> float: 
         '''
