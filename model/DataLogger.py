@@ -39,8 +39,7 @@ class DataLogger:
             "shopping_frequency",        
         ])
         
-        self.logs["log_sim_config"] = pd.DataFrame(columns=
-                                                    ["total_days"])
+        
         self.logs["log_grid"] = ""
         
         self.aggregated_outputs = pd.DataFrame(columns=[
@@ -79,9 +78,6 @@ class DataLogger:
         Args:
             houses (list[Household]): houses to log the information for
         """        
-        
-        
-        self.logs["log_sim_config"].loc[0, "total_days"] = globals_config.SIMULATION_DAYS
 
         for house in houses: 
             self.logs["log_hh_config"].loc[int(house.id)] = { # type: ignore
@@ -227,7 +223,7 @@ class DataLogger:
 
         else:
             for log_name, log_file in self.logs.items():
-                if log_name not in ["log_hh_config", "log_sim_config", "log_grid"]:
+                if log_name not in ["log_hh_config", "log_grid"]:
                     file_path = os.path.join(path, self.foldername, f"{log_name}.csv")
                     log_header = not os.path.exists(file_path)
                     if isinstance(log_file, pd.DataFrame):

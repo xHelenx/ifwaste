@@ -60,7 +60,7 @@ class Neighborhood():
         self.data_logger.log_configs(houses=self.houses)
         self.data_logger.log_grid(grid=self.grid)
         if globals_config.LOG_ALL_OUTPUT:
-            self.data_logger.data_to_csv(logs_to_write=["log_hh_config", "log_sim_config", "log_grid"])
+            self.data_logger.data_to_csv(logs_to_write=["log_hh_config", "log_grid"])
         globals_config.DAY = 0
         for i in range(globals_config.SIMULATION_DAYS):
             print(i)

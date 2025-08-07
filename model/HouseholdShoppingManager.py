@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import random
+from sys import deactivate_stack_trampoline
 from typing import List
 
 import globals_config as globals_config
@@ -221,7 +222,7 @@ class HouseholdShoppingManager:
         budget = self._get_budget_for_this_purchase(is_quickshop=True)
         
         #build quick basket
-        basketCurator = BasketCurator(stores=[self.grid.get_random_store()], logger=self.logger, budget=budget) 
+        basketCurator = BasketCurator(stores=[self.grid.get_random_store()], logger=self.logger, budget=budget, deal_sens=self.deal_sens,) 
         basketCurator.create_basket(self.id,is_quickshop=True, req_servings=req_servings)      
         #basketCurator.impulse_buy(self.impulsivity,self.id)
         
@@ -268,7 +269,7 @@ class HouseholdShoppingManager:
                 selected_stores.append(store)
 
         #create initial basket with groceries
-        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg) # type: ignore
+        basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg, deal_sens=self.deal_sens) # type: ignore
         basketCurator.create_basket(self.id)
 
         if len(basketCurator.basket) > 0:
@@ -344,27 +345,27 @@ class HouseholdShoppingManager:
             if is_planner: 
                 basketCurator.adjust_basket(self.id)
             else: 
-                if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
-                    if not basketCurator.is_basket_in_budget(): 
+                if not basketCurator.is_basket_in_budget(): 
+                    if random.uniform(0,1) > 0.5 and len(selected_stores) < 2: 
                         store = self.choose_a_store(is_planner=is_planner, selected_store=selected_stores, needs_lower_price=True)
                         if not store is None and not store in selected_stores: 
                                 selected_stores.append(store)
                                 assert len(selected_stores) == len(set(selected_stores))
                                 #redo entire basket now with a bonus store
                                 basketCurator.return_basket_to_store() #we are starting over instead
-                                basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg)
+                                basketCurator = BasketCurator(stores=selected_stores, servings_to_buy_fg=servings_to_buy_fg, budget=budget, logger=self.logger, req_servings_per_fg=self.req_servings_per_fg, deal_sens=self.deal_sens) 
                                 basketCurator.create_basket(self.id)
-                    if not basketCurator.does_basket_cover_all_fg(): 
-                        if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
-                            #adding a store from a lower price group
-                            store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
-                            if store != None and store not in selected_stores:
-                                    selected_stores.append(store)
-                                    assert len(selected_stores) == len(set(selected_stores))
-                                    #basketCurator.stores.append(store)
-                                    assert len(basketCurator.stores) == len(set(basketCurator.stores))
-                                    #buy missing food items + keep old basket #TODO is this ok?
-                                    basketCurator.create_basket(self.id)
+                if not basketCurator.does_basket_cover_all_fg(): 
+                    if random.uniform(0,1) > 0.5 and len(selected_stores) < 2:
+                        #adding a store from a lower price group
+                        store = self.choose_a_store(is_planner, selected_stores, required_fgs=basketCurator.get_missing_fgs())
+                        if store != None and store not in selected_stores:
+                                selected_stores.append(store)
+                                assert len(selected_stores) == len(set(selected_stores))
+                                #basketCurator.stores.append(store)
+                                assert len(basketCurator.stores) == len(set(basketCurator.stores))
+                                #buy missing food items + keep old basket #TODO is this ok?
+                                basketCurator.create_basket(self.id)
         if self._is_adjustment_needed(basketCurator): 
             basketCurator.adjust_basket(self.id)
             

@@ -1,4 +1,4 @@
-name: ifwaste-env-2
+name: ifwaste-env
 channels:
   - conda-forge
   - bioconda

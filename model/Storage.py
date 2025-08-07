@@ -93,6 +93,10 @@ class Storage:
         if self.is_empty(): 
             return None 
         
+        for fg in food_groups: 
+            if preference_vector[fg] <= 0:
+                food_groups.remove(fg)  # Remove food groups with zero preference        
+        
         rel_items = self.current_items[self.current_items[food_groups].gt(0).any(axis=1)]
         if len(rel_items) == 0:
             return None #e.g. in quickshop maybe some fg are used up during sampling a.s.p

@@ -11,7 +11,7 @@ from EnumDiscountEffect import EnumDiscountEffect
 
 class BasketCurator(): 
     
-    def __init__(self,stores:list[Store], servings_to_buy_fg:pd.Series | None=None,budget:float | None = None, logger:logging.Logger|None=None, req_servings_per_fg:dict | None = None) -> None:
+    def __init__(self,stores:list[Store], servings_to_buy_fg:pd.Series | None=None,budget:float | None = None, logger:logging.Logger|None=None, req_servings_per_fg:dict | None = None, deal_sens:float = 0) -> None:
         """initalizes BasketCurator.
 
         Args:
@@ -28,7 +28,8 @@ class BasketCurator():
                                         current basket composition 
             serv_track (pd.DataFrame) : helping df to keep track of bought and needed servings                                        
             
-        """      
+        """ 
+        self.deal_sens = deal_sens     
         self.logger: logging.Logger|None = logger  
         self.basket:pd.DataFrame = pd.DataFrame()
         self.stores:list[Store] = stores
@@ -115,15 +116,22 @@ class BasketCurator():
         """        
         # buy 1 
         options = options[options["amount"]> 0]
-        #globals.log(self.stores[0], "OPTIONS Before purchase")
-        #globals.log(self.stores[0], options)
-        plan_to_purchase = options.sample(1,replace=True).iloc[0]
+        on_sale = options[options["sale_type"] != EnumSales.NONE]
+        not_on_sale = options[options["sale_type"] == EnumSales.NONE]
+        #calculate likelihood of being sampled for sale and not on sale options
+        n = len(options)
+        n_on_sale = len(on_sale)
+        prob_not_on_sale = (1-self.deal_sens) / n if n > 0 else 0 
+        prob_on_sale = prob_not_on_sale + (self.deal_sens / n_on_sale) if n_on_sale > 0 else 0
+        on_sale["likelihood"] = prob_on_sale
+        not_on_sale["likelihood"] = prob_not_on_sale
+        
+        options = pd.concat([on_sale, not_on_sale])
+        plan_to_purchase = options.sample(1,replace=True, weights="likelihood").iloc[0]
         self._buy(plan_to_purchase, 1)
         options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current
         options = options[options["amount"] > 0]
-        #globals.log(self.stores[0], "OPTIONS after purchase")
-        #globals.log(self.stores[0], options)
-        
+        options = options.drop(columns=["likelihood"])
         self._add_item(plan_to_purchase, 1)
     
         return options, plan_to_purchase  
@@ -135,7 +143,7 @@ class BasketCurator():
         """        
         #merge available stocks
         for fg in self.serv_track[self._get_purchased_servings_from_serv_track()  < self.serv_track["required"]]["type"].tolist():
-            options = self._get_stock_options(fgs=[fg], focus_on_sales=True)   
+            options = self._get_stock_options(fgs=[fg])   
             if not options.empty: 
                 idx =  self.serv_track[self.serv_track["type"] == fg].index[0]
                 needed_servings = self.serv_track.loc[idx,"required"]- self._get_purchased_servings_from_serv_track().loc[idx]
@@ -358,7 +366,7 @@ class BasketCurator():
         Buys items from another food group until the the missing servings (required <= purchased servings)
         have been compensated.
         """        
-        options = self._get_stock_options(fgs=None, focus_on_sales=False)
+        options = self._get_stock_options(fgs=None)
         #options = options.dropna()
     
         #sales and no sales here
@@ -512,7 +520,7 @@ class BasketCurator():
         """        
         
         found_replaceable_item = False #might have to try every item in self.basket
-        options = self._get_stock_options(None,focus_on_sales=False)
+        options = self._get_stock_options(None)
         options["adjustment"] = "None" 
         self.basket["adjustment"] = "None"
         

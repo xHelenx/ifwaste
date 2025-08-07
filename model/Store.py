@@ -136,7 +136,8 @@ class Store(Location):
 
             else: #else add it as new item 
                 new_item = new_item.reindex(self.stock.columns, fill_value=None) 
-                self.stock = pd.concat([self.stock, pd.DataFrame([new_item])], ignore_index=True)                  
+                if new_item is not None: 
+                    self.stock = pd.concat([self.stock, pd.DataFrame([new_item])], ignore_index=True)                  
                 assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
             #globals.log(self,new_item.to_frame().T)
             self.organize_stock()
@@ -217,7 +218,8 @@ class Store(Location):
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
             #self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
-            self.thrown_out = pd.concat([self.thrown_out, spoiled_food], ignore_index=True)  # type: ignore
+            if spoiled_food is not None:
+                self.thrown_out = pd.concat([self.thrown_out, spoiled_food], ignore_index=True)  # type: ignore
             self.stock.drop(spoiled_food.index, inplace=True)  # remove expired 
             self.stock = self.stock.drop(columns=["reason"])
     
