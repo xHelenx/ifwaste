@@ -1,0 +1,4 @@
+Neighborhood:Grid:travel_time_per_cell
+Neighborhood:BasketCurator:increment_likelihood
+Neighborhood:BasketCurator:max_items_quickshop
+Neighborhood:nh_store_amounts

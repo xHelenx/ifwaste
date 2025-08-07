@@ -1,0 +1,25 @@
+{
+    "Premium_retailer" : {
+            "product_range": {"value":"/blue/carpena/haasehelen/ifwaste/input/store_products/store_type_premium_retailer.csv", "layer":"simulation"},
+            "quality":{"value":0.8, "layer":"simulation"},
+            "price":{"value":0.58,"layer":"simulation"},
+
+            "Sales": {
+                "high_stock_interval_1": {"distribution":"unif", "bounds": [1.3,1.5],"dtype":"float","decimals": "2", "layer":"neighborhood"},
+                "high_stock_interval_2": {"value": "None", "layer":"simulation"},
+                "high_stock_discount_interval_1": {"distribution":"sales", "options":["DISCOUNT10"], "layer":"neighborhood"},
+                "high_stock_discount_interval_2": {"value": "None", "layer":"simulation"},
+
+                "seasonal_likelihood": {"distribution":"unif", "bounds": [0,0.05],"dtype":"float","decimals": "2", "layer":"neighborhood"},
+                "seasonal_discount": {"distribution":"sales", "options":["DISCOUNT10"], "layer":"neighborhood"},
+                "seasonal_duration" : {"value":4, "layer":"simulation"},
+
+                "clearance_interval_1_expires_within" : {"value":2, "layer":"simulation"},
+                "clearance_interval_2_expires_within" : {"value":"None", "layer":"simulation"}, 
+                "clearance_interval_3_expires_within" : {"value":"None", "layer":"simulation"},
+                "clearance_interval_1_discount" : {"distribution":"sales", "options":["DISCOUNT10"], "layer":"neighborhood"},
+                "clearance_interval_2_discount" : {"value":"None", "layer":"simulation"},
+                "clearance_interval_3_discount" : {"value":"None", "layer":"simulation"}
+            }
+        }
+    }
