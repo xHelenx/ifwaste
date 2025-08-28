@@ -1,0 +1,84 @@
+{
+    "Neighborhood" : {
+        "nh_houses" : {"value":10, "layer":"simulation"}, 
+        "nh_store_types": {"value":"['Discount_retailer', 'Premium_retailer', 'Convenience_store']", "layer":"neighborhood"},
+        "nh_store_amounts": {"distribution":"vector", "length": 3, "bounds":[0,1], "dtype":"int", "layer":"neighborhood"},
+        "Grid": {
+            "travel_time_per_cell" : {"distribution":"triang","bounds":[3,7,0.5], "dtype":"float","decimals": "1", "layer":"neighborhood"}
+        },
+        "Store": {
+            "restock_interval" : {"value":2, "layer":"simulation"},
+            "baseline_stock": {"value":100, "layer":"simulation"}
+        },
+        "DealAssessor": {
+            "weight_serving_price": {"value":0.5, "layer":"simulation"}
+        },
+        "BasketCurator":{
+            "increment_likelihood":{"distribution": "unif", "bounds":[0.01,1], "dtype":"float","decimals": "2", "layer":"neighborhood"},
+            "max_items_quickshop": {"distribution": "unif", "bounds":[2,8], "dtype":"int", "layer":"neighborhood"}
+
+        },
+        "Cooking":{
+            "cook_servings_per_grab": {"value":1, "layer":"simulation"}, 
+            "cook_fg_per_qc": {"value":4, "layer":"simulation"}
+        },
+        "Food": {
+            "FGMeat" : {
+                "type" : {"value":  "FGMEAT", "layer":"simulation"},
+                "kg_per_serving" : {"value":  0.089, "layer":"simulation"},
+                "kcal_per_kg": {"value":  2240, "layer":"simulation"},
+                "inedible_percentage": {"value":  0.1477, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[3,10], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.1], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGDairy" : {
+                "type" : {"value" :  "FGDAIRY", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.146, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  2560, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0.081, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[7,40], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.1], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGBaked" : {
+                "type" : {"value" :  "FGBAKED", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.055, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  3370, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[2,14], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1, 0.9], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGVegetable" : {
+                "type" : {"value" :  "FGVEGETABLE", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.112, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  750, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0.2223, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[3,14], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.1], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGDryFood" : {
+                "type" : {"value" :  "FGDRYFOOD", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.076, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  3300, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[60,365], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.1], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGSnacks" : {
+                "type" : {"value" :  "FGSNACKS", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.071, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  3160, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[60,365], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.9], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            },
+            "FGStorePrepared" : {
+                "type" : {"value" :  "FGSTOREPREPARED", "layer":"simulation"},
+                "kg_per_serving" : {"value" :  0.100, "layer":"simulation"},
+                "kcal_per_kg": {"value" :  2680, "layer":"simulation"},
+                "inedible_percentage": {"value" :  0.0393, "layer":"simulation"},
+                "expiration": {"distribution": "unif", "bounds":[3,5], "dtype":"int", "layer":"neighborhood"},
+                "impulse_buy_likelihood" : {"distribution":  "triang", "bounds":[0.01,1,0.9], "dtype":"float","decimals": "2", "layer":"neighborhood"}
+            }
+        }
+    }
+}
