@@ -1,6 +1,8 @@
+-> - QUickshop time muss kleiner sein als min time avail - max time cookigg / 2 - damit immer möglich = aktuell 15
+
+
 # IFWASTE project introduction
 We present the IFWASTE model, an agent-based model designed to simulate HFW dynamics. It captures the process from food acquisition to preparation, consumption, leftover management, and eventual disposal. This version of the model specifically focuses on the grocery shopping process of households, exploring potential ripple effects towards HFW generation. The model is highly configurable and thus allows comparison of different study scenarios as well as analysis of the contribution of individual factors towards HFW and broader population trends. Our contribution includes setting a baseline for estimating HFW using an agent-based modeling approach while also offering a foundation for policy discussions, ultimately contributing to a more sustainable food system.
-
 
 
 ![overview_image](img/concept_overview.jpg)
@@ -29,9 +31,6 @@ The project is developed in [Python 3.12.2](https://www.python.org/downloads/rel
 Next you have to install the libraries that are used in the model. I highly recommend not installing libraries directly but rather encapsulating them in a virtual environment to manage different versions for different projects. To do so, I use Mamba, a lightweight version of Anaconda. Most steps should be reproducible with Anaconda, Conda or Miniconda as well. Make sure you have either installed. 
 
 Create a new environment based and install the required libraries with this command: 
-
-*TODO: Do we need to have the environment in the kernel? Or is that just for jupyternotebooks in the vscode tunnel*
-*TODO: for UF user, could share environment: https://docs.rc.ufl.edu/software/conda_creation/*
 
 For Mamba:  
     
@@ -172,7 +171,9 @@ You can also not set the `--full_csv` or `--agg_csv` flags and just remove them 
 The other parameter are used to determine which lines from the sample should be used to define the parameters of the experiment. You usually dont have to adjust them. The current setup `--hh_id all` defines that all households should be different based on **all** generated samples. The neighborhood `--nh_id 0` is defined through the first line of the list of samples. 
 
 ## Submitting the experiment to HiperGator
-The final step is submitting the experiment to HiperGator. For that open the `submit_jobs.sh` file and add all scenarios you want to run to the scenario list. You can also adjust how often you want each scenario to be run by changing the number of iterations in the same script. 
+The final step is submitting the experiment to HiperGator. For that open the `submit_jobs.sh` file and add all scenarios you want to run to the scenario list. You can also adjust how often you want each scenario to be run by changing the number of iterations in the same script.
+
+Open the `submit_jobs.sh` folder and add the names of the folders with the generated samples in the scenarios list. Add the number of replications you would like to run (minus one as it start with run 0). Then open the `run_1_nh_all_hh_n_times.sh` script. Adjust the HPC parameter as needed. Add your email address to receive an updated on completed and failed experiments or remove the two lines related to mails. 
 
 Now open a terminal and navigate to the `model_starter` folder. Type:  
     
