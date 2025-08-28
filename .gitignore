@@ -1,7 +1,8 @@
 #ignore pycache files
 model/__pycache__/*
+model/*.ipynb_checkpoints/*
 .mypy_cache/*
-
+.ipynb_checkpoints/*
 #ignore virtual environment
 .venv/*
 
@@ -20,7 +21,16 @@ analysis/*.ipynb_checkpoints/*
 bash-scripts/LOGS/*
 model/*.out
 
+
 misc/*
 
 #ignore figure files
 analysis/figures/*
+
+#ignore personal setups
+input/gsua_based_configuration/shopping/*
+input/gsua_based_configuration/samples/shopping/*
+
+#dont upload data
+output/*
+
