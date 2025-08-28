@@ -50,10 +50,9 @@ class Store(Location):
         self.clearance_discount_1:list[EnumDiscountEffect] = []
         self.clearance_discount_2:list[EnumDiscountEffect] = []
         self.clearance_discount_3:list[EnumDiscountEffect] = []
-        
-        self.has_highstock_sale = self.high_stock_interval_1 != None
-        self.has_clearance_sale = self.clearance_interval_1 != None
-        self.has_seasonal_sale = self.seasonal_likelihood == 0
+        self.has_highstock_sale = False
+        self.has_clearance_sale = False
+        self.has_seasonal_sale = False
         
         self.grid:Grid = grid 
         self.product_range:pd.DataFrame = pd.DataFrame()
@@ -136,8 +135,10 @@ class Store(Location):
 
             else: #else add it as new item 
                 new_item = new_item.reindex(self.stock.columns, fill_value=None) 
-                if new_item is not None: 
+                if new_item is not None and not self.stock.empty: 
                     self.stock = pd.concat([self.stock, pd.DataFrame([new_item])], ignore_index=True)                  
+                elif new_item is not None: 
+                    self.stock = pd.DataFrame([new_item])
                 assert set(self.stock.columns).issubset(self.allowed_cols), f"Unexpected column detected: {set(self.stock.columns) - self.allowed_cols}"
             #globals.log(self,new_item.to_frame().T)
             self.organize_stock()
@@ -218,8 +219,10 @@ class Store(Location):
                 self._track_removed_from_stock(item=item,amount=item["amount"])
             #self.datalogger.append_log(self.id, "log_wasted", location[location["reason"] == globals.FW_SPOILED])   
             #self.stock = self.stock[self.stock["days_till_expiry"] > 0.0] #remove spoiled food 
-            if spoiled_food is not None:
+            if spoiled_food is not None and not self.thrown_out.empty :
                 self.thrown_out = pd.concat([self.thrown_out, spoiled_food], ignore_index=True)  # type: ignore
+            elif spoiled_food is not None: 
+                self.thrown_out = pd.DataFrame(spoiled_food)
             self.stock.drop(spoiled_food.index, inplace=True)  # remove expired 
             self.stock = self.stock.drop(columns=["reason"])
     

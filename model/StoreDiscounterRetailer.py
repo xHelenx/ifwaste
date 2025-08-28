@@ -30,3 +30,6 @@ class StoreDiscounterRetailer(Store):
         self.clearance_discount_2:list[EnumDiscountEffect] = globals_config.STORE_DIS_SAL_CLEARANCE_DISCOUNT_2[0]
         self.clearance_discount_3:list[EnumDiscountEffect] = globals_config.STORE_DIS_SAL_CLEARANCE_DISCOUNT_3[0]
         
+        self.has_highstock_sale = self.high_stock_interval_1 != None
+        self.has_clearance_sale = self.clearance_interval_1 != None
+        self.has_seasonal_sale = self.seasonal_likelihood != 0

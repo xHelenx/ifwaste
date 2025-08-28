@@ -150,7 +150,7 @@ class HouseholdShoppingManager:
             item = item.drop(["adjustment"])
         if "impulse_buy_likelihood" in item.index: 
             item = item.drop(["impulse_buy_likelihood"])
-        item = item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "sale_timer",
+        item = item.drop(["type", "price_per_serving","sale_type", "deal_value", "store", "discount_effect", "sale_timer","is_quickshop",
                         "product_ID", "amount"])
         item["status"] = status
         item["price"] = price

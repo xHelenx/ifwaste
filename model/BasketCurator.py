@@ -113,20 +113,25 @@ class BasketCurator():
 
         Returns:
             pd.Series: chosen item 
-        """        
+        """     
+        assert len(options) > 0 #impossible to call on empty options -> n is never 0
+           
         # buy 1 
         options = options[options["amount"]> 0]
-        on_sale = options[options["sale_type"] != EnumSales.NONE]
-        not_on_sale = options[options["sale_type"] == EnumSales.NONE]
+        on_sale = options[options["sale_type"] != EnumSales.NONE].copy()
+        not_on_sale = options[options["sale_type"] == EnumSales.NONE].copy()
         #calculate likelihood of being sampled for sale and not on sale options
         n = len(options)
         n_on_sale = len(on_sale)
-        prob_not_on_sale = (1-self.deal_sens) / n if n > 0 else 0 
-        prob_on_sale = prob_not_on_sale + (self.deal_sens / n_on_sale) if n_on_sale > 0 else 0
-        on_sale["likelihood"] = prob_on_sale
-        not_on_sale["likelihood"] = prob_not_on_sale
         
-        options = pd.concat([on_sale, not_on_sale])
+        if n == n_on_sale: 
+            options["likelihood"] = 1/n
+        else:
+            prob_not_on_sale = (1-self.deal_sens) / n if n > 0 else 0 
+            prob_on_sale = prob_not_on_sale + (self.deal_sens / n_on_sale) if n_on_sale > 0 else 0
+            on_sale["likelihood"] = prob_on_sale
+            not_on_sale["likelihood"] = prob_not_on_sale
+            options = pd.concat([on_sale, not_on_sale])
         plan_to_purchase = options.sample(1,replace=True, weights="likelihood").iloc[0]
         self._buy(plan_to_purchase, 1)
         options.loc[plan_to_purchase.name, "amount"] -= 1 # type: ignore #keep options current

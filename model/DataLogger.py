@@ -271,7 +271,7 @@ class DataLogger:
         self.logs = {    
         "log_bought" : pd.DataFrame(
             columns=["household","day","type","servings",
-                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID"]),
+                    "days_till_expiry","price_per_serving","sale_type", "discount_effect", "amount", "sale_timer", "store", "product_ID", "is_quickshop"]),
         "log_eaten" : pd.DataFrame(
             columns=["household","day","price","servings","days_till_expiry","status",
                     globals_config.FGMEAT,globals_config.FGDAIRY,globals_config.FGVEGETABLE,globals_config.FGDRYFOOD,globals_config.FGSNACKS,globals_config.FGBAKED,
@@ -391,7 +391,8 @@ class DataLogger:
                 'amount': item["amount"],
                 'sale_timer': item["sale_timer"],
                 'store': item["store"],
-                'product_ID':item["product_ID"]
+                'product_ID':item["product_ID"],
+                "is_quickshop": item["is_quickshop"]
             }
             
     def aggregate_outputs_daily(self, day:int, houses:list["Household"]): 
