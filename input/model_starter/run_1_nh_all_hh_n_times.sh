@@ -1,9 +1,9 @@
 #!/bin/sh
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8gb
-#SBATCH --time=40:00:00
+#SBATCH --time=30:00:00
 #SBATCH --job-name=ifwaste
-#SBATCH --mail-user=haasehelen@ufl.edu
+#SBATCH --mail-user=<YOUR-EMAIL>
 #SBATCH --mail-type=END,FAIL
 #SBATCH --output=../../output/slurm_logs/slurm_output_%A_%a.out
 
@@ -12,7 +12,7 @@ mamba activate ifwaste-env
 
 # Scenario name comes from argument
 scenario_name=$1
-path="../gsua_based_configuration/samples/${scenario_name}/"
+path="../gsua_based_configuration/samples/shopping/${scenario_name}/"
 
 nh_id=0
 hh_id=all
